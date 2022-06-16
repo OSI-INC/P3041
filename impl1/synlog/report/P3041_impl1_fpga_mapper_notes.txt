@@ -1,19 +1,19 @@
 @N: MF916 |Option synthesis_strategy=base is enabled. 
 @N: MF248 |Running in 64-bit mode.
 @N: MF666 |Clock conversion enabled. (Command "set_option -fix_gated_and_generated_clocks 1" in the project file.)
-@N: MO231 :"c:\kevan\a3041\p3041a\main.vhd":880:11:880:15|Found counter in view:work.main(behavior) instance state_6[5:0] 
-@N: MO231 :"c:\kevan\a3041\p3041a\main.vhd":599:2:599:3|Found counter in view:work.main(behavior) instance state_3[4:0] 
-@N: MO231 :"c:\kevan\a3041\p3041a\main.vhd":518:2:518:3|Found counter in view:work.main(behavior) instance counter_2[7:0] 
-@N: MO231 :"c:\kevan\a3041\p3041a\main.vhd":442:2:442:3|Found counter in view:work.main(behavior) instance tck_frequency[7:0] 
+@N: MO231 :"c:\kevan\a3041\p3041\main.vhd":884:11:884:15|Found counter in view:work.main(behavior) instance state_6[5:0] 
+@N: MO231 :"c:\kevan\a3041\p3041\main.vhd":603:2:603:3|Found counter in view:work.main(behavior) instance state_3[4:0] 
+@N: MO231 :"c:\kevan\a3041\p3041\main.vhd":522:2:522:3|Found counter in view:work.main(behavior) instance counter_2[7:0] 
+@N: MO231 :"c:\kevan\a3041\p3041\main.vhd":446:2:446:3|Found counter in view:work.main(behavior) instance tck_frequency[7:0] 
 @N: FX493 |Applying initial value "0" on instance state_5[0].
 @N: FX493 |Applying initial value "0" on instance state_5[1].
 @N: FX493 |Applying initial value "0" on instance state_5[2].
-@N: MO231 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Found counter in view:work.OSR8_CPU(behavior) instance prog_cntr[11:0] 
-@N: MO230 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Found up-down counter in view:work.OSR8_CPU(behavior) instance reg_IY[11:0]  
-@N: MO230 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Found up-down counter in view:work.OSR8_CPU(behavior) instance reg_IX[11:0]  
-@N: FX214 :"c:\kevan\a3041\p3041a\osr8v3.vhd":478:4:478:7|Generating ROM CPU.CPU\.DS_1_0[5:0] (in view: work.main(behavior)).
+@N: MO231 :"c:\kevan\a3041\p3041\osr8v3.vhd":421:2:421:3|Found counter in view:work.OSR8_CPU(behavior) instance prog_cntr[11:0] 
+@N: MO230 :"c:\kevan\a3041\p3041\osr8v3.vhd":421:2:421:3|Found up-down counter in view:work.OSR8_CPU(behavior) instance reg_IY[11:0]  
+@N: MO230 :"c:\kevan\a3041\p3041\osr8v3.vhd":421:2:421:3|Found up-down counter in view:work.OSR8_CPU(behavior) instance reg_IX[11:0]  
+@N: FX214 :"c:\kevan\a3041\p3041\osr8v3.vhd":478:4:478:7|Generating ROM CPU.CPU\.DS_1_0[5:0] (in view: work.main(behavior)).
 @N: FX164 |The option to pack registers in the IOB has not been specified. Please set syn_useioff attribute.  
-@N: FX1056 |Writing EDF file: C:\Kevan\A3041\P3041A\impl1\P3041_impl1.edi
+@N: FX1056 |Writing EDF file: C:\Kevan\A3041\P3041\impl1\P3041_impl1.edi
 @N: BW106 |Synplicity Constraint File capacitance units using default value of 1pF 
 @N: MT615 |Found clock main|FCK with period 1000.00ns 
 @N: MT615 |Found clock main|TCK_1 with period 1000.00ns 

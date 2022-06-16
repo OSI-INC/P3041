@@ -1,6 +1,6 @@
 -- <pre> Implantable Stimulator-Transponder (IST, A3041) Firmware, Toplevel Unit
 
--- Version A01, 06-APR-22: Based upon P3035A11. Remove P3035 prefixes to file names so as to make
+-- V1.0, 06-APR-22: Based upon P3035A11. Remove P3035 prefixes to file names so as to make
 -- a more generic programming structure we can move to new projects. Simplify serial interface to
 -- sensor for our eight-bit battery monitoring DAC. Add in the command processing from P3036A06, 
 -- but leave only the reception part of the processor. Add CPU interface for command processor
@@ -9,7 +9,7 @@
 -- Adjust Stack Pointer location in OSR8V1, so now have OSR8V1R2 for this minor revision. When we
 -- compile, we use 1235 of 1280 LUTs.
 
--- Version A02, 12-APR-22: We switch to OSR8V3, which has generic constants by which we configure
+-- V1.1, 12-APR-22: We switch to OSR8V3, which has generic constants by which we configure
 -- its memory space. Many edits on default values and arrangement of constants. Correct bug in 
 -- sensor readout that expands the code. Reduce the cpu memory to 4 KB. The first 1 KB is for
 -- Random Access Memory. The first 768 Bytes are for variables, the final 256 Bytes for the stack. 
@@ -17,6 +17,10 @@
 -- control space. Expand program memory to 4 KB. The code now uses only 1217 LUTs. We are using 
 -- six of seven embedded blocks of RAM (EBRs), four for program memory, one for cpu RAM and one
 -- for the command memory.
+
+-- V1.2, 15-JUN-22: First version to run on the A3041AV1 assembly. Test points working, micro-
+-- processor running, interrupts correct, self-calibration of TCK correct, transmission correct.
+
 
 library ieee;  
 use ieee.std_logic_1164.all;

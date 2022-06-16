@@ -46,19 +46,19 @@ set_option -seqshift_no_replicate 0
 
 #-- add_file options
 add_file -vhdl {C:/lscc/diamond/3.12/cae_library/synthesis/vhdl/machxo2.vhd}
-add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041A/CMD_RAM.vhd}
-add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041A/CMD_RAM.vhd}
-add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041A/ROM.vhd}
-add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041A/ROM.vhd}
-add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041A/RAM.vhd}
-add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041A/RAM.vhd}
-add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041A/Entities.vhd}
-add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041A/OSR8V3.vhd}
-add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041A/Main.vhd}
+add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041/CMD_RAM.vhd}
+add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041/CMD_RAM.vhd}
+add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041/ROM.vhd}
+add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041/ROM.vhd}
+add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041/RAM.vhd}
+add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041/RAM.vhd}
+add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041/Entities.vhd}
+add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041/OSR8V3.vhd}
+add_file -vhdl -lib "work" {C:/Kevan/A3041/P3041/Main.vhd}
 
 
 #-- set result format/file last
-project -result_file {C:/Kevan/A3041/P3041A/impl1/P3041_impl1.edi}
+project -result_file {C:/Kevan/A3041/P3041/impl1/P3041_impl1.edi}
 
 #-- error message log file
 project -log_file {P3041_impl1.srf}

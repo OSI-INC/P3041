@@ -13,7 +13,7 @@ Setup and Hold Report
 
 --------------------------------------------------------------------------------
 Lattice TRACE Report - Setup, Version Diamond (64-bit) 3.12.1.454
-Wed Jun 15 17:39:48 2022
+Wed Jun 15 22:29:44 2022
 
 Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
 Copyright (c) 1995 AT&T Corp.   All rights reserved.
@@ -23,7 +23,7 @@ Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
 
 Report Information
 ------------------
-Command line:    trce -v 10 -gt -sethld -sp 1 -sphld m -o P3041_impl1.twr -gui -msgset C:/Kevan/A3041/P3041A/promote.xml P3041_impl1.ncd P3041_impl1.prf 
+Command line:    trce -v 10 -gt -sethld -sp 1 -sphld m -o P3041_impl1.twr -gui -msgset C:/Kevan/A3041/P3041/promote.xml P3041_impl1.ncd P3041_impl1.prf 
 Design file:     p3041_impl1.ncd
 Preference file: p3041_impl1.prf
 Device,speed:    LCMXO2-1200ZE,1
@@ -2082,7 +2082,7 @@ Constraints cover 286879 paths, 11 nets, and 4555 connections (88.70% coverage)
 
 --------------------------------------------------------------------------------
 Lattice TRACE Report - Hold, Version Diamond (64-bit) 3.12.1.454
-Wed Jun 15 17:39:48 2022
+Wed Jun 15 22:29:44 2022
 
 Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
 Copyright (c) 1995 AT&T Corp.   All rights reserved.
@@ -2092,7 +2092,7 @@ Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
 
 Report Information
 ------------------
-Command line:    trce -v 10 -gt -sethld -sp 1 -sphld m -o P3041_impl1.twr -gui -msgset C:/Kevan/A3041/P3041A/promote.xml P3041_impl1.ncd P3041_impl1.prf 
+Command line:    trce -v 10 -gt -sethld -sp 1 -sphld m -o P3041_impl1.twr -gui -msgset C:/Kevan/A3041/P3041/promote.xml P3041_impl1.ncd P3041_impl1.prf 
 Design file:     p3041_impl1.ncd
 Preference file: p3041_impl1.prf
 Device,speed:    LCMXO2-1200ZE,m

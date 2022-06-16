@@ -6,7 +6,7 @@ The file contains the job information from compiler to be displayed as part of t
 
 <job_run_status name="compiler"> 
   <report_link name="Detailed report">
-    <data>C:\Kevan\A3041\P3041A\impl1\synlog\P3041_impl1_compiler.srr</data>
+    <data>C:\Kevan\A3041\P3041\impl1\synlog\P3041_impl1_compiler.srr</data>
     <title>Synopsys HDL Compiler</title>
   </report_link> 
   <job_status>
@@ -15,15 +15,15 @@ The file contains the job information from compiler to be displayed as part of t
 <job_info> 
 			<info name="Notes">
   <data>30</data>
-  <report_link name="more"><data>C:\Kevan\A3041\P3041A\impl1\synlog\report\P3041_impl1_compiler_notes.txt</data></report_link>
+  <report_link name="more"><data>C:\Kevan\A3041\P3041\impl1\synlog\report\P3041_impl1_compiler_notes.txt</data></report_link>
   </info>
 			<info name="Warnings">
   <data>114</data>
-  <report_link name="more"><data>C:\Kevan\A3041\P3041A\impl1\synlog\report\P3041_impl1_compiler_warnings.txt</data></report_link>
+  <report_link name="more"><data>C:\Kevan\A3041\P3041\impl1\synlog\report\P3041_impl1_compiler_warnings.txt</data></report_link>
   </info>
 			<info name="Errors">
   <data>0</data>
-  <report_link name="more"><data>C:\Kevan\A3041\P3041A\impl1\synlog\report\P3041_impl1_compiler_errors.txt</data></report_link>
+  <report_link name="more"><data>C:\Kevan\A3041\P3041\impl1\synlog\report\P3041_impl1_compiler_errors.txt</data></report_link>
   </info>
 			<info name="CPU Time">
   <data>-</data>
@@ -35,7 +35,7 @@ The file contains the job information from compiler to be displayed as part of t
   <data>-</data>
   </info>
 			<info name="Date &amp;Time">
-  <data type="timestamp">1655329143</data>
+  <data type="timestamp">1655346547</data>
   </info>
 			</job_info>
 </job_run_status>

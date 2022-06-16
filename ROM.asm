@@ -1,12 +1,12 @@
-; Implantable Stimulator-Transponder (IST) Program (C3041A-V3)
-; -----------------------------------------------------------
+; Implantable Stimulator-Transponder (IST) Program
+; ------------------------------------------------
 
 ; This code runs in the OSR8V3 microprocessor of the A3041A.
 
-; Provides a ramp value for transmission at 128 SPS. Sets
-; TP1 is set during the transmit interrupt. TP2 is set during
-; the main loop. RCK is connected directly to the reference clock.
-; The TCK pin is connected to FHI.
+; V1: Provides a ramp value for transmission at 128 SPS. Sets
+; TP1 is set during the transmit interrupt. TP2 is set during the
+; main loop. RCK is connected directly to the reference clock. The
+; TCK pin is connected to FHI.
 
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration

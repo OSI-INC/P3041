@@ -7,14 +7,14 @@ Design Information
 
 Command line:   map -a MachXO2 -p LCMXO2-1200ZE -t WLCSP25 -s 1 -oc Industrial
      P3041_impl1.ngd -o P3041_impl1_map.ncd -pr P3041_impl1.prf -mp
-     P3041_impl1.mrp -lpf C:/Kevan/A3041/P3041A/impl1/P3041_impl1_synplify.lpf
-     -lpf C:/Kevan/A3041/P3041A/P3041.lpf -c 0 -gui -msgset
-     C:/Kevan/A3041/P3041A/promote.xml 
+     P3041_impl1.mrp -lpf C:/Kevan/A3041/P3041/impl1/P3041_impl1_synplify.lpf
+     -lpf C:/Kevan/A3041/P3041/P3041.lpf -c 0 -gui -msgset
+     C:/Kevan/A3041/P3041/promote.xml 
 Target Vendor:  LATTICE
 Target Device:  LCMXO2-1200ZEWLCSP25
 Target Performance:   1
 Mapper:  xo2c00,  version:  Diamond (64-bit) 3.12.1.454
-Mapped on:  06/15/22  17:39:17
+Mapped on:  06/15/22  22:29:20
 
 Design Summary
 --------------
@@ -66,7 +66,7 @@ Design Summary
 
 
 
-Design:  main                                          Date:  06/15/22  17:39:17
+Design:  main                                          Date:  06/15/22  22:29:20
 
 Design Summary (cont)
 ---------------------
@@ -132,7 +132,7 @@ Design Summary (cont)
 
 
 
-Design:  main                                          Date:  06/15/22  17:39:17
+Design:  main                                          Date:  06/15/22  22:29:20
 
 Design Summary (cont)
 ---------------------
@@ -165,7 +165,7 @@ Design Summary (cont)
 Design Errors/Warnings
 ----------------------
 
-WARNING - map: C:/Kevan/A3041/P3041A/P3041.lpf(16): Semantic error in "USE DOUT
+WARNING - map: C:/Kevan/A3041/P3041/P3041.lpf(16): Semantic error in "USE DOUT
      TRUE CELL "xdac_1_0io[1]" ;": Block "xdac_1_0io[1]" of DOUT "xdac_1_0io[1]"
      cannot be found in design. This preference has been disabled.
 WARNING - map: The JTAG port has been disabled in this project and JTAG pins
@@ -198,7 +198,7 @@ WARNING - map: The reset of EBR 'Command_Memory/CMD_RAM_0_0_0_0' cannot be
 
 
 
-Design:  main                                          Date:  06/15/22  17:39:17
+Design:  main                                          Date:  06/15/22  22:29:20
 
 IO (PIO) Attributes
 -------------------
@@ -264,7 +264,7 @@ Signal RAM/GND undriven or does not drive anything - clipped.
 
 
 
-Design:  main                                          Date:  06/15/22  17:39:17
+Design:  main                                          Date:  06/15/22  22:29:20
 
 Removed logic (cont)
 --------------------
@@ -330,7 +330,7 @@ Signal Fast_CK/un1_calib_cry_3_0_COUT undriven or does not drive anything -
 
 
 
-Design:  main                                          Date:  06/15/22  17:39:17
+Design:  main                                          Date:  06/15/22  22:29:20
 
 Removed logic (cont)
 --------------------
@@ -396,7 +396,7 @@ Signal ROM/ROM_0_0_1_2_DOA4 undriven or does not drive anything - clipped.
 
 
 
-Design:  main                                          Date:  06/15/22  17:39:17
+Design:  main                                          Date:  06/15/22  22:29:20
 
 Removed logic (cont)
 --------------------
@@ -462,7 +462,7 @@ Signal Command_Memory/CMD_RAM_0_0_0_0_DOB8 undriven or does not drive anything -
 
 
 
-Design:  main                                          Date:  06/15/22  17:39:17
+Design:  main                                          Date:  06/15/22  22:29:20
 
 Removed logic (cont)
 --------------------
@@ -528,7 +528,7 @@ Memory Usage
 
 
 
-Design:  main                                          Date:  06/15/22  17:39:17
+Design:  main                                          Date:  06/15/22  22:29:20
 
 Memory Usage (cont)
 -------------------
@@ -594,7 +594,7 @@ Instance Name: ROM/ROM_0_0_2_1
 
 
 
-Design:  main                                          Date:  06/15/22  17:39:17
+Design:  main                                          Date:  06/15/22  22:29:20
 
 ASIC Components (cont)
 ----------------------
@@ -660,7 +660,7 @@ GSR Component:
 
 
 
-Design:  main                                          Date:  06/15/22  17:39:17
+Design:  main                                          Date:  06/15/22  22:29:20
 
 GSR Usage (cont)
 ----------------

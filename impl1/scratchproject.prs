@@ -1,26 +1,26 @@
 #--  Synopsys, Inc.
 #--  Version R-2021.03L-SP1
-#--  Project file C:\Kevan\A3041\P3041A\impl1\scratchproject.prs
+#--  Project file C:\Kevan\A3041\P3041\impl1\scratchproject.prs
 
 #project files
 add_file -vhdl -lib work "C:/lscc/diamond/3.12/cae_library/synthesis/vhdl/machxo2.vhd"
-add_file -vhdl -lib work "C:/Kevan/A3041/P3041A/OSR8V3.vhd"
-add_file -vhdl -lib work "C:/Kevan/A3041/P3041A/CMD_RAM.vhd"
-add_file -vhdl -lib work "C:/Kevan/A3041/P3041A/ROM.vhd"
-add_file -vhdl -lib work "C:/Kevan/A3041/P3041A/RAM.vhd"
-add_file -vhdl -lib work "C:/Kevan/A3041/P3041A/Entities.vhd"
-add_file -vhdl -lib work "C:/Kevan/A3041/P3041A/Main.vhd"
+add_file -vhdl -lib work "C:/Kevan/A3041/P3041/OSR8V3.vhd"
+add_file -vhdl -lib work "C:/Kevan/A3041/P3041/CMD_RAM.vhd"
+add_file -vhdl -lib work "C:/Kevan/A3041/P3041/ROM.vhd"
+add_file -vhdl -lib work "C:/Kevan/A3041/P3041/RAM.vhd"
+add_file -vhdl -lib work "C:/Kevan/A3041/P3041/Entities.vhd"
+add_file -vhdl -lib work "C:/Kevan/A3041/P3041/Main.vhd"
 
 
 #implementation: "impl1"
-impl -add C:\Kevan\A3041\P3041A\impl1 -type fpga
+impl -add C:\Kevan\A3041\P3041\impl1 -type fpga
 
 #
 #implementation attributes
 
 set_option -vlog_std v2001
 set_option -project_relative_includes 1
-set_option -include_path {C:/Kevan/A3041/P3041A/impl1/}
+set_option -include_path {C:/Kevan/A3041/P3041/impl1/}
 
 #device options
 set_option -technology MACHXO2
@@ -76,8 +76,8 @@ set_option -auto_infer_blackbox 0
 set_option -write_apr_constraint 1
 
 #set result format/file last
-project -result_file "C:/Kevan/A3041/P3041A/impl1/P3041_impl1.edi"
+project -result_file "C:/Kevan/A3041/P3041/impl1/P3041_impl1.edi"
 
 #set log file 
-set_option log_file "C:/Kevan/A3041/P3041A/impl1/P3041_impl1.srf" 
+set_option log_file "C:/Kevan/A3041/P3041/impl1/P3041_impl1.srf" 
 impl -active "impl1"
