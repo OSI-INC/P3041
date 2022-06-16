@@ -1,0 +1,2 @@
+@E: CD716 :"C:\Kevan\A3035\P3035\P3035A_Main.vhd":401:10:401:17|Expression has ambiguous type
+

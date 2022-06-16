@@ -1,0 +1,30 @@
+
+
+@S |Clock Optimization Summary
+
+
+
+#### START OF PREMAP CLOCK OPTIMIZATION REPORT #####[
+
+1 non-gated/non-generated clock tree(s) driving 99 clock pin(s) of sequential element(s)
+5 gated/generated clock tree(s) driving 297 clock pin(s) of sequential element(s)
+0 instances converted, 297 sequential instances remain driven by gated/generated clocks
+
+=========================== Non-Gated/Non-Generated Clocks ============================
+Clock Tree ID     Driving Element     Drive Element Type     Fanout     Sample Instance
+---------------------------------------------------------------------------------------
+@KP:ckid0_0       RCK                 Unconstrained_port     99         state_4[0]     
+=======================================================================================
+=========================================================================== Gated/Generated Clocks ============================================================================
+Clock Tree ID     Driving Element                        Drive Element Type     Unconverted Fanout     Sample Instance               Explanation                               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@KP:ckid0_2       uclk_Boost_Controller\.un11_ck.OUT     or                     246                    int_bits[4:1]                 Inferred clock from port                  
+@KP:ckid0_3       CPU.un1_state_20[0].OUT[0]             mux                    1                      CPU.alu_cin                   Clock source is invalid for GCC           
+@KP:ckid0_4       Fast_CK.un2_rin.OUT                    and                    5                      Fast_CK.count[3:0]            Clock source is invalid for GCC           
+@KP:ckid0_6       TCK.Q[0]                               dff                    38                     state[1]                      Derived clock on input (not legal for GCC)
+@KP:ckid0_8       Fast_CK.CK                             ring_oscillator        7                      Frequency_Modulation\.FHI     Derived clock on input (not legal for GCC)
+===============================================================================================================================================================================
+
+
+##### END OF CLOCK OPTIMIZATION REPORT ######
+

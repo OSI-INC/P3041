@@ -1,0 +1,115 @@
+@W: CG296 :"C:\Kevan\A3041\P3041A\Main.vhd":230:10:230:16|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":255:22:255:24|Referenced variable cpa is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":255:29:255:35|Referenced variable dactive is not in sensitivity list.
+@W: CD274 :"C:\Kevan\A3041\P3041A\Main.vhd":360:4:360:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\Main.vhd":347:2:347:5|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\Main.vhd":409:5:409:8|Incomplete case statement - add more cases or a when others
+@W: CG296 :"C:\Kevan\A3041\P3041A\Main.vhd":327:7:327:13|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":368:50:368:62|Referenced variable tck_frequency is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":361:36:361:49|Referenced variable sensor_bits_in is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":362:37:362:44|Referenced variable int_bits is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":364:36:364:45|Referenced variable int_period is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":363:37:363:44|Referenced variable int_mask is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":370:9:370:14|Referenced variable cmdrdy is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":352:26:352:30|Referenced variable cpuds is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":349:10:349:14|Referenced variable cpuwr is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":333:34:333:41|Referenced variable cpu_addr is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":356:19:356:25|Referenced variable cmd_out is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":339:12:339:23|Referenced variable cpu_data_out is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":374:34:374:44|Referenced variable cmd_wr_addr is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":350:19:350:25|Referenced variable ram_out is not in sensitivity list.
+@W: CG296 :"C:\Kevan\A3041\P3041A\Main.vhd":510:24:510:30|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":585:26:585:33|Referenced variable int_mask is not in sensitivity list.
+@W: CG296 :"C:\Kevan\A3041\P3041A\Main.vhd":679:22:679:28|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":703:17:703:26|Referenced variable tx_channel is not in sensitivity list.
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":916:17:916:21|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":962:10:962:14|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":990:11:990:15|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":990:26:990:30|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":916:17:916:21|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":962:10:962:14|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":990:11:990:15|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":990:26:990:30|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1022:32:1022:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1022:20:1022:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1023:20:1023:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1024:32:1024:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1024:20:1024:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1025:32:1025:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1025:20:1025:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1026:20:1026:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1027:42:1027:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1022:32:1022:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1022:20:1022:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1023:20:1023:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1024:32:1024:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1024:20:1024:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1025:32:1025:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1025:20:1025:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1026:20:1026:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1027:42:1027:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1111:10:1111:14|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1121:23:1121:27|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1111:10:1111:14|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1121:23:1121:27|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD638 :"C:\Kevan\A3041\P3041A\Main.vhd":175:20:175:24|Signal intgs is undriven. Either assign the signal a value or remove the signal declaration.
+@W: CD638 :"C:\Kevan\A3041\P3041A\Main.vhd":175:27:175:31|Signal intas is undriven. Either assign the signal a value or remove the signal declaration.
+@W: CD638 :"C:\Kevan\A3041\P3041A\Main.vhd":197:8:197:13|Signal bytsel is undriven. Either assign the signal a value or remove the signal declaration.
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":289:2:289:5|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":588:5:588:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":614:5:614:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":939:5:939:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":869:4:869:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":980:5:980:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1004:5:1004:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":965:4:965:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1028:4:1028:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1075:5:1075:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1065:4:1065:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1231:4:1231:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1147:3:1147:6|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1249:3:1249:6|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1285:2:1285:5|Incomplete case statement - add more cases or a when others
+@W: CG296 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1298:18:1298:24|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1302:20:1302:21|Referenced variable ck is not in sensitivity list.
+@W: CD638 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":216:27:216:31|Signal alu_z is undriven. Either assign the signal a value or remove the signal declaration.
+@W: CD638 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":216:34:216:38|Signal alu_v is undriven. Either assign the signal a value or remove the signal declaration.
+@W: CL117 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1146:2:1146:3|Latch generated from process for signal alu_cin; possible missing assignment in an if or case statement.
+@W: CD280 :"C:\Kevan\A3041\P3041A\Entities.vhd":37:11:37:15|Unbound component BUFBA mapped to black box
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":1072:18:1072:27|Pruning unused register next_state(4 downto 0). Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:60:1021:60|Pruning unused register i(31 downto 28). Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":1004:16:1004:23|Pruning unused register next_crc(15 downto 0). Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":976:10:976:10|Pruning unused register i(31 downto 28). Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":187:2:187:5|Pruning unused register Byte_Receiver.BYTS. Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":182:2:182:3|Pruning unused register Receive_Command.RC. Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|Pruning unused register CPUIRQ_1. Make sure that there are no unused intermediate registers.
+@W: CL271 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Pruning unused bits 7 to 2 of tp_reg_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.
+@W: CL265 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Removing unused bit 5 of int_set_4(7 downto 0). Either assign all bits or reduce the width of the signal.
+@W: CL265 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Removing unused bit 3 of int_set_4(7 downto 0). Either assign all bits or reduce the width of the signal.
+@W: CL271 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Pruning unused bits 4 to 3 of int_rst_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.
+@W: CL177 :"C:\Kevan\A3041\P3041A\Main.vhd":880:18:880:27|Sharing sequential element next_state and merging state. Add a syn_preserve attribute to the element to prevent sharing.
+@W: CL111 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|All reachable assignments to int_bits(3) are '0'; removing register. To preserve a constant register, use the syn_preserve attribute.
+@W: CL190 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|Optimizing register bit int_bits(5) to a constant 0. To keep the instance, apply constraint syn_preserve=1 on the instance.
+@W: CL260 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|Pruning register bit 5 of int_bits(7 downto 1). If this is not the intended behavior, drive the input with valid values, or an input from the top level.
+@W: CL249 :"C:\Kevan\A3041\P3041A\Main.vhd":1072:11:1072:15|Initial value is not supported on state machine state
+

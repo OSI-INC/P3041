@@ -1,0 +1,65 @@
+#defaultlanguage:vhdl
+#OPTIONS:"|-prodtype|synplify_pro|-dspmac|-fixsmult|-infer_seqShift|-nram|-sdff_counter|-divnmod|-nostructver|-encrypt|-pro|-lite|-ui|-fid2|-ram|-sharing|on|-ll|2000|-autosm|-ignore_undefined_lib|-lib|work|-lib|work|-lib|work|-lib|work|-lib|work|-lib|work|-lib|work|-fileorder|C:\\Kevan\\A3041\\P3041\\impl1\\syntmp\\hdlorder.tcl"
+#CUR:"C:\\lscc\\diamond\\3.11_x64\\synpbase\\bin64\\c_vhdl.exe":1554124868
+#CUR:"C:\\lscc\\diamond\\3.11_x64\\synpbase\\lib\\vhd\\location.map":1554151108
+#CUR:"C:\\lscc\\diamond\\3.11_x64\\synpbase\\lib\\vhd\\std.vhd":1554124064
+#CUR:"C:\\lscc\\diamond\\3.11_x64\\synpbase\\lib\\vhd\\snps_haps_pkg.vhd":1554124064
+#CUR:"C:\\lscc\\diamond\\3.11_x64\\synpbase\\lib\\vhd\\std1164.vhd":1554124064
+#CUR:"C:\\lscc\\diamond\\3.11_x64\\synpbase\\lib\\vhd\\numeric.vhd":1554124064
+#CUR:"C:\\lscc\\diamond\\3.11_x64\\synpbase\\lib\\vhd\\umr_capim.vhd":1554124064
+#CUR:"C:\\lscc\\diamond\\3.11_x64\\synpbase\\lib\\vhd\\arith.vhd":1554124064
+#CUR:"C:\\lscc\\diamond\\3.11_x64\\synpbase\\lib\\vhd\\unsigned.vhd":1554124064
+#CUR:"C:\\lscc\\diamond\\3.11_x64\\synpbase\\lib\\vhd\\hyperents.vhd":1554124064
+#CUR:"C:\\lscc\\diamond\\3.11_x64\\cae_library\\synthesis\\vhdl\\machxo2.vhd":1542259932
+#CUR:"C:\\Kevan\\A3041\\P3041\\MUL.vhd":1607609644
+#CUR:"C:\\Kevan\\A3041\\P3041\\ROM.vhd":1611783624
+#CUR:"C:\\Kevan\\A3041\\P3041\\P3035A_RAM.vhd":1611360460
+#CUR:"C:\\Kevan\\A3041\\P3041\\OSR8V1R1.vhd":1621028869
+#CUR:"C:\\Kevan\\A3041\\P3041\\Entities.vhd":1607609073
+#CUR:"C:\\Kevan\\A3041\\P3041\\Main.vhd":1619818263
+0 "C:\lscc\diamond\3.11_x64\cae_library\synthesis\vhdl\machxo2.vhd" vhdl
+1 "C:\Kevan\A3041\P3041\MUL.vhd" vhdl
+2 "C:\Kevan\A3041\P3041\ROM.vhd" vhdl
+3 "C:\Kevan\A3041\P3041\P3035A_RAM.vhd" vhdl
+4 "C:\Kevan\A3041\P3041\OSR8V1R1.vhd" vhdl
+5 "C:\Kevan\A3041\P3041\Entities.vhd" vhdl
+6 "C:\Kevan\A3041\P3041\Main.vhd" vhdl
+
+# Dependency Lists (Uses list)
+0 -1
+1 0 
+2 0 
+3 0 
+4 -1
+5 0 
+6 5 3 2 1 4 
+
+# Dependency Lists (Users Of)
+0 5 3 2 1 
+1 6 
+2 6 
+3 6 
+4 6 
+5 6 
+6 -1
+
+# Design Unit to File Association
+config work structure_con 1
+arch work p3035a_mul structure 1
+module work p3035a_mul 1
+config work structure_con 2
+arch work p3035a_rom structure 2
+module work p3035a_rom 2
+config work structure_con 3
+arch work p3035a_ram structure 3
+module work p3035a_ram 3
+arch work dummy_cpu behavior 4
+module work dummy_cpu 4
+arch work osr8_cpu behavior 4
+module work osr8_cpu 4
+arch work pcu structure 5
+module work pcu 5
+arch work ring_oscillator behavior 5
+module work ring_oscillator 5
+arch work main behavior 6
+module work main 6

@@ -1,0 +1,2 @@
+set_option -top_module work.main
+project -fileorder "C:/lscc/diamond/3.12/cae_library/synthesis/vhdl/machxo2.vhd" "C:/Kevan/A3041/P3041A/OSR8V3.vhd" "C:/Kevan/A3041/P3041A/CMD_RAM.vhd" "C:/Kevan/A3041/P3041A/ROM.vhd" "C:/Kevan/A3041/P3041A/RAM.vhd" "C:/Kevan/A3041/P3041A/Entities.vhd" "C:/Kevan/A3041/P3041A/Main.vhd" 

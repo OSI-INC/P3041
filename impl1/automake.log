@@ -1,0 +1,2194 @@
+
+synpwrap -msg -prj "P3041_impl1_synplify.tcl" -log "P3041_impl1.srf"
+Copyright (C) 1992-2020 Lattice Semiconductor Corporation. All rights reserved.
+Lattice Diamond Version 3.12.1.454
+    <postMsg mid="2011000" type="Info"    dynamic="0" navigation="0"  />
+
+==contents of P3041_impl1.srf
+#Build: Synplify Pro (R) R-2021.03L-SP1, Build 093R, Aug 10 2021
+#install: C:\lscc\diamond\3.12\synpbase
+#OS: Windows 7 6.1
+#Hostname: VMBOX_WINDOWS7
+
+# Wed Jun 15 17:39:00 2022
+
+#Implementation: impl1
+
+
+Copyright (C) 1994-2021 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: R-2021.03L-SP1
+Install: C:\lscc\diamond\3.12\synpbase
+OS: Windows 6.1
+
+Hostname: VMBOX_WINDOWS7
+
+Implementation : impl1
+Synopsys HDL Compiler, Version comp202103synp2, Build 093R, Built Aug 10 2021 09:15:36, @
+
+@N|Running in 64-bit mode
+###########################################################[
+
+Copyright (C) 1994-2021 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: R-2021.03L-SP1
+Install: C:\lscc\diamond\3.12\synpbase
+OS: Windows 6.1
+
+Hostname: VMBOX_WINDOWS7
+
+Implementation : impl1
+Synopsys VHDL Compiler, Version comp202103synp2, Build 093R, Built Aug 10 2021 09:15:36, @
+
+@N|Running in 64-bit mode
+@N:"C:\Kevan\A3041\P3041A\Main.vhd":25:7:25:10|Top entity is set to main.
+File C:\Kevan\A3041\P3041A\ROM.vhd changed - recompiling
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\lscc\diamond\3.12\cae_library\synthesis\vhdl\machxo2.vhd'.
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\Kevan\A3041\P3041A\OSR8V3.vhd'.
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\Kevan\A3041\P3041A\CMD_RAM.vhd'.
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\Kevan\A3041\P3041A\ROM.vhd'.
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\Kevan\A3041\P3041A\RAM.vhd'.
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\Kevan\A3041\P3041A\Entities.vhd'.
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\Kevan\A3041\P3041A\Main.vhd'.
+VHDL syntax check successful!
+File C:\Kevan\A3041\P3041A\ROM.vhd changed - recompiling
+@N: CD630 :"C:\Kevan\A3041\P3041A\Main.vhd":25:7:25:10|Synthesizing work.main.behavior.
+@W: CG296 :"C:\Kevan\A3041\P3041A\Main.vhd":230:10:230:16|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":255:22:255:24|Referenced variable cpa is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":255:29:255:35|Referenced variable dactive is not in sensitivity list.
+@W: CD274 :"C:\Kevan\A3041\P3041A\Main.vhd":360:4:360:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\Main.vhd":347:2:347:5|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\Main.vhd":409:5:409:8|Incomplete case statement - add more cases or a when others
+@W: CG296 :"C:\Kevan\A3041\P3041A\Main.vhd":327:7:327:13|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":368:50:368:62|Referenced variable tck_frequency is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":361:36:361:49|Referenced variable sensor_bits_in is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":362:37:362:44|Referenced variable int_bits is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":364:36:364:45|Referenced variable int_period is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":363:37:363:44|Referenced variable int_mask is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":370:9:370:14|Referenced variable cmdrdy is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":352:26:352:30|Referenced variable cpuds is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":349:10:349:14|Referenced variable cpuwr is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":333:34:333:41|Referenced variable cpu_addr is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":356:19:356:25|Referenced variable cmd_out is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":339:12:339:23|Referenced variable cpu_data_out is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":374:34:374:44|Referenced variable cmd_wr_addr is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":350:19:350:25|Referenced variable ram_out is not in sensitivity list.
+@N: CD364 :"C:\Kevan\A3041\P3041A\Main.vhd":461:4:461:16|Removing redundant assignment.
+@N: CD364 :"C:\Kevan\A3041\P3041A\Main.vhd":464:4:464:16|Removing redundant assignment.
+@W: CG296 :"C:\Kevan\A3041\P3041A\Main.vhd":510:24:510:30|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":585:26:585:33|Referenced variable int_mask is not in sensitivity list.
+@W: CG296 :"C:\Kevan\A3041\P3041A\Main.vhd":679:22:679:28|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":703:17:703:26|Referenced variable tx_channel is not in sensitivity list.
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":916:17:916:21|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":962:10:962:14|Variable state read before being assigned? This may cause a simulation mismatch 
+@N: CD364 :"C:\Kevan\A3041\P3041A\Main.vhd":974:4:974:9|Removing redundant assignment.
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":990:11:990:15|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":990:26:990:30|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":916:17:916:21|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":962:10:962:14|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":990:11:990:15|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":990:26:990:30|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1022:32:1022:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1022:20:1022:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1023:20:1023:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1024:32:1024:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1024:20:1024:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1025:32:1025:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1025:20:1025:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1026:20:1026:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1027:42:1027:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1022:32:1022:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1022:20:1022:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1023:20:1023:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1024:32:1024:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1024:20:1024:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1025:32:1025:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1025:20:1025:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1026:20:1026:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1027:42:1027:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1111:10:1111:14|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1121:23:1121:27|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1111:10:1111:14|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1121:23:1121:27|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD638 :"C:\Kevan\A3041\P3041A\Main.vhd":175:20:175:24|Signal intgs is undriven. Either assign the signal a value or remove the signal declaration.
+@W: CD638 :"C:\Kevan\A3041\P3041A\Main.vhd":175:27:175:31|Signal intas is undriven. Either assign the signal a value or remove the signal declaration.
+@W: CD638 :"C:\Kevan\A3041\P3041A\Main.vhd":197:8:197:13|Signal bytsel is undriven. Either assign the signal a value or remove the signal declaration.
+@N: CD630 :"C:\Kevan\A3041\P3041A\CMD_RAM.vhd":14:7:14:13|Synthesizing work.cmd_ram.structure.
+@N: CD630 :"C:\lscc\diamond\3.12\cae_library\synthesis\vhdl\machxo2.vhd":1699:10:1699:14|Synthesizing work.dp8kc.syn_black_box.
+Post processing for work.dp8kc.syn_black_box
+@N: CD630 :"C:\lscc\diamond\3.12\cae_library\synthesis\vhdl\machxo2.vhd":1490:10:1490:12|Synthesizing work.vlo.syn_black_box.
+Post processing for work.vlo.syn_black_box
+@N: CD630 :"C:\lscc\diamond\3.12\cae_library\synthesis\vhdl\machxo2.vhd":1483:10:1483:12|Synthesizing work.vhi.syn_black_box.
+Post processing for work.vhi.syn_black_box
+Post processing for work.cmd_ram.structure
+Running optimization stage 1 on CMD_RAM .......
+Finished optimization stage 1 on CMD_RAM (CPU Time 0h:00m:00s, Memory Used current: 95MB peak: 95MB)
+@N: CD630 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":62:7:62:14|Synthesizing work.osr8_cpu.behavior.
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":289:2:289:5|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":588:5:588:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":614:5:614:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":939:5:939:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":869:4:869:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":980:5:980:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1004:5:1004:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":965:4:965:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1028:4:1028:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1075:5:1075:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1065:4:1065:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1231:4:1231:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1147:3:1147:6|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1249:3:1249:6|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1285:2:1285:5|Incomplete case statement - add more cases or a when others
+@W: CG296 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1298:18:1298:24|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1302:20:1302:21|Referenced variable ck is not in sensitivity list.
+@W: CD638 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":216:27:216:31|Signal alu_z is undriven. Either assign the signal a value or remove the signal declaration.
+@W: CD638 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":216:34:216:38|Signal alu_v is undriven. Either assign the signal a value or remove the signal declaration.
+Post processing for work.osr8_cpu.behavior
+Running optimization stage 1 on OSR8_CPU .......
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_L[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_H[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_A[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_E[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_D[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_C[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_B[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal cpu_addr[11:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal cpu_data_out[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_IY[11:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_IX[11:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@W: CL117 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1146:2:1146:3|Latch generated from process for signal alu_cin; possible missing assignment in an if or case statement.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal second_operand[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal first_operand[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal opcode[6:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+Finished optimization stage 1 on OSR8_CPU (CPU Time 0h:00m:00s, Memory Used current: 101MB peak: 111MB)
+@N: CD630 :"C:\Kevan\A3041\P3041A\ROM.vhd":14:7:14:9|Synthesizing work.rom.structure.
+Post processing for work.rom.structure
+Running optimization stage 1 on ROM .......
+Finished optimization stage 1 on ROM (CPU Time 0h:00m:00s, Memory Used current: 101MB peak: 111MB)
+@N: CD630 :"C:\Kevan\A3041\P3041A\RAM.vhd":14:7:14:9|Synthesizing work.ram.structure.
+Post processing for work.ram.structure
+Running optimization stage 1 on RAM .......
+Finished optimization stage 1 on RAM (CPU Time 0h:00m:00s, Memory Used current: 101MB peak: 111MB)
+@N: CD630 :"C:\Kevan\A3041\P3041A\Entities.vhd":6:7:6:21|Synthesizing work.ring_oscillator.behavior.
+@W: CD280 :"C:\Kevan\A3041\P3041A\Entities.vhd":37:11:37:15|Unbound component BUFBA mapped to black box
+@N: CD630 :"C:\Kevan\A3041\P3041A\Entities.vhd":37:11:37:15|Synthesizing work.bufba.syn_black_box.
+Post processing for work.bufba.syn_black_box
+Running optimization stage 1 on BUFBA .......
+Finished optimization stage 1 on BUFBA (CPU Time 0h:00m:00s, Memory Used current: 101MB peak: 111MB)
+Post processing for work.ring_oscillator.behavior
+Running optimization stage 1 on ring_oscillator .......
+Finished optimization stage 1 on ring_oscillator (CPU Time 0h:00m:00s, Memory Used current: 101MB peak: 111MB)
+@N: CD630 :"C:\Kevan\A3041\P3041A\Entities.vhd":105:7:105:9|Synthesizing work.pcu.structure.
+@N: CD630 :"C:\lscc\diamond\3.12\cae_library\synthesis\vhdl\machxo2.vhd":2163:10:2163:14|Synthesizing work.pcntr.syn_black_box.
+Post processing for work.pcntr.syn_black_box
+Post processing for work.pcu.structure
+Running optimization stage 1 on PCU .......
+Finished optimization stage 1 on PCU (CPU Time 0h:00m:00s, Memory Used current: 101MB peak: 111MB)
+Post processing for work.main.behavior
+Running optimization stage 1 on main .......
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":1072:18:1072:27|Pruning unused register next_state(4 downto 0). Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:60:1021:60|Pruning unused register i(31 downto 28). Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":1004:16:1004:23|Pruning unused register next_crc(15 downto 0). Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":976:10:976:10|Pruning unused register i(31 downto 28). Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":187:2:187:5|Pruning unused register Byte_Receiver.BYTS. Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":182:2:182:3|Pruning unused register Receive_Command.RC. Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|Pruning unused register CPUIRQ_1. Make sure that there are no unused intermediate registers.
+@W: CL271 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Pruning unused bits 7 to 2 of tp_reg_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.
+@W: CL265 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Removing unused bit 5 of int_set_4(7 downto 0). Either assign all bits or reduce the width of the signal.
+@W: CL265 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Removing unused bit 3 of int_set_4(7 downto 0). Either assign all bits or reduce the width of the signal.
+@W: CL271 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Pruning unused bits 4 to 3 of int_rst_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.
+@W: CL177 :"C:\Kevan\A3041\P3041A\Main.vhd":880:18:880:27|Sharing sequential element next_state and merging state. Add a syn_preserve attribute to the element to prevent sharing.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal xmit_bits[15:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal int_set[7:6]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal int_rst[7:5]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal int_set[4:4]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal int_set[2:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal int_rst[2:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal SWRST. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal tx_low[3:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal tp_reg[1:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":594:57:594:57|Feedback mux created for signal sensor_bits_in[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":134:15:134:20|Feedback mux created for signal SAA. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":594:57:594:57|Feedback mux created for signal SAD. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@W: CL111 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|All reachable assignments to int_bits(3) are '0'; removing register. To preserve a constant register, use the syn_preserve attribute.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|Feedback mux created for signal TXDS. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|Feedback mux created for signal SADS. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+Finished optimization stage 1 on main (CPU Time 0h:00m:00s, Memory Used current: 102MB peak: 111MB)
+Running optimization stage 2 on PCU .......
+Finished optimization stage 2 on PCU (CPU Time 0h:00m:00s, Memory Used current: 102MB peak: 111MB)
+Running optimization stage 2 on BUFBA .......
+Finished optimization stage 2 on BUFBA (CPU Time 0h:00m:00s, Memory Used current: 102MB peak: 111MB)
+Running optimization stage 2 on ring_oscillator .......
+Finished optimization stage 2 on ring_oscillator (CPU Time 0h:00m:00s, Memory Used current: 102MB peak: 111MB)
+Running optimization stage 2 on RAM .......
+Finished optimization stage 2 on RAM (CPU Time 0h:00m:00s, Memory Used current: 102MB peak: 111MB)
+Running optimization stage 2 on ROM .......
+Finished optimization stage 2 on ROM (CPU Time 0h:00m:00s, Memory Used current: 102MB peak: 111MB)
+Running optimization stage 2 on OSR8_CPU .......
+@N: CL201 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Trying to extract state machine for register state.
+Extracted state machine for register state
+State machine has 19 reachable states with original encodings of:
+   00000000
+   00000001
+   00000010
+   00000011
+   00000100
+   00001000
+   00001001
+   00001010
+   00001011
+   00010000
+   00100000
+   00100001
+   00100010
+   00100011
+   00101000
+   00101001
+   00101010
+   00101011
+   10000000
+Finished optimization stage 2 on OSR8_CPU (CPU Time 0h:00m:00s, Memory Used current: 109MB peak: 121MB)
+Running optimization stage 2 on CMD_RAM .......
+Finished optimization stage 2 on CMD_RAM (CPU Time 0h:00m:00s, Memory Used current: 109MB peak: 121MB)
+Running optimization stage 2 on main .......
+@W: CL190 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|Optimizing register bit int_bits(5) to a constant 0. To keep the instance, apply constraint syn_preserve=1 on the instance.
+@W: CL260 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|Pruning register bit 5 of int_bits(7 downto 1). If this is not the intended behavior, drive the input with valid values, or an input from the top level.
+@N: CL201 :"C:\Kevan\A3041\P3041A\Main.vhd":1072:11:1072:15|Trying to extract state machine for register state.
+Extracted state machine for register state
+State machine has 6 reachable states with original encodings of:
+   00000
+   00001
+   00010
+   00011
+   00100
+   00101
+@W: CL249 :"C:\Kevan\A3041\P3041A\Main.vhd":1072:11:1072:15|Initial value is not supported on state machine state
+@N: CL201 :"C:\Kevan\A3041\P3041A\Main.vhd":477:2:477:3|Trying to extract state machine for register state.
+Extracted state machine for register state
+State machine has 4 reachable states with original encodings of:
+   00
+   01
+   10
+   11
+@N: CL201 :"C:\Kevan\A3041\P3041A\Main.vhd":442:2:442:3|Trying to extract state machine for register state.
+Extracted state machine for register state
+State machine has 3 reachable states with original encodings of:
+   00
+   01
+   10
+Finished optimization stage 2 on main (CPU Time 0h:00m:00s, Memory Used current: 113MB peak: 121MB)
+
+For a summary of runtime and memory usage per design unit, please see file:
+==========================================================
+@L: C:\Kevan\A3041\P3041A\impl1\synwork\layer0.rt.csv
+
+
+At c_vhdl Exit (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 113MB peak: 121MB)
+
+Process took 0h:00m:02s realtime, 0h:00m:01s cputime
+
+Process completed successfully.
+# Wed Jun 15 17:39:02 2022
+
+###########################################################]
+###########################################################[
+
+Copyright (C) 1994-2021 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: R-2021.03L-SP1
+Install: C:\lscc\diamond\3.12\synpbase
+OS: Windows 6.1
+
+Hostname: VMBOX_WINDOWS7
+
+Implementation : impl1
+Synopsys Synopsys Netlist Linker, Version comp202103synp2, Build 093R, Built Aug 10 2021 09:15:36, @
+
+@N|Running in 64-bit mode
+File C:\Kevan\A3041\P3041A\impl1\synwork\layer0.srs changed - recompiling
+
+At syn_nfilter Exit (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 90MB peak: 90MB)
+
+Process took 0h:00m:01s realtime, 0h:00m:01s cputime
+
+Process completed successfully.
+# Wed Jun 15 17:39:03 2022
+
+###########################################################]
+
+For a summary of runtime and memory usage for all design units, please see file:
+==========================================================
+@L: C:\Kevan\A3041\P3041A\impl1\synwork\P3041_impl1_comp.rt.csv
+
+@END
+
+At c_hdl Exit (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 21MB peak: 21MB)
+
+Process took 0h:00m:02s realtime, 0h:00m:01s cputime
+
+Process completed successfully.
+# Wed Jun 15 17:39:03 2022
+
+###########################################################]
+###########################################################[
+
+Copyright (C) 1994-2021 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: R-2021.03L-SP1
+Install: C:\lscc\diamond\3.12\synpbase
+OS: Windows 6.1
+
+Hostname: VMBOX_WINDOWS7
+
+Implementation : impl1
+Synopsys Synopsys Netlist Linker, Version comp202103synp2, Build 093R, Built Aug 10 2021 09:15:36, @
+
+@N|Running in 64-bit mode
+File C:\Kevan\A3041\P3041A\impl1\synwork\P3041_impl1_comp.srs changed - recompiling
+
+At syn_nfilter Exit (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 91MB peak: 91MB)
+
+Process took 0h:00m:01s realtime, 0h:00m:01s cputime
+
+Process completed successfully.
+# Wed Jun 15 17:39:04 2022
+
+###########################################################]
+# Wed Jun 15 17:39:04 2022
+
+
+Copyright (C) 1994-2021 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: R-2021.03L-SP1
+Install: C:\lscc\diamond\3.12\synpbase
+OS: Windows 6.1
+
+Hostname: VMBOX_WINDOWS7
+
+Implementation : impl1
+Synopsys Lattice Technology Pre-mapping, Version map202103lat, Build 070R, Built Oct  6 2021 11:12:38, @
+
+
+Mapper Startup Complete (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 116MB peak: 116MB)
+
+
+Done reading skeleton netlist (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 121MB peak: 128MB)
+
+@A: MF827 |No constraint file specified.
+@L: C:\Kevan\A3041\P3041A\impl1\P3041_impl1_scck.rpt 
+See clock summary report "C:\Kevan\A3041\P3041A\impl1\P3041_impl1_scck.rpt"
+@N: MF916 |Option synthesis_strategy=base is enabled. 
+@N: MF248 |Running in 64-bit mode.
+@N: MF666 |Clock conversion enabled. (Command "set_option -fix_gated_and_generated_clocks 1" in the project file.)
+
+Design Input Complete (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 127MB peak: 128MB)
+
+
+Mapper Initialization Complete (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 127MB peak: 128MB)
+
+
+Start loading timing files (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 140MB peak: 140MB)
+
+
+Finished loading timing files (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 140MB peak: 142MB)
+
+@N: FX493 |Applying initial value "0" on instance Command_Processor\.RBI.
+@W: FX474 |User-specified initial value defined for some sequential elements which can prevent optimum synthesis results from being achieved. 
+@N: FX493 |Applying initial value "0" on instance Synchronize_RP\.RPS.
+@N: FX493 |Applying initial value "0" on instance TXD.
+@N: FX493 |Applying initial value "0" on instance SAD.
+@N: FX493 |Applying initial value "0" on instance Initiate_Command\.IC.
+@N: FX493 |Applying initial value "0" on instance Terminate_Command\.TC.
+@N: FX493 |Applying initial value "0" on instance Frequency_Modulation\.FHI.
+@N: FX493 |Applying initial value "0" on instance Byte_Receiver\.RBD.
+@N: FX493 |Applying initial value "0" on instance Byte_Receiver\.BYTERR.
+@N: FX493 |Applying initial value "0" on instance no_stop_bit.
+@N: FX493 |Applying initial value "0" on instance TXA.
+@N: FX493 |Applying initial value "0" on instance SAA.
+@N: FX493 |Applying initial value "0" on instance Byte_Receiver\.BITS.
+@N: FX493 |Applying initial value "00000000" on instance sensor_bits_in[7:0].
+@N: FX493 |Applying initial value "1111111111111111" on instance crc[15:0].
+@A: FX681 :"c:\kevan\a3041\p3041a\main.vhd":826:11:826:17|Initial value on register counter[6:0] is non-zero which can prevent the register from being packed into a block RAM or DSP.
+@N: FX493 |Applying initial value "0000000" on instance counter[6:0].
+@N: FX493 |Applying initial value "0" on instance SAI.
+@N: FX493 |Applying initial value "0" on instance TXI.
+@W: BN288 :"c:\kevan\a3041\p3041a\main.vhd":385:2:385:3|Register CPRST with set has an initial value of 0. Ignoring initial value.  
+@N: FX493 |Applying initial value "0" on instance SWRST.
+@W: BN287 :"c:\kevan\a3041\p3041a\main.vhd":385:2:385:3|Register DACTIVE with reset has an initial value of 1. Ignoring initial value.  
+@W: BN287 :"c:\kevan\a3041\p3041a\main.vhd":385:2:385:3|Register tck_divisor[3:0] with reset has an initial value of 1. Ignoring initial value.  
+@A: FX681 :"c:\kevan\a3041\p3041a\main.vhd":385:2:385:3|Initial value on register tx_channel[7:0] is non-zero which can prevent the register from being packed into a block RAM or DSP.
+@W: BN287 :"c:\kevan\a3041\p3041a\main.vhd":385:2:385:3|Register tx_channel[7:0] with reset has an initial value of 1. Ignoring initial value.  
+@N: FX493 |Applying initial value "0000000000000000" on instance xmit_bits[15:0].
+@A: FX681 :"c:\kevan\a3041\p3041a\main.vhd":847:11:847:17|Initial value on register counter_1[8:0] is non-zero which can prevent the register from being packed into a block RAM or DSP.
+@N: FX493 |Applying initial value "000000000" on instance counter_1[8:0].
+@N: FX493 |Applying initial value "00" on instance tp_reg[1:0].
+@A: FX681 :"c:\kevan\a3041\p3041a\main.vhd":385:2:385:3|Initial value on register tx_low[3:0] is non-zero which can prevent the register from being packed into a block RAM or DSP.
+@N: FX493 |Applying initial value "0110" on instance tx_low[3:0].
+@N: FX493 |Applying initial value "0" on instance Error_Check\.CRCERR.
+@N: FX493 |Applying initial value "0" on instance TXB.
+@N: FX493 |Applying initial value "0" on instance Command_Processor\.CMDRDY.
+@N: FX493 |Applying initial value "0" on instance Command_Processor\.CPA.
+Encoding state machine state[0:18] (in view: work.OSR8_CPU(behavior))
+original code -> new code
+   00000000 -> 0000000000000000001
+   00000001 -> 0000000000000000010
+   00000010 -> 0000000000000000100
+   00000011 -> 0000000000000001000
+   00000100 -> 0000000000000010000
+   00001000 -> 0000000000000100000
+   00001001 -> 0000000000001000000
+   00001010 -> 0000000000010000000
+   00001011 -> 0000000000100000000
+   00010000 -> 0000000001000000000
+   00100000 -> 0000000010000000000
+   00100001 -> 0000000100000000000
+   00100010 -> 0000001000000000000
+   00100011 -> 0000010000000000000
+   00101000 -> 0000100000000000000
+   00101001 -> 0001000000000000000
+   00101010 -> 0010000000000000000
+   00101011 -> 0100000000000000000
+   10000000 -> 1000000000000000000
+Encoding state machine state_4[0:5] (in view: work.main(behavior))
+original code -> new code
+   00000 -> 000001
+   00001 -> 000010
+   00010 -> 000100
+   00011 -> 001000
+   00100 -> 010000
+   00101 -> 100000
+@N: FX493 |Applying initial value "1" on instance state_4[5].
+@N: FX493 |Applying initial value "0" on instance state_4[4].
+@N: FX493 |Applying initial value "0" on instance state_4[3].
+@N: FX493 |Applying initial value "0" on instance state_4[2].
+@N: FX493 |Applying initial value "0" on instance state_4[1].
+@N: FX493 |Applying initial value "0" on instance state_4[0].
+Encoding state machine state_2[0:3] (in view: work.main(behavior))
+original code -> new code
+   00 -> 00
+   01 -> 01
+   10 -> 10
+   11 -> 11
+@N: MO225 :"c:\kevan\a3041\p3041a\main.vhd":477:2:477:3|There are no possible illegal states for state machine state_2[0:3] (in view: work.main(behavior)); safe FSM implementation is not required.
+Encoding state machine state[0:2] (in view: work.main(behavior))
+original code -> new code
+   00 -> 00
+   01 -> 01
+   10 -> 10
+
+Starting clock optimization phase (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 177MB peak: 177MB)
+
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[1] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[2] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[3] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[4] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[5] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[6] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[7] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[10] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[11] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[12] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[15] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[18] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: MF578 |Incompatible asynchronous control logic preventing generated clock conversion.
+
+Finished clock optimization phase (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 177MB peak: 177MB)
+
+@W: BZ101 |Potential glitch can occur at the output of 15 instances  
+
+Starting clock optimization report phase (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 177MB peak: 177MB)
+
+
+Finished clock optimization report phase (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 177MB peak: 177MB)
+
+@N: FX1184 |Applying syn_allowed_resources blockrams=7 on top level netlist main 
+
+Finished netlist restructuring (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 177MB peak: 177MB)
+
+
+
+Clock Summary
+******************
+
+          Start                   Requested     Requested     Clock                                  Clock                   Clock
+Level     Clock                   Frequency     Period        Type                                   Group                   Load 
+----------------------------------------------------------------------------------------------------------------------------------
+0 -       System                  1.0 MHz       1000.000      system                                 system_clkgroup         1    
+                                                                                                                                  
+0 -       main|RCK                1.0 MHz       1000.000      inferred                               Inferred_clkgroup_0     345  
+                                                                                                                                  
+0 -       ring_oscillator|RIN     1.0 MHz       1000.000      inferred                               Inferred_clkgroup_1     5    
+1 .         main|FCK              1.0 MHz       1000.000      derived (from ring_oscillator|RIN)     Inferred_clkgroup_1     7    
+2 ..          main|TCK_1          1.0 MHz       1000.000      derived (from main|FCK)                Inferred_clkgroup_1     284  
+==================================================================================================================================
+
+
+
+Clock Load Summary
+***********************
+
+                        Clock     Source                       Clock Pin                     Non-clock Pin       Non-clock Pin    
+Clock                   Load      Pin                          Seq Example                   Seq Example         Comb Example     
+----------------------------------------------------------------------------------------------------------------------------------
+System                  1         -                            CPU.alu_cin.C                 -                   -                
+                                                                                                                                  
+main|RCK                345       RCK(port)                    Command_Processor\.CMWR.C     state_2[0].D[0]     CK.I[0](keepbuf) 
+                                                                                                                                  
+ring_oscillator|RIN     5         Fast_CK.un2_rin.OUT(and)     Fast_CK.CK.C                  -                   -                
+main|FCK                7         Fast_CK.CK.Q[0](dff)         TCK.C                         -                   un1_FCK.I[0](inv)
+main|TCK_1              284       TCK.Q[0](dff)                INTCTRZ.C                     -                   CK.I[0](keepbuf) 
+==================================================================================================================================
+
+@W: MT531 :"c:\kevan\a3041\p3041a\osr8v3.vhd":1146:2:1146:3|Found signal identified as System clock which controls 1 sequential elements including CPU.alu_cin.  Using this clock, which has no specified timing constraint, can prevent conversion of gated or generated clocks and can adversely impact design performance. 
+@W: MT529 :"c:\kevan\a3041\p3041a\ram.vhd":114:4:114:14|Found inferred clock main|RCK which controls 345 sequential elements including RAM.RAM_0_0_0_0. This clock has no specified timing constraint which may prevent conversion of gated or generated clocks and may adversely impact design performance. 
+@W: MT529 :"c:\kevan\a3041\p3041a\entities.vhd":65:2:65:3|Found inferred clock ring_oscillator|RIN which controls 5 sequential elements including Fast_CK.count[3:0]. This clock has no specified timing constraint which may prevent conversion of gated or generated clocks and may adversely impact design performance. 
+
+ICG Latch Removal Summary:
+Number of ICG latches removed: 0
+Number of ICG latches not removed:	0
+For details review file gcc_ICG_report.rpt
+
+
+@S |Clock Optimization Summary
+
+
+
+#### START OF PREMAP CLOCK OPTIMIZATION REPORT #####[
+
+1 non-gated/non-generated clock tree(s) driving 99 clock pin(s) of sequential element(s)
+5 gated/generated clock tree(s) driving 297 clock pin(s) of sequential element(s)
+0 instances converted, 297 sequential instances remain driven by gated/generated clocks
+
+=========================== Non-Gated/Non-Generated Clocks ============================
+Clock Tree ID     Driving Element     Drive Element Type     Fanout     Sample Instance
+---------------------------------------------------------------------------------------
+@KP:ckid0_0       RCK                 Unconstrained_port     99         state_4[0]     
+=======================================================================================
+=========================================================================== Gated/Generated Clocks ============================================================================
+Clock Tree ID     Driving Element                        Drive Element Type     Unconverted Fanout     Sample Instance               Explanation                               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@KP:ckid0_2       uclk_Boost_Controller\.un11_ck.OUT     or                     246                    int_bits[4:1]                 Inferred clock from port                  
+@KP:ckid0_3       CPU.un1_state_20[0].OUT[0]             mux                    1                      CPU.alu_cin                   Clock source is invalid for GCC           
+@KP:ckid0_4       Fast_CK.un2_rin.OUT                    and                    5                      Fast_CK.count[3:0]            Clock source is invalid for GCC           
+@KP:ckid0_6       TCK.Q[0]                               dff                    38                     state[1]                      Derived clock on input (not legal for GCC)
+@KP:ckid0_8       Fast_CK.CK                             ring_oscillator        7                      Frequency_Modulation\.FHI     Derived clock on input (not legal for GCC)
+===============================================================================================================================================================================
+
+
+##### END OF CLOCK OPTIMIZATION REPORT ######
+
+@N: FX1143 |Skipping assigning INTERNAL_VREF to iobanks, because the table of mapping from pin to iobank is not initialized.
+Finished Pre Mapping Phase.
+
+Starting constraint checker (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 178MB peak: 178MB)
+
+
+Finished constraint checker preprocessing (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 178MB peak: 178MB)
+
+
+Finished constraint checker (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 179MB peak: 179MB)
+
+Pre-mapping successful!
+
+At Mapper Exit (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 95MB peak: 179MB)
+
+Process took 0h:00m:01s realtime, 0h:00m:01s cputime
+# Wed Jun 15 17:39:06 2022
+
+###########################################################]
+# Wed Jun 15 17:39:06 2022
+
+
+Copyright (C) 1994-2021 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: R-2021.03L-SP1
+Install: C:\lscc\diamond\3.12\synpbase
+OS: Windows 6.1
+
+Hostname: VMBOX_WINDOWS7
+
+Implementation : impl1
+Synopsys Lattice Technology Mapper, Version map202103lat, Build 070R, Built Oct  6 2021 11:12:38, @
+
+
+Mapper Startup Complete (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 116MB peak: 116MB)
+
+@N: MF916 |Option synthesis_strategy=base is enabled. 
+@N: MF248 |Running in 64-bit mode.
+@N: MF666 |Clock conversion enabled. (Command "set_option -fix_gated_and_generated_clocks 1" in the project file.)
+
+Design Input Complete (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 119MB peak: 128MB)
+
+
+Mapper Initialization Complete (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 119MB peak: 128MB)
+
+
+Start loading timing files (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 133MB peak: 133MB)
+
+
+Finished loading timing files (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 134MB peak: 136MB)
+
+
+
+Starting Optimization and Mapping (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 169MB peak: 169MB)
+
+
+Finished RTL optimizations (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 173MB peak: 173MB)
+
+@N: MO231 :"c:\kevan\a3041\p3041a\main.vhd":880:11:880:15|Found counter in view:work.main(behavior) instance state_6[5:0] 
+@N: MO231 :"c:\kevan\a3041\p3041a\main.vhd":599:2:599:3|Found counter in view:work.main(behavior) instance state_3[4:0] 
+@N: MO231 :"c:\kevan\a3041\p3041a\main.vhd":518:2:518:3|Found counter in view:work.main(behavior) instance counter_2[7:0] 
+@N: MO231 :"c:\kevan\a3041\p3041a\main.vhd":442:2:442:3|Found counter in view:work.main(behavior) instance tck_frequency[7:0] 
+@N: FX493 |Applying initial value "0" on instance state_5[0].
+@W: FX474 |User-specified initial value defined for some sequential elements which can prevent optimum synthesis results from being achieved. 
+@N: FX493 |Applying initial value "0" on instance state_5[1].
+@N: FX493 |Applying initial value "0" on instance state_5[2].
+@N: MO231 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Found counter in view:work.OSR8_CPU(behavior) instance prog_cntr[11:0] 
+@N: MO230 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Found up-down counter in view:work.OSR8_CPU(behavior) instance reg_IY[11:0]  
+@N: MO230 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Found up-down counter in view:work.OSR8_CPU(behavior) instance reg_IX[11:0]  
+
+Starting factoring (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:00s; Memory used current: 179MB peak: 179MB)
+
+
+Finished factoring (Real Time elapsed 0h:00m:01s; CPU Time elapsed 0h:00m:01s; Memory used current: 186MB peak: 186MB)
+
+
+Available hyper_sources - for debug and ip models
+	None Found
+
+
+Finished generic timing optimizations - Pass 1 (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 190MB peak: 192MB)
+
+
+Starting Early Timing Optimization (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:02s; Memory used current: 191MB peak: 192MB)
+
+
+Finished Early Timing Optimization (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:02s; Memory used current: 191MB peak: 192MB)
+
+
+Finished generic timing optimizations - Pass 2 (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:02s; Memory used current: 191MB peak: 192MB)
+
+@N: FX214 :"c:\kevan\a3041\p3041a\osr8v3.vhd":478:4:478:7|Generating ROM CPU.CPU\.DS_1_0[5:0] (in view: work.main(behavior)).
+
+Finished preparing to map (Real Time elapsed 0h:00m:03s; CPU Time elapsed 0h:00m:02s; Memory used current: 190MB peak: 192MB)
+
+
+Finished technology mapping (Real Time elapsed 0h:00m:05s; CPU Time elapsed 0h:00m:03s; Memory used current: 227MB peak: 227MB)
+
+Pass		 CPU time		Worst Slack		Luts / Registers
+------------------------------------------------------------
+   1		0h:00m:03s		   482.96ns		1057 /       394
+
+Finished technology timing optimizations and critical path resynthesis (Real Time elapsed 0h:00m:05s; CPU Time elapsed 0h:00m:04s; Memory used current: 224MB peak: 227MB)
+
+@N: FX164 |The option to pack registers in the IOB has not been specified. Please set syn_useioff attribute.  
+
+Finished restoring hierarchy (Real Time elapsed 0h:00m:06s; CPU Time elapsed 0h:00m:04s; Memory used current: 225MB peak: 227MB)
+
+
+Start Writing Netlists (Real Time elapsed 0h:00m:06s; CPU Time elapsed 0h:00m:04s; Memory used current: 187MB peak: 227MB)
+
+Writing Analyst data base C:\Kevan\A3041\P3041A\impl1\synwork\P3041_impl1_m.srm
+
+Finished Writing Netlist Databases (Real Time elapsed 0h:00m:06s; CPU Time elapsed 0h:00m:05s; Memory used current: 225MB peak: 227MB)
+
+Writing EDIF Netlist and constraint files
+@N: FX1056 |Writing EDF file: C:\Kevan\A3041\P3041A\impl1\P3041_impl1.edi
+@N: BW106 |Synplicity Constraint File capacitance units using default value of 1pF 
+
+Finished Writing EDIF Netlist and constraint files (Real Time elapsed 0h:00m:07s; CPU Time elapsed 0h:00m:05s; Memory used current: 230MB peak: 230MB)
+
+
+Finished Writing Netlists (Real Time elapsed 0h:00m:07s; CPU Time elapsed 0h:00m:05s; Memory used current: 230MB peak: 230MB)
+
+
+Start final timing analysis (Real Time elapsed 0h:00m:08s; CPU Time elapsed 0h:00m:06s; Memory used current: 226MB peak: 230MB)
+
+@W: MT246 :"c:\kevan\a3041\p3041a\entities.vhd":140:4:140:14|Blackbox PCNTR is missing a user supplied timing model. This may have a negative effect on timing analysis and optimizations (Quality of Results)
+@W: MT420 |Found inferred clock main|RCK with period 1000.00ns. Please declare a user-defined clock on port RCK.
+@W: MT646 |Found inferred clock ring_oscillator|RIN with period 1000.00ns. Please declare a clock for each of the following:
+       net  Fast_CK.RIN_uclk
+       net  Fast_CK.RIN
+
+@N: MT615 |Found clock main|FCK with period 1000.00ns 
+@N: MT615 |Found clock main|TCK_1 with period 1000.00ns 
+
+
+##### START OF TIMING REPORT #####[
+# Timing report written on Wed Jun 15 17:39:14 2022
+#
+
+
+Top view:               main
+Requested Frequency:    1.0 MHz
+Wire load mode:         top
+Paths requested:        5
+Constraint File(s):    
+@N: MT320 |This timing report is an estimate of place and route data. For final timing results, use the FPGA vendor place and route report.
+
+@N: MT322 |Clock constraints include only register-to-register paths associated with each individual clock.
+
+
+
+Performance Summary
+*******************
+
+
+Worst slack in design: 482.040
+
+@N: MT286 |System clock period 0.000 stretches to negative invalid value -- ignoring stretching.
+                        Requested     Estimated     Requested     Estimated                  Clock                                  Clock              
+Starting Clock          Frequency     Frequency     Period        Period        Slack        Type                                   Group              
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+main|FCK                1.0 MHz       179.3 MHz     1000.000      5.577         1496.975     derived (from ring_oscillator|RIN)     Inferred_clkgroup_1
+main|RCK                1.0 MHz       27.8 MHz      1000.000      35.919        482.040      inferred                               Inferred_clkgroup_0
+main|TCK_1              1.0 MHz       83.5 MHz      1000.000      11.973        495.614      derived (from main|FCK)                Inferred_clkgroup_1
+ring_oscillator|RIN     1.0 MHz       114.0 MHz     1000.000      8.771         995.478      inferred                               Inferred_clkgroup_1
+System                  1.0 MHz       115.8 MHz     1000.000      8.638         991.362      system                                 system_clkgroup    
+=======================================================================================================================================================
+
+
+
+
+
+Clock Relationships
+*******************
+
+Clocks                                    |    rise  to  rise      |    fall  to  fall      |    rise  to  fall      |    fall  to  rise    
+--------------------------------------------------------------------------------------------------------------------------------------------
+Starting             Ending               |  constraint  slack     |  constraint  slack     |  constraint  slack     |  constraint  slack   
+--------------------------------------------------------------------------------------------------------------------------------------------
+System               System               |  1000.000    1000.000  |  No paths    -         |  No paths    -         |  No paths    -       
+System               main|RCK             |  1000.000    991.362   |  No paths    -         |  No paths    -         |  No paths    -       
+System               main|TCK_1           |  1000.000    991.362   |  No paths    -         |  No paths    -         |  No paths    -       
+main|RCK             System               |  1000.000    995.309   |  No paths    -         |  No paths    -         |  1000.000    992.325 
+main|RCK             main|RCK             |  1000.000    986.037   |  1000.000    992.975   |  500.000     492.265   |  500.000     482.040 
+main|RCK             ring_oscillator|RIN  |  No paths    -         |  No paths    -         |  No paths    -         |  Diff grp    -       
+main|RCK             main|FCK             |  No paths    -         |  No paths    -         |  No paths    -         |  Diff grp    -       
+main|RCK             main|TCK_1           |  Diff grp    -         |  No paths    -         |  Diff grp    -         |  Diff grp    -       
+ring_oscillator|RIN  ring_oscillator|RIN  |  1000.000    995.478   |  No paths    -         |  No paths    -         |  No paths    -       
+main|FCK             main|FCK             |  No paths    -         |  1000.000    1997.983  |  No paths    -         |  500.000     1496.975
+main|TCK_1           System               |  1000.000    995.309   |  No paths    -         |  No paths    -         |  1000.000    992.325 
+main|TCK_1           main|RCK             |  Diff grp    -         |  Diff grp    -         |  Diff grp    -         |  Diff grp    -       
+main|TCK_1           ring_oscillator|RIN  |  No paths    -         |  No paths    -         |  No paths    -         |  500.000     495.614 
+main|TCK_1           main|FCK             |  1000.000    997.171   |  No paths    -         |  No paths    -         |  500.000     497.211 
+main|TCK_1           main|TCK_1           |  1000.000    1986.037  |  No paths    -         |  500.000     1492.265  |  500.000     1482.040
+============================================================================================================================================
+ Note: 'No paths' indicates there are no paths in the design for that pair of clock edges.
+       'Diff grp' indicates that paths exist but the starting clock and ending clock are in different clock groups.
+
+
+
+Interface Information 
+*********************
+
+No IO constraint found
+
+
+
+====================================
+Detailed Report for Clock: main|FCK
+====================================
+
+
+
+Starting Points with Worst Slack
+********************************
+
+             Starting                                  Arrival             
+Instance     Reference     Type        Pin     Net     Time        Slack   
+             Clock                                                         
+---------------------------------------------------------------------------
+TCK          main|FCK      FD1S3AX     Q       TCK     1.344       1496.975
+===========================================================================
+
+
+Ending Points with Worst Slack
+******************************
+
+                                  Starting                                                               Required             
+Instance                          Reference     Type         Pin     Net                                 Time         Slack   
+                                  Clock                                                                                       
+------------------------------------------------------------------------------------------------------------------------------
+xdac_0io[2]                       main|FCK      OFS1P3IX     D       Frequency_Modulation\.xdac_4[2]     1500.089     1496.975
+xdac_0io[3]                       main|FCK      OFS1P3IX     D       Frequency_Modulation\.xdac_4[3]     1500.089     1496.975
+xdac_0io[4]                       main|FCK      OFS1P3IX     D       Frequency_Modulation\.xdac_4[4]     1500.089     1496.975
+Frequency_Modulation\.FHI_0io     main|FCK      OFS1P3DX     D       Frequency_Modulation\.un167_txb     1500.089     1498.128
+xdac_0io[0]                       main|FCK      OFS1P3IX     D       Frequency_Modulation\.xdac_4[0]     1500.089     1498.128
+xdac_0io[1]                       main|FCK      OFS1P3IX     D       Frequency_Modulation\.xdac_4[1]     1500.089     1498.128
+TCK                               main|FCK      FD1S3AX      D       TCK_i                               1999.894     1997.983
+==============================================================================================================================
+
+
+
+Worst Path Information
+***********************
+
+
+Path information for path number 1: 
+      Requested Period:                      1500.000
+    - Setup time:                            -0.089
+    + Clock delay at ending point:           0.000 (ideal)
+    = Required time:                         1500.089
+
+    - Propagation time:                      3.113
+    - Clock delay at starting point:         0.000 (ideal)
+    = Slack (non-critical) :                 1496.975
+
+    Number of logic level(s):                2
+    Starting point:                          TCK / Q
+    Ending point:                            xdac_0io[2] / D
+    The start point is clocked by            main|FCK [falling] (rise=0.000 fall=500.000 period=1000.000) on pin CK
+    The end   point is clocked by            main|FCK [rising] (rise=0.000 fall=500.000 period=1000.000) on pin SCLK
+    -Timing constraint applied as multi cycle path with factor 2 (from c:main|FCK to c:main|FCK)
+
+Instance / Net                                   Pin      Pin               Arrival     No. of    
+Name                                Type         Name     Dir     Delay     Time        Fan Out(s)
+--------------------------------------------------------------------------------------------------
+TCK                                 FD1S3AX      Q        Out     1.344     1.344 r     -         
+TCK                                 Net          -        -       -         -           44        
+tx_low_RNILQTD[0]                   ORCALUT4     B        In      0.000     1.344 r     -         
+tx_low_RNILQTD[0]                   ORCALUT4     Z        Out     1.153     2.497 r     -         
+N_4_0                               Net          -        -       -         -           3         
+xdac_0io_RNO[2]                     ORCALUT4     A        In      0.000     2.497 r     -         
+xdac_0io_RNO[2]                     ORCALUT4     Z        Out     0.617     3.113 r     -         
+Frequency_Modulation\.xdac_4[2]     Net          -        -       -         -           1         
+xdac_0io[2]                         OFS1P3IX     D        In      0.000     3.113 r     -         
+==================================================================================================
+
+
+
+
+====================================
+Detailed Report for Clock: main|RCK
+====================================
+
+
+
+Starting Points with Worst Slack
+********************************
+
+                                   Starting                                          Arrival            
+Instance                           Reference     Type      Pin      Net              Time        Slack  
+                                   Clock                                                                
+--------------------------------------------------------------------------------------------------------
+ROM.ROM_0_0_0_3                    main|RCK      DP8KC     DOA0     prog_data[0]     4.713       482.040
+ROM.ROM_0_0_0_3                    main|RCK      DP8KC     DOA1     prog_data[1]     4.713       482.040
+ROM.ROM_0_0_2_1                    main|RCK      DP8KC     DOA1     prog_data[5]     4.713       482.040
+ROM.ROM_0_0_3_0                    main|RCK      DP8KC     DOA0     prog_data[6]     4.713       482.040
+ROM.ROM_0_0_1_2                    main|RCK      DP8KC     DOA0     prog_data[2]     4.713       482.104
+ROM.ROM_0_0_1_2                    main|RCK      DP8KC     DOA1     prog_data[3]     4.713       482.104
+ROM.ROM_0_0_2_1                    main|RCK      DP8KC     DOA0     prog_data[4]     4.713       482.104
+Command_Memory.CMD_RAM_0_0_0_0     main|RCK      DP8KC     DOB0     cmd_out[0]       4.713       485.748
+RAM.RAM_0_0_0_0                    main|RCK      DP8KC     DOA0     ram_out[0]       4.713       485.748
+Command_Memory.CMD_RAM_0_0_0_0     main|RCK      DP8KC     DOB2     cmd_out[2]       4.713       485.883
+========================================================================================================
+
+
+Ending Points with Worst Slack
+******************************
+
+                 Starting                                             Required            
+Instance         Reference     Type        Pin     Net                Time         Slack  
+                 Clock                                                                    
+------------------------------------------------------------------------------------------
+CPU.flag_Z       main|RCK      FD1P3DX     D       next_flag_z_8      500.089      482.040
+CPU.reg_B[7]     main|RCK      FD1P3AX     D       un1_alu_out[7]     499.894      482.287
+CPU.reg_C[7]     main|RCK      FD1P3AX     D       un1_alu_out[7]     499.894      482.287
+CPU.reg_D[7]     main|RCK      FD1P3AX     D       un1_alu_out[7]     499.894      482.287
+CPU.reg_E[7]     main|RCK      FD1P3AX     D       un1_alu_out[7]     499.894      482.287
+CPU.reg_B[5]     main|RCK      FD1P3AX     D       un1_alu_out[5]     499.894      482.438
+CPU.reg_B[6]     main|RCK      FD1P3AX     D       un1_alu_out[6]     499.894      482.438
+CPU.reg_C[5]     main|RCK      FD1P3AX     D       un1_alu_out[5]     499.894      482.438
+CPU.reg_C[6]     main|RCK      FD1P3AX     D       un1_alu_out[6]     499.894      482.438
+CPU.reg_D[5]     main|RCK      FD1P3AX     D       un1_alu_out[5]     499.894      482.438
+==========================================================================================
+
+
+
+Worst Path Information
+***********************
+
+
+Path information for path number 1: 
+      Requested Period:                      500.000
+    - Setup time:                            -0.089
+    + Clock delay at ending point:           0.000 (ideal)
+    = Required time:                         500.089
+
+    - Propagation time:                      18.049
+    - Clock delay at starting point:         0.000 (ideal)
+    = Slack (critical) :                     482.040
+
+    Number of logic level(s):                15
+    Starting point:                          ROM.ROM_0_0_0_3 / DOA0
+    Ending point:                            CPU.flag_Z / D
+    The start point is clocked by            main|RCK [falling] (rise=0.000 fall=500.000 period=1000.000) on pin CLKA
+    The end   point is clocked by            main|RCK [rising] (rise=0.000 fall=500.000 period=1000.000) on pin CK
+
+Instance / Net                            Pin      Pin               Arrival      No. of    
+Name                         Type         Name     Dir     Delay     Time         Fan Out(s)
+--------------------------------------------------------------------------------------------
+ROM.ROM_0_0_0_3              DP8KC        DOA0     Out     4.713     4.713 r      -         
+prog_data[0]                 Net          -        -       -         -            27        
+CPU.CPU\.un621_state_1       ORCALUT4     A        In      0.000     4.713 r      -         
+CPU.CPU\.un621_state_1       ORCALUT4     Z        Out     1.153     5.866 r      -         
+un621_state_1                Net          -        -       -         -            3         
+CPU.CPU\.un621_state         ORCALUT4     A        In      0.000     5.866 r      -         
+CPU.CPU\.un621_state         ORCALUT4     Z        Out     1.017     6.883 r      -         
+un621_state                  Net          -        -       -         -            1         
+CPU.CPU\.un622_state         ORCALUT4     A        In      0.000     6.883 r      -         
+CPU.CPU\.un622_state         ORCALUT4     Z        Out     1.089     7.972 r      -         
+un622_state                  Net          -        -       -         -            2         
+CPU.alu_in_x_3_sqmuxa        ORCALUT4     A        In      0.000     7.972 r      -         
+CPU.alu_in_x_3_sqmuxa        ORCALUT4     Z        Out     1.265     9.236 r      -         
+alu_in_x_3_sqmuxa            Net          -        -       -         -            8         
+CPU.alu_in_x_iv_0[0]         ORCALUT4     A        In      0.000     9.236 r      -         
+CPU.alu_in_x_iv_0[0]         ORCALUT4     Z        Out     1.017     10.253 r     -         
+alu_in_x_iv_0[0]             Net          -        -       -         -            1         
+CPU.alu_in_x_iv_4[0]         ORCALUT4     A        In      0.000     10.253 r     -         
+CPU.alu_in_x_iv_4[0]         ORCALUT4     Z        Out     1.193     11.446 r     -         
+alu_in_x_iv_4[0]             Net          -        -       -         -            4         
+CPU.un1_alu_in_x_cry_0_0     CCU2D        B1       In      0.000     11.446 r     -         
+CPU.un1_alu_in_x_cry_0_0     CCU2D        COUT     Out     1.544     12.991 r     -         
+un1_alu_in_x_cry_0           Net          -        -       -         -            1         
+CPU.un1_alu_in_x_cry_1_0     CCU2D        CIN      In      0.000     12.991 r     -         
+CPU.un1_alu_in_x_cry_1_0     CCU2D        COUT     Out     0.143     13.133 r     -         
+un1_alu_in_x_cry_2           Net          -        -       -         -            1         
+CPU.un1_alu_in_x_cry_3_0     CCU2D        CIN      In      0.000     13.133 r     -         
+CPU.un1_alu_in_x_cry_3_0     CCU2D        COUT     Out     0.143     13.276 r     -         
+un1_alu_in_x_cry_4           Net          -        -       -         -            1         
+CPU.un1_alu_in_x_cry_5_0     CCU2D        CIN      In      0.000     13.276 r     -         
+CPU.un1_alu_in_x_cry_5_0     CCU2D        COUT     Out     0.143     13.419 r     -         
+un1_alu_in_x_cry_6           Net          -        -       -         -            1         
+CPU.un1_alu_in_x_cry_7_0     CCU2D        CIN      In      0.000     13.419 r     -         
+CPU.un1_alu_in_x_cry_7_0     CCU2D        S0       Out     1.549     14.968 r     -         
+un1_alu_in_x_cry_7_0_S0      Net          -        -       -         -            1         
+CPU.result_1_bm[7]           ORCALUT4     C        In      0.000     14.968 r     -         
+CPU.result_1_bm[7]           ORCALUT4     Z        Out     1.017     15.985 r     -         
+result_1_bm[7]               Net          -        -       -         -            1         
+CPU.result_1[7]              PFUMX        ALUT     In      0.000     15.985 r     -         
+CPU.result_1[7]              PFUMX        Z        Out     0.430     16.415 r     -         
+result_1[7]                  Net          -        -       -         -            6         
+CPU.flag_Z_RNO_0             ORCALUT4     D        In      0.000     16.415 r     -         
+CPU.flag_Z_RNO_0             ORCALUT4     Z        Out     1.017     17.432 f     -         
+next_flag_z_2_m_6            Net          -        -       -         -            1         
+CPU.flag_Z_RNO               ORCALUT4     A        In      0.000     17.432 f     -         
+CPU.flag_Z_RNO               ORCALUT4     Z        Out     0.617     18.049 f     -         
+next_flag_z_8                Net          -        -       -         -            1         
+CPU.flag_Z                   FD1P3DX      D        In      0.000     18.049 f     -         
+============================================================================================
+
+
+
+
+====================================
+Detailed Report for Clock: main|TCK_1
+====================================
+
+
+
+Starting Points with Worst Slack
+********************************
+
+                    Starting                                               Arrival            
+Instance            Reference      Type        Pin      Net                Time        Slack  
+                    Clock                                                                     
+----------------------------------------------------------------------------------------------
+tck_divisor[1]      main|TCK_1     FD1P3BX     Q        tck_divisor[1]     1.044       495.614
+tck_divisor[2]      main|TCK_1     FD1P3DX     Q        tck_divisor[2]     1.044       495.757
+tck_divisor[3]      main|TCK_1     FD1P3BX     Q        tck_divisor[3]     1.044       495.757
+tx_low[0]           main|TCK_1     FD1P3AX     Q        CO0                1.108       497.211
+tx_low[1]           main|TCK_1     FD1P3AY     Q        tx_low[1]          1.148       498.324
+tx_low[2]           main|TCK_1     FD1P3AY     Q        tx_low[2]          1.108       498.364
+tx_low[3]           main|TCK_1     FD1P3AX     Q        tx_low[3]          1.044       498.428
+tck_divisor[0]      main|TCK_1     FD1P3BX     Q        tck_divisor[0]     0.972       498.500
+ROM.ROM_0_0_1_2     main|TCK_1     DP8KC       DOA1     prog_data[3]       4.713       992.325
+ROM.ROM_0_0_2_1     main|TCK_1     DP8KC       DOA0     prog_data[4]       4.713       992.325
+==============================================================================================
+
+
+Ending Points with Worst Slack
+******************************
+
+                     Starting                                                                Required            
+Instance             Reference      Type         Pin     Net                                 Time         Slack  
+                     Clock                                                                                       
+-----------------------------------------------------------------------------------------------------------------
+Fast_CK.CK           main|TCK_1     FD1S3AX      D       un1_calib_i                         499.894      495.614
+xdac_0io[2]          main|TCK_1     OFS1P3IX     D       Frequency_Modulation\.xdac_4[2]     500.089      497.211
+xdac_0io[3]          main|TCK_1     OFS1P3IX     D       Frequency_Modulation\.xdac_4[3]     500.089      497.211
+xdac_0io[4]          main|TCK_1     OFS1P3IX     D       Frequency_Modulation\.xdac_4[4]     500.089      497.211
+xdac_0io[1]          main|TCK_1     OFS1P3IX     D       Frequency_Modulation\.xdac_4[1]     500.089      498.324
+xdac_0io[0]          main|TCK_1     OFS1P3IX     D       Frequency_Modulation\.xdac_4[0]     500.089      498.364
+Fast_CK.count[1]     main|TCK_1     FD1S3AX      D       next_count_3[1]                     500.089      498.428
+Fast_CK.count[2]     main|TCK_1     FD1S3AX      D       next_count_3[2]                     500.089      498.428
+Fast_CK.count[3]     main|TCK_1     FD1S3AX      D       next_count_3[3]                     500.089      498.428
+Fast_CK.count[0]     main|TCK_1     FD1S3AX      D       next_count_3[0]                     500.089      498.500
+=================================================================================================================
+
+
+
+Worst Path Information
+***********************
+
+
+Path information for path number 1: 
+      Requested Period:                      500.000
+    - Setup time:                            0.106
+    + Clock delay at ending point:           0.000 (ideal)
+    = Required time:                         499.894
+
+    - Propagation time:                      4.280
+    - Clock delay at starting point:         0.000 (ideal)
+    = Slack (non-critical) :                 495.614
+
+    Number of logic level(s):                3
+    Starting point:                          tck_divisor[1] / Q
+    Ending point:                            Fast_CK.CK / D
+    The start point is clocked by            main|TCK_1 [falling] (rise=0.000 fall=500.000 period=1000.000) on pin CK
+    The end   point is clocked by            ring_oscillator|RIN [rising] (rise=0.000 fall=500.000 period=1000.000) on pin CK
+
+Instance / Net                                     Pin      Pin               Arrival     No. of    
+Name                                   Type        Name     Dir     Delay     Time        Fan Out(s)
+----------------------------------------------------------------------------------------------------
+tck_divisor[1]                         FD1P3BX     Q        Out     1.044     1.044 r     -         
+tck_divisor[1]                         Net         -        -       -         -           2         
+Fast_CK.divider\.un1_calib_cry_0_0     CCU2D       B1       In      0.000     1.044 r     -         
+Fast_CK.divider\.un1_calib_cry_0_0     CCU2D       COUT     Out     1.544     2.588 r     -         
+un1_calib_cry_0                        Net         -        -       -         -           1         
+Fast_CK.divider\.un1_calib_cry_1_0     CCU2D       CIN      In      0.000     2.588 r     -         
+Fast_CK.divider\.un1_calib_cry_1_0     CCU2D       COUT     Out     0.143     2.731 r     -         
+un1_calib_cry_2                        Net         -        -       -         -           1         
+Fast_CK.divider\.un1_calib_cry_3_0     CCU2D       CIN      In      0.000     2.731 r     -         
+Fast_CK.divider\.un1_calib_cry_3_0     CCU2D       S1       Out     1.549     4.280 r     -         
+un1_calib_i                            Net         -        -       -         -           1         
+Fast_CK.CK                             FD1S3AX     D        In      0.000     4.280 r     -         
+====================================================================================================
+
+
+
+
+====================================
+Detailed Report for Clock: ring_oscillator|RIN
+====================================
+
+
+
+Starting Points with Worst Slack
+********************************
+
+                     Starting                                             Arrival            
+Instance             Reference               Type        Pin     Net      Time        Slack  
+                     Clock                                                                   
+---------------------------------------------------------------------------------------------
+Fast_CK.count[0]     ring_oscillator|RIN     FD1S3AX     Q       CO0      1.180       995.478
+Fast_CK.count[1]     ring_oscillator|RIN     FD1S3AX     Q       ANB1     1.148       995.653
+Fast_CK.count[2]     ring_oscillator|RIN     FD1S3AX     Q       ANB2     1.148       995.653
+Fast_CK.count[3]     ring_oscillator|RIN     FD1S3AX     Q       ANB3     1.108       997.211
+=============================================================================================
+
+
+Ending Points with Worst Slack
+******************************
+
+                     Starting                                                        Required            
+Instance             Reference               Type        Pin     Net                 Time         Slack  
+                     Clock                                                                               
+---------------------------------------------------------------------------------------------------------
+Fast_CK.CK           ring_oscillator|RIN     FD1S3AX     D       un1_calib_i         999.894      995.478
+Fast_CK.count[0]     ring_oscillator|RIN     FD1S3AX     D       next_count_3[0]     1000.089     997.139
+Fast_CK.count[1]     ring_oscillator|RIN     FD1S3AX     D       next_count_3[1]     1000.089     997.139
+Fast_CK.count[2]     ring_oscillator|RIN     FD1S3AX     D       next_count_3[2]     1000.089     997.139
+Fast_CK.count[3]     ring_oscillator|RIN     FD1S3AX     D       next_count_3[3]     1000.089     997.203
+=========================================================================================================
+
+
+
+Worst Path Information
+***********************
+
+
+Path information for path number 1: 
+      Requested Period:                      1000.000
+    - Setup time:                            0.106
+    + Clock delay at ending point:           0.000 (ideal)
+    = Required time:                         999.894
+
+    - Propagation time:                      4.416
+    - Clock delay at starting point:         0.000 (ideal)
+    = Slack (non-critical) :                 995.478
+
+    Number of logic level(s):                3
+    Starting point:                          Fast_CK.count[0] / Q
+    Ending point:                            Fast_CK.CK / D
+    The start point is clocked by            ring_oscillator|RIN [rising] (rise=0.000 fall=500.000 period=1000.000) on pin CK
+    The end   point is clocked by            ring_oscillator|RIN [rising] (rise=0.000 fall=500.000 period=1000.000) on pin CK
+
+Instance / Net                                     Pin      Pin               Arrival     No. of    
+Name                                   Type        Name     Dir     Delay     Time        Fan Out(s)
+----------------------------------------------------------------------------------------------------
+Fast_CK.count[0]                       FD1S3AX     Q        Out     1.180     1.180 r     -         
+CO0                                    Net         -        -       -         -           5         
+Fast_CK.divider\.un1_calib_cry_0_0     CCU2D       A1       In      0.000     1.180 r     -         
+Fast_CK.divider\.un1_calib_cry_0_0     CCU2D       COUT     Out     1.544     2.724 r     -         
+un1_calib_cry_0                        Net         -        -       -         -           1         
+Fast_CK.divider\.un1_calib_cry_1_0     CCU2D       CIN      In      0.000     2.724 r     -         
+Fast_CK.divider\.un1_calib_cry_1_0     CCU2D       COUT     Out     0.143     2.867 r     -         
+un1_calib_cry_2                        Net         -        -       -         -           1         
+Fast_CK.divider\.un1_calib_cry_3_0     CCU2D       CIN      In      0.000     2.867 r     -         
+Fast_CK.divider\.un1_calib_cry_3_0     CCU2D       S1       Out     1.549     4.416 r     -         
+un1_calib_i                            Net         -        -       -         -           1         
+Fast_CK.CK                             FD1S3AX     D        In      0.000     4.416 r     -         
+====================================================================================================
+
+
+
+
+====================================
+Detailed Report for Clock: System
+====================================
+
+
+
+Starting Points with Worst Slack
+********************************
+
+                                 Starting                                       Arrival             
+Instance                         Reference     Type       Pin       Net         Time        Slack   
+                                 Clock                                                              
+----------------------------------------------------------------------------------------------------
+CPU.alu_cin                      System        FD1S1D     Q         alu_cin     1.108       991.362 
+Power_Controller.PCNTR_Inst0     System        PCNTR      SFLAG     SFLAG       0.000       999.472 
+Fast_CK.ring1                    System        BUFBA      Z         R1_1        0.000       1000.000
+Fast_CK.ring2                    System        BUFBA      Z         R2_1        0.000       1000.000
+Fast_CK.ring3                    System        BUFBA      Z         R3_1        0.000       1000.000
+====================================================================================================
+
+
+Ending Points with Worst Slack
+******************************
+
+                 Starting                                             Required            
+Instance         Reference     Type        Pin     Net                Time         Slack  
+                 Clock                                                                    
+------------------------------------------------------------------------------------------
+CPU.flag_Z       System        FD1P3DX     D       next_flag_z_8      1000.089     991.362
+CPU.reg_B[7]     System        FD1P3AX     D       un1_alu_out[7]     999.894      991.608
+CPU.reg_C[7]     System        FD1P3AX     D       un1_alu_out[7]     999.894      991.608
+CPU.reg_D[7]     System        FD1P3AX     D       un1_alu_out[7]     999.894      991.608
+CPU.reg_E[7]     System        FD1P3AX     D       un1_alu_out[7]     999.894      991.608
+CPU.reg_B[5]     System        FD1P3AX     D       un1_alu_out[5]     999.894      991.759
+CPU.reg_B[6]     System        FD1P3AX     D       un1_alu_out[6]     999.894      991.759
+CPU.reg_C[5]     System        FD1P3AX     D       un1_alu_out[5]     999.894      991.759
+CPU.reg_C[6]     System        FD1P3AX     D       un1_alu_out[6]     999.894      991.759
+CPU.reg_D[5]     System        FD1P3AX     D       un1_alu_out[5]     999.894      991.759
+==========================================================================================
+
+
+
+Worst Path Information
+***********************
+
+
+Path information for path number 1: 
+      Requested Period:                      1000.000
+    - Setup time:                            -0.089
+    + Clock delay at ending point:           0.000 (ideal)
+    = Required time:                         1000.089
+
+    - Propagation time:                      8.727
+    - Clock delay at starting point:         0.000 (ideal)
+    - Estimated clock delay at start point:  -0.000
+    = Slack (non-critical) :                 991.362
+
+    Number of logic level(s):                10
+    Starting point:                          CPU.alu_cin / Q
+    Ending point:                            CPU.flag_Z / D
+    The start point is clocked by            System [rising] on pin CK
+    The end   point is clocked by            main|RCK [rising] (rise=0.000 fall=500.000 period=1000.000) on pin CK
+
+Instance / Net                                     Pin      Pin               Arrival     No. of    
+Name                                  Type         Name     Dir     Delay     Time        Fan Out(s)
+----------------------------------------------------------------------------------------------------
+CPU.alu_cin                           FD1S1D       Q        Out     1.108     1.108 r     -         
+alu_cin                               Net          -        -       -         -           3         
+CPU.un1_result_0_sqmuxa_1_0_x2[0]     ORCALUT4     B        In      0.000     1.108 r     -         
+CPU.un1_result_0_sqmuxa_1_0_x2[0]     ORCALUT4     Z        Out     1.017     2.125 r     -         
+N_35_i                                Net          -        -       -         -           1         
+CPU.un1_alu_in_x_cry_0_0              CCU2D        B0       In      0.000     2.125 r     -         
+CPU.un1_alu_in_x_cry_0_0              CCU2D        COUT     Out     1.544     3.669 r     -         
+un1_alu_in_x_cry_0                    Net          -        -       -         -           1         
+CPU.un1_alu_in_x_cry_1_0              CCU2D        CIN      In      0.000     3.669 r     -         
+CPU.un1_alu_in_x_cry_1_0              CCU2D        COUT     Out     0.143     3.812 r     -         
+un1_alu_in_x_cry_2                    Net          -        -       -         -           1         
+CPU.un1_alu_in_x_cry_3_0              CCU2D        CIN      In      0.000     3.812 r     -         
+CPU.un1_alu_in_x_cry_3_0              CCU2D        COUT     Out     0.143     3.955 r     -         
+un1_alu_in_x_cry_4                    Net          -        -       -         -           1         
+CPU.un1_alu_in_x_cry_5_0              CCU2D        CIN      In      0.000     3.955 r     -         
+CPU.un1_alu_in_x_cry_5_0              CCU2D        COUT     Out     0.143     4.098 r     -         
+un1_alu_in_x_cry_6                    Net          -        -       -         -           1         
+CPU.un1_alu_in_x_cry_7_0              CCU2D        CIN      In      0.000     4.098 r     -         
+CPU.un1_alu_in_x_cry_7_0              CCU2D        S0       Out     1.549     5.646 r     -         
+un1_alu_in_x_cry_7_0_S0               Net          -        -       -         -           1         
+CPU.result_1_bm[7]                    ORCALUT4     C        In      0.000     5.646 r     -         
+CPU.result_1_bm[7]                    ORCALUT4     Z        Out     1.017     6.663 r     -         
+result_1_bm[7]                        Net          -        -       -         -           1         
+CPU.result_1[7]                       PFUMX        ALUT     In      0.000     6.663 r     -         
+CPU.result_1[7]                       PFUMX        Z        Out     0.430     7.093 r     -         
+result_1[7]                           Net          -        -       -         -           6         
+CPU.flag_Z_RNO_0                      ORCALUT4     D        In      0.000     7.093 r     -         
+CPU.flag_Z_RNO_0                      ORCALUT4     Z        Out     1.017     8.110 f     -         
+next_flag_z_2_m_6                     Net          -        -       -         -           1         
+CPU.flag_Z_RNO                        ORCALUT4     A        In      0.000     8.110 f     -         
+CPU.flag_Z_RNO                        ORCALUT4     Z        Out     0.617     8.727 f     -         
+next_flag_z_8                         Net          -        -       -         -           1         
+CPU.flag_Z                            FD1P3DX      D        In      0.000     8.727 f     -         
+====================================================================================================
+
+
+
+##### END OF TIMING REPORT #####]
+
+Timing exceptions that could not be applied
+
+Finished final timing analysis (Real Time elapsed 0h:00m:08s; CPU Time elapsed 0h:00m:06s; Memory used current: 227MB peak: 230MB)
+
+
+Finished timing report (Real Time elapsed 0h:00m:08s; CPU Time elapsed 0h:00m:06s; Memory used current: 227MB peak: 230MB)
+
+---------------------------------------
+Resource Usage Report
+Part: lcmxo2_1200ze-1
+
+Register bits: 394 of 1280 (31%)
+Latch bits:      1
+PIC Latch:       0
+I/O cells:       17
+Block Rams : 6 of 7 (85%)
+
+
+Details:
+BUFBA:          4
+CCU2D:          78
+DP8KC:          6
+FD1P3AX:        151
+FD1P3AY:        2
+FD1P3BX:        11
+FD1P3DX:        44
+FD1S1D:         1
+FD1S3AX:        108
+FD1S3AY:        17
+FD1S3BX:        4
+FD1S3DX:        43
+FD1S3IX:        1
+FD1S3JX:        2
+GSR:            1
+IB:             3
+IFS1P3DX:       2
+INV:            11
+L6MUX21:        4
+OB:             14
+OFS1P3DX:       4
+OFS1P3IX:       5
+ORCALUT4:       1020
+PFUMX:          61
+PUR:            1
+ROM128X1A:      6
+VHI:            7
+VLO:            7
+Mapper successful!
+
+At Mapper Exit (Real Time elapsed 0h:00m:08s; CPU Time elapsed 0h:00m:06s; Memory used current: 69MB peak: 230MB)
+
+Process took 0h:00m:08s realtime, 0h:00m:06s cputime
+# Wed Jun 15 17:39:14 2022
+
+###########################################################]
+
+
+Synthesis exit by 0.
+
+edif2ngd  -l "MachXO2" -d LCMXO2-1200ZE -path "C:/Kevan/A3041/P3041A/impl1" -path "C:/Kevan/A3041/P3041A"   "C:/Kevan/A3041/P3041A/impl1/P3041_impl1.edi" "P3041_impl1.ngo"   
+edif2ngd:  version Diamond (64-bit) 3.12.1.454
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
+Writing the design to P3041_impl1.ngo...
+
+Total CPU Time: 0 secs  
+Total REAL Time: 0 secs  
+Peak Memory Usage: 14 MB
+
+
+ngdbuild  -a "MachXO2" -d LCMXO2-1200ZE  -p "C:/lscc/diamond/3.12/ispfpga/xo2c00/data"  -p "C:/Kevan/A3041/P3041A/impl1" -p "C:/Kevan/A3041/P3041A"  "P3041_impl1.ngo" "P3041_impl1.ngd"  	
+ngdbuild:  version Diamond (64-bit) 3.12.1.454
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
+Reading 'P3041_impl1.ngo' ...
+Loading NGL library 'C:/lscc/diamond/3.12/ispfpga/xo2c00a/data/xo2alib.ngl'...
+Loading NGL library 'C:/lscc/diamond/3.12/ispfpga/xo2c00/data/xo2clib.ngl'...
+Loading NGL library 'C:/lscc/diamond/3.12/ispfpga/mg5g00/data/mg5glib.ngl'...
+Loading NGL library 'C:/lscc/diamond/3.12/ispfpga/or5g00/data/orc5glib.ngl'...
+
+
+Running DRC...
+
+DRC complete with no errors or warnings
+
+Design Results:
+   1618 blocks expanded
+Complete the first expansion.
+Writing 'P3041_impl1.ngd' ...
+Total CPU Time: 0 secs 
+Total REAL Time: 0 secs 
+Peak Memory Usage: 22 MB
+
+
+map -a "MachXO2" -p LCMXO2-1200ZE -t WLCSP25 -s 1 -oc Industrial   "P3041_impl1.ngd" -o "P3041_impl1_map.ncd" -pr "P3041_impl1.prf" -mp "P3041_impl1.mrp" -lpf "C:/Kevan/A3041/P3041A/impl1/P3041_impl1_synplify.lpf" -lpf "C:/Kevan/A3041/P3041A/P3041.lpf"  -c 0           
+map:  version Diamond (64-bit) 3.12.1.454
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
+   Process the file: P3041_impl1.ngd
+   Picdevice="LCMXO2-1200ZE"
+
+   Pictype="WLCSP25"
+
+   Picspeed=1
+
+   Remove unused logic
+
+   Do not produce over sized NCDs.
+
+Part used: LCMXO2-1200ZEWLCSP25, Performance used: 1.
+
+    <postMsg mid="1100441" type="Warning" dynamic="3" navigation="2" arg0="C:/Kevan/A3041/P3041A/P3041.lpf(16): Semantic error in &quot;USE DOUT TRUE CELL &quot;xdac_1_0io[1]&quot; ;&quot;: " arg1="xdac_1_0io[1]" arg2="xdac_1_0io[1]" arg3="C:/Kevan/A3041/P3041A/P3041.lpf" arg4="16"  />
+Loading device for application map from file 'xo2c1200.nph' in environment: C:/lscc/diamond/3.12/ispfpga.
+Package Status:                     Final          Version 1.44.
+
+Running general design DRC...
+
+Removing unused logic...
+
+Optimizing...
+
+5 CCU2 constant inputs absorbed.
+
+    <postMsg mid="52101186" type="Warning" dynamic="1" navigation="0" arg0="MachXO2"  />
+    <postMsg mid="52101110" type="Warning" dynamic="2" navigation="0" arg0="MachXO2" arg1="MachXO2"  />
+    <postMsg mid="51001030" type="Warning" dynamic="1" navigation="0" arg0="RESET_1"  />
+    <postMsg mid="52101147" type="Warning" dynamic="1" navigation="0" arg0="Power_Controller/PCNTR_Inst0"  />
+    <postMsg mid="52101151" type="Warning" dynamic="1" navigation="0" arg0="Power_Controller/PCNTR_Inst0"  />
+    <postMsg mid="51001051" type="Warning" dynamic="1" navigation="0" arg0="Command_Memory/CMD_RAM_0_0_0_0"  />
+
+
+
+Design Summary:
+   Number of registers:    395 out of  1337 (30%)
+      PFU registers:          384 out of  1280 (30%)
+      PIO registers:           11 out of    57 (19%)
+   Number of SLICEs:       613 out of   640 (96%)
+      SLICEs as Logic/ROM:    613 out of   640 (96%)
+      SLICEs as RAM:            0 out of   480 (0%)
+      SLICEs as Carry:         78 out of   640 (12%)
+   Number of LUT4s:        1217 out of  1280 (95%)
+      Number used as logic LUTs:        1061
+      Number used as distributed RAM:     0
+      Number used as ripple logic:      156
+      Number used as shift registers:     0
+   Number of PIO sites used: 17 + 1(JTAGENB) out of 19 (95%)
+   Number of block RAMs:  6 out of 7 (86%)
+   Number of GSRs:        1 out of 1 (100%)
+   EFB used :        No
+   JTAG used :       No
+   Readback used :   No
+   Oscillator used : No
+   Startup used :    No
+   POR :             On
+   Bandgap :         On
+   Number of Power Controller:  1 out of 1 (100%)
+   Number of Dynamic Bank Controller (BCINRD):  0 out of 4 (0%)
+   Number of Dynamic Bank Controller (BCLVDSO):  0 out of 1 (0%)
+   Number of DCCA:  0 out of 8 (0%)
+   Number of DCMA:  0 out of 2 (0%)
+   Number of PLLs:  0 out of 1 (0%)
+   Number of DQSDLLs:  0 out of 2 (0%)
+   Number of CLKDIVC:  0 out of 4 (0%)
+   Number of ECLKSYNCA:  0 out of 4 (0%)
+   Number of ECLKBRIDGECS:  0 out of 2 (0%)
+   Notes:-
+      1. Total number of LUT4s = (Number of logic LUT4s) + 2*(Number of distributed RAMs) + 2*(Number of ripple logic)
+      2. Number of logic LUT4s does not include count of distributed RAM and ripple logic.
+   Number of clocks:  6
+     Net RCK_c: 63 loads, 56 rising, 7 falling (Driver: PIO RCK )
+     Net CK: 148 loads, 102 rising, 46 falling (Driver: CK_RNO )
+     Net FCK: 7 loads, 6 rising, 1 falling (Driver: Fast_CK/CK )
+     Net CPU/un1_state_20[0]: 1 loads, 0 rising, 1 falling (Driver: CPU/un1_state_20[0]/GATE )
+     Net Fast_CK/RIN: 4 loads, 4 rising, 0 falling (Driver: Fast_CK/un2_rin )
+     Net TCK_1: 28 loads, 28 rising, 0 falling (Driver: TCK )
+   Number of Clock Enables:  48
+     Net RESET_1: 13 loads, 13 LSLICEs
+     Net BOOST_1_sqmuxa: 1 loads, 1 LSLICEs
+     Net int_period_1_sqmuxa: 4 loads, 4 LSLICEs
+     Net tx_low_1_sqmuxa: 2 loads, 2 LSLICEs
+     Net Byte_Receiver.un49_state: 1 loads, 1 LSLICEs
+     Net CPU/opcode_0_sqmuxa: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_inv_2_0: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_15_i: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_16_i: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_5_i: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_6_i: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_7_i: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_4_i: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_20_i: 4 loads, 4 LSLICEs
+     Net CPU/prog_cntre: 7 loads, 7 LSLICEs
+     Net CPU/un1_next_flag_i_1_sqmuxa_2: 1 loads, 1 LSLICEs
+     Net CPU/un1_next_flag_i_1_sqmuxa_3: 1 loads, 1 LSLICEs
+     Net CPU/un1_next_flag_i_2_sqmuxa: 1 loads, 1 LSLICEs
+     Net CPU/un1_next_flag_i_1_sqmuxa_1: 1 loads, 1 LSLICEs
+     Net CPU/first_operand_1_sqmuxa: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_21_i: 6 loads, 6 LSLICEs
+     Net CPU/un1_reset_14_i: 6 loads, 6 LSLICEs
+     Net Byte_Receiver.un28_state: 1 loads, 1 LSLICEs
+     Net Byte_Receiver.un34_state: 1 loads, 1 LSLICEs
+     Net Byte_Receiver.un31_state: 1 loads, 1 LSLICEs
+     Net ENTCK_1_sqmuxa: 1 loads, 1 LSLICEs
+     Net tck_divisor_1_sqmuxa: 2 loads, 2 LSLICEs
+     Net sensor_bits_ince[7]: 1 loads, 0 LSLICEs
+     Net tp_reg_1_sqmuxa: 2 loads, 0 LSLICEs
+     Net ONL_1_sqmuxa: 1 loads, 0 LSLICEs
+     Net xmit_bitsce[0]: 4 loads, 4 LSLICEs
+     Net xmit_bitsce[10]: 4 loads, 4 LSLICEs
+     Net tx_channel_1_sqmuxa: 4 loads, 4 LSLICEs
+     Net N_19_i: 5 loads, 5 LSLICEs
+     Net sensor_bits_ince[0]: 1 loads, 1 LSLICEs
+     Net sensor_bits_ince[1]: 1 loads, 1 LSLICEs
+     Net sensor_bits_ince[2]: 1 loads, 1 LSLICEs
+     Net sensor_bits_ince[3]: 1 loads, 1 LSLICEs
+     Net sensor_bits_ince[4]: 1 loads, 1 LSLICEs
+     Net sensor_bits_ince[5]: 1 loads, 1 LSLICEs
+     Net sensor_bits_ince[6]: 1 loads, 1 LSLICEs
+     Net int_mask_1_sqmuxa: 4 loads, 4 LSLICEs
+     Net DACTIVE_1_sqmuxa: 1 loads, 1 LSLICEs
+     Net Command_Processor.CPA: 2 loads, 0 LSLICEs
+     Net Byte_Receiver.un37_state: 1 loads, 1 LSLICEs
+     Net Byte_Receiver.un40_state: 1 loads, 1 LSLICEs
+     Net Byte_Receiver.un43_state: 1 loads, 1 LSLICEs
+     Net Byte_Receiver.un46_state: 1 loads, 1 LSLICEs
+   Number of local set/reset loads for net RESET_1 merged into GSR:  91
+   Number of LSRs:  7
+     Net TXA_1: 5 loads, 0 LSLICEs
+     Net RESETs: 1 loads, 1 LSLICEs
+     Net RESET_1: 5 loads, 0 LSLICEs
+     Net state_6_1_0_iv_i_o3[1]: 1 loads, 1 LSLICEs
+     Net CPU/un1_opcode_8_u: 1 loads, 1 LSLICEs
+     Net PowerUp.un3_reset_c2_i: 1 loads, 1 LSLICEs
+     Net ENTCK: 7 loads, 7 LSLICEs
+   Number of nets driven by tri-state buffers:  0
+   Top 10 highest fanout non-clock nets:
+     Net CPU/state[17]: 114 loads
+     Net CPU/opcode_3[1]: 51 loads
+     Net CPU/opcode_3[0]: 46 loads
+     Net CPU/opcode_3[3]: 46 loads
+     Net CPU/state[13]: 46 loads
+     Net RESET_1: 45 loads
+     Net CPU/state[14]: 43 loads
+     Net CPU/opcode_3[2]: 41 loads
+     Net CPU/opcode_3[5]: 39 loads
+     Net cpu_addr[1]: 39 loads
+ 
+
+   Number of warnings:  7
+   Number of errors:    0
+
+
+
+Total CPU Time: 0 secs  
+Total REAL Time: 0 secs  
+Peak Memory Usage: 46 MB
+
+Dumping design to file P3041_impl1_map.ncd.
+
+trce -f "P3041_impl1.mt" -o "P3041_impl1.tw1" "P3041_impl1_map.ncd" "P3041_impl1.prf"
+trce:  version Diamond (64-bit) 3.12.1.454
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
+
+Loading design for application trce from file p3041_impl1_map.ncd.
+Design name: main
+NCD version: 3.3
+Vendor:      LATTICE
+Device:      LCMXO2-1200ZE
+Package:     WLCSP25
+Performance: 1
+Loading device for application trce from file 'xo2c1200.nph' in environment: C:/lscc/diamond/3.12/ispfpga.
+Package Status:                     Final          Version 1.44.
+Performance Hardware Data Status:   Final          Version 34.4.
+Setup and Hold Report
+
+--------------------------------------------------------------------------------
+Lattice TRACE Report - Setup, Version Diamond (64-bit) 3.12.1.454
+Wed Jun 15 17:39:18 2022
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
+
+Report Information
+------------------
+Command line:    trce -v 1 -gt -mapchkpnt 0 -sethld -o P3041_impl1.tw1 -gui -msgset C:/Kevan/A3041/P3041A/promote.xml P3041_impl1_map.ncd P3041_impl1.prf 
+Design file:     p3041_impl1_map.ncd
+Preference file: p3041_impl1.prf
+Device,speed:    LCMXO2-1200ZE,1
+Report level:    verbose report, limited to 1 item per preference
+--------------------------------------------------------------------------------
+
+2 potential circuit loops found in timing analysis.
+BLOCK ASYNCPATHS
+BLOCK RESETPATHS
+BLOCK RD_DURING_WR_PATHS
+BLOCK INTERCLOCKDOMAIN PATHS
+--------------------------------------------------------------------------------
+
+
+
+Timing summary (Setup):
+---------------
+
+Timing errors: 0  Score: 0
+Cumulative negative slack: 0
+
+Constraints cover 286879 paths, 11 nets, and 4427 connections (86.21% coverage)
+
+--------------------------------------------------------------------------------
+Lattice TRACE Report - Hold, Version Diamond (64-bit) 3.12.1.454
+Wed Jun 15 17:39:19 2022
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
+
+Report Information
+------------------
+Command line:    trce -v 1 -gt -mapchkpnt 0 -sethld -o P3041_impl1.tw1 -gui -msgset C:/Kevan/A3041/P3041A/promote.xml P3041_impl1_map.ncd P3041_impl1.prf 
+Design file:     p3041_impl1_map.ncd
+Preference file: p3041_impl1.prf
+Device,speed:    LCMXO2-1200ZE,M
+Report level:    verbose report, limited to 1 item per preference
+--------------------------------------------------------------------------------
+
+2 potential circuit loops found in timing analysis.
+BLOCK ASYNCPATHS
+BLOCK RESETPATHS
+BLOCK RD_DURING_WR_PATHS
+BLOCK INTERCLOCKDOMAIN PATHS
+--------------------------------------------------------------------------------
+
+
+
+Timing summary (Hold):
+---------------
+
+Timing errors: 0  Score: 0
+Cumulative negative slack: 0
+
+Constraints cover 286879 paths, 11 nets, and 4509 connections (87.81% coverage)
+
+
+
+Timing summary (Setup and Hold):
+---------------
+
+Timing errors: 0 (setup), 0 (hold)
+Score: 0 (setup), 0 (hold)
+Cumulative negative slack: 0 (0+0)
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+
+Total CPU Time: 0 secs 
+Total REAL Time: 0 secs 
+Peak Memory Usage: 51 MB
+
+
+mpartrce -p "P3041_impl1.p2t" -f "P3041_impl1.p3t" -tf "P3041_impl1.pt" "P3041_impl1_map.ncd" "P3041_impl1.ncd"
+
+---- MParTrce Tool ----
+Removing old design directory at request of -rem command line option to this program.
+Running par. Please wait . . .
+
+Lattice Place and Route Report for Design "P3041_impl1_map.ncd"
+Wed Jun 15 17:39:19 2022
+
+PAR: Place And Route Diamond (64-bit) 3.12.1.454.
+Command Line: par -w -l 5 -i 6 -t 1 -c 0 -e 0 -gui -msgset C:/Kevan/A3041/P3041A/promote.xml -exp parUseNBR=1:parCDP=0:parCDR=0:parPathBased=OFF:parASE=1 P3041_impl1_map.ncd P3041_impl1.dir/5_1.ncd P3041_impl1.prf
+Preference file: P3041_impl1.prf.
+Placement level-cost: 5-1.
+Routing Iterations: 6
+
+Loading design for application par from file P3041_impl1_map.ncd.
+Design name: main
+NCD version: 3.3
+Vendor:      LATTICE
+Device:      LCMXO2-1200ZE
+Package:     WLCSP25
+Performance: 1
+Loading device for application par from file 'xo2c1200.nph' in environment: C:/lscc/diamond/3.12/ispfpga.
+Package Status:                     Final          Version 1.44.
+Performance Hardware Data Status:   Final          Version 34.4.
+License checked out.
+
+
+Ignore Preference Error(s):  True
+Device utilization summary:
+
+   PIO (prelim)   17+1(JTAGENB)/108 17% used
+                  17+1(JTAGENB)/19  95% bonded
+   IOLOGIC           11/108          10% used
+
+   SLICE            613/640          95% used
+
+   GSR                1/1           100% used
+   EBR                6/7            85% used
+   PCNTR              1/1           100% used
+
+
+INFO: Design contains EBR with ASYNC Reset Mode that has a limitation: The use of the EBR block asynchronous reset requires that certain timing be met between the clock and the reset within the memory block. See the device specific data sheet for additional details.
+INFO: Design contains pre-loadable EBR during configuration that has a requirement: Since the GSR is disabled for the EBR, make sure write enable and chip enable are inactive during wake-up, so that the pre-loaded initialization values will not be corrupted during wake-up state.
+2 potential circuit loops found in timing analysis.
+Number of Signals: 1613
+Number of Connections: 5135
+    <postMsg mid="61061044" type="Warning" dynamic="1" navigation="0" arg0="MachXO2"  />
+
+Pin Constraint Summary:
+   17 out of 17 pins locked (100% locked).
+
+The following 3 signals are selected to use the primary clock routing resources:
+    CK (driver: SLICE_185, clk load #: 148)
+    RCK_c (driver: RCK, clk load #: 63)
+    TCK_1 (driver: SLICE_185, clk load #: 28)
+
+    <postMsg mid="61061008" type="Warning" dynamic="5" navigation="0" arg0="RCK_c" arg1="Primary" arg2="RCK" arg3="E1" arg4="Primary"  />
+
+The following 2 signals are selected to use the secondary clock routing resources:
+    RESET_1 (driver: SLICE_178, clk load #: 0, sr load #: 5, ce load #: 13)
+    FCK (driver: Fast_CK/SLICE_41, clk load #: 7, sr load #: 0, ce load #: 0)
+
+Signal RESET_1 is selected as Global Set/Reset.
+Starting Placer Phase 0.
+...........
+Finished Placer Phase 0.  REAL time: 4 secs 
+
+Starting Placer Phase 1.
+......................
+Placer score = 306251.
+Finished Placer Phase 1.  REAL time: 16 secs 
+
+Starting Placer Phase 2.
+.
+Placer score =  305762
+Finished Placer Phase 2.  REAL time: 17 secs 
+
+
+------------------ Clock Report ------------------
+
+Global Clock Resources:
+  CLK_PIN    : 0 out of 8 (0%)
+  General PIO: 1 out of 108 (0%)
+  PLL        : 0 out of 1 (0%)
+  DCM        : 0 out of 2 (0%)
+  DCC        : 0 out of 8 (0%)
+
+Global Clocks:
+  PRIMARY "CK" from F1 on comp "SLICE_185" on site "R2C13B", clk load = 148
+  PRIMARY "RCK_c" from comp "RCK" on PIO site "E1 (PB20D)", clk load = 63
+  PRIMARY "TCK_1" from Q0 on comp "SLICE_185" on site "R2C13B", clk load = 28
+  SECONDARY "RESET_1" from Q0 on comp "SLICE_178" on site "R7C12C", clk load = 0, ce load = 13, sr load = 5
+  SECONDARY "FCK" from Q1 on comp "Fast_CK/SLICE_41" on site "R8C12C", clk load = 7, ce load = 0, sr load = 0
+
+  PRIMARY  : 3 out of 8 (37%)
+  SECONDARY: 2 out of 8 (25%)
+
+Edge Clocks:
+  No edge clock selected.
+
+--------------- End of Clock Report ---------------
+
+
+I/O Usage Summary (final):
+   17 + 1(JTAGENB) out of 108 (16.7%) PIO sites used.
+   17 + 1(JTAGENB) out of 19 (94.7%) bonded PIO sites used.
+   Number of PIO comps: 17; differential: 0.
+   Number of Vref pins used: 0.
+
+I/O Bank Usage Summary:
++----------+----------------+------------+-----------+
+| I/O Bank | Usage          | Bank Vccio | Bank Vref |
++----------+----------------+------------+-----------+
+| 0        | 10 / 12 ( 83%) | 2.5V       | -         |
+| 2        | 7 / 7 (100%)   | 2.5V       | -         |
++----------+----------------+------------+-----------+
+
+Total placer CPU time: 14 secs 
+
+Dumping design to file P3041_impl1.dir/5_1.ncd.
+
+2 potential circuit loops found in timing analysis.
+0 connections routed; 5135 unrouted.
+Starting router resource preassignment
+    <postMsg mid="62061008" type="Warning" dynamic="1" navigation="0" arg0="RCK_c"  />
+
+    <postMsg mid="66011008" type="Warning" dynamic="1" navigation="0" arg0="&#xA;   Signal=CPU/un1_state_20[0] loads=1 clock_loads=1&#xA;   Signal=Fast_CK/RIN loads=5 clock_loads=4&#xA;   Signal=Power_Controller/GND loads=1 clock_loads=1"  />
+
+Completed router resource preassignment. Real time: 19 secs 
+
+Start NBR router at 17:39:38 06/15/22
+
+*****************************************************************
+Info: NBR allows conflicts(one node used by more than one signal)
+      in the earlier iterations. In each iteration, it tries to  
+      solve the conflicts while keeping the critical connections 
+      routed as short as possible. The routing process is said to
+      be completed when no conflicts exist and all connections   
+      are routed.                                                
+Note: NBR uses a different method to calculate timing slacks. The
+      worst slack and total negative slack may not be the same as
+      that in TRCE report. You should always run TRCE to verify  
+      your design.                                               
+*****************************************************************
+
+2 potential circuit loops found in timing analysis.
+Start NBR special constraint process at 17:39:38 06/15/22
+  -- Pref: PRIORITIZE NET "Fast_CK/ANB1" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/ANB2" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/ANB3" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/CO0" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/R1" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/R2" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/R3" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/R4" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/next_count_3[2]" 100 ;
+
+Start NBR section for initial routing at 17:39:39 06/15/22
+Level 1, iteration 1
+0(0.00%) conflict; 4465(86.95%) untouched conns; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.722ns/0.000ns; real time: 20 secs 
+Level 2, iteration 1
+0(0.00%) conflict; 4463(86.91%) untouched conns; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.820ns/0.000ns; real time: 20 secs 
+Level 3, iteration 1
+5(0.01%) conflicts; 4454(86.74%) untouched conns; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 21 secs 
+Level 4, iteration 1
+60(0.07%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 23 secs 
+
+Info: Initial congestion level at 75% usage is 0
+Info: Initial congestion area  at 75% usage is 0 (0.00%)
+
+Start NBR section for normal routing at 17:39:42 06/15/22
+Level 1, iteration 1
+11(0.01%) conflicts; 100(1.95%) untouched conns; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 23 secs 
+Level 4, iteration 1
+31(0.04%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 24 secs 
+Level 4, iteration 2
+20(0.02%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 24 secs 
+Level 4, iteration 3
+16(0.02%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 24 secs 
+Level 4, iteration 4
+10(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 24 secs 
+Level 4, iteration 5
+10(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 24 secs 
+Level 4, iteration 6
+9(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 24 secs 
+Level 4, iteration 7
+8(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 24 secs 
+Level 4, iteration 8
+8(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 25 secs 
+Level 4, iteration 9
+7(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 25 secs 
+Level 4, iteration 10
+7(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 25 secs 
+Level 4, iteration 11
+7(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 25 secs 
+Level 4, iteration 12
+6(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 25 secs 
+Level 4, iteration 13
+6(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 25 secs 
+Level 4, iteration 14
+6(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 25 secs 
+Level 4, iteration 15
+6(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 25 secs 
+Level 4, iteration 16
+5(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 25 secs 
+Level 4, iteration 17
+4(0.00%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 25 secs 
+Level 4, iteration 18
+3(0.00%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.884ns/0.000ns; real time: 25 secs 
+Level 4, iteration 19
+1(0.00%) conflict; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.616ns/0.000ns; real time: 25 secs 
+Level 4, iteration 20
+1(0.00%) conflict; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.616ns/0.000ns; real time: 26 secs 
+Level 4, iteration 21
+1(0.00%) conflict; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.616ns/0.000ns; real time: 26 secs 
+Level 4, iteration 22
+1(0.00%) conflict; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.616ns/0.000ns; real time: 26 secs 
+Level 4, iteration 23
+1(0.00%) conflict; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.616ns/0.000ns; real time: 26 secs 
+Level 4, iteration 24
+0(0.00%) conflict; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.616ns/0.000ns; real time: 26 secs 
+
+Start NBR section for setup/hold timing optimization with effort level 3 at 17:39:45 06/15/22
+2 potential circuit loops found in timing analysis.
+2 potential circuit loops found in timing analysis.
+
+Start NBR section for re-routing at 17:39:45 06/15/22
+Level 4, iteration 1
+0(0.00%) conflict; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.596ns/0.000ns; real time: 26 secs 
+
+Start NBR section for post-routing at 17:39:45 06/15/22
+2 potential circuit loops found in timing analysis.
+
+End NBR router with 0 unrouted connection
+
+NBR Summary
+-----------
+  Number of unrouted connections : 0 (0.00%)
+  Number of connections with timing violations : 0 (0.00%)
+  Estimated worst slack<setup> : 2.596ns
+  Timing score<setup> : 0
+-----------
+Notes: The timing info is calculated for SETUP only and all PAR_ADJs are ignored.
+
+
+
+    <postMsg mid="66011008" type="Warning" dynamic="1" navigation="0" arg0="&#xA;   Signal=CPU/un1_state_20[0] loads=1 clock_loads=1&#xA;   Signal=Fast_CK/RIN loads=5 clock_loads=4&#xA;   Signal=Power_Controller/GND loads=1 clock_loads=1"  />
+
+2 potential circuit loops found in timing analysis.
+2 potential circuit loops found in timing analysis.
+2 potential circuit loops found in timing analysis.
+Total CPU time 25 secs 
+Total REAL time: 28 secs 
+Completely routed.
+End of route.  5135 routed (100.00%); 0 unrouted.
+
+Hold time timing score: 0, hold timing errors: 0
+
+Timing score: 0 
+
+Dumping design to file P3041_impl1.dir/5_1.ncd.
+
+
+PAR_SUMMARY::Run status = Completed
+PAR_SUMMARY::Number of unrouted conns = 0
+PAR_SUMMARY::Worst  slack<setup/<ns>> = 2.596
+PAR_SUMMARY::Timing score<setup/<ns>> = 0.000
+PAR_SUMMARY::Worst  slack<hold /<ns>> = 0.856
+PAR_SUMMARY::Timing score<hold /<ns>> = 0.000
+PAR_SUMMARY::Number of errors = 0
+
+Total CPU  time to completion: 25 secs 
+Total REAL time to completion: 28 secs 
+
+par done!
+
+Note: user must run 'Trace' for timing closure signoff.
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
+Exiting par with exit code 0
+Exiting mpartrce with exit code 0
+
+trce -f "P3041_impl1.pt" -o "P3041_impl1.twr" "P3041_impl1.ncd" "P3041_impl1.prf"
+trce:  version Diamond (64-bit) 3.12.1.454
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
+
+Loading design for application trce from file p3041_impl1.ncd.
+Design name: main
+NCD version: 3.3
+Vendor:      LATTICE
+Device:      LCMXO2-1200ZE
+Package:     WLCSP25
+Performance: 1
+Loading device for application trce from file 'xo2c1200.nph' in environment: C:/lscc/diamond/3.12/ispfpga.
+Package Status:                     Final          Version 1.44.
+Performance Hardware Data Status:   Final          Version 34.4.
+Setup and Hold Report
+
+--------------------------------------------------------------------------------
+Lattice TRACE Report - Setup, Version Diamond (64-bit) 3.12.1.454
+Wed Jun 15 17:39:48 2022
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
+
+Report Information
+------------------
+Command line:    trce -v 10 -gt -sethld -sp 1 -sphld m -o P3041_impl1.twr -gui -msgset C:/Kevan/A3041/P3041A/promote.xml P3041_impl1.ncd P3041_impl1.prf 
+Design file:     p3041_impl1.ncd
+Preference file: p3041_impl1.prf
+Device,speed:    LCMXO2-1200ZE,1
+Report level:    verbose report, limited to 10 items per preference
+--------------------------------------------------------------------------------
+
+2 potential circuit loops found in timing analysis.
+BLOCK ASYNCPATHS
+BLOCK RESETPATHS
+BLOCK RD_DURING_WR_PATHS
+BLOCK INTERCLOCKDOMAIN PATHS
+--------------------------------------------------------------------------------
+
+
+
+Timing summary (Setup):
+---------------
+
+Timing errors: 0  Score: 0
+Cumulative negative slack: 0
+
+Constraints cover 286879 paths, 11 nets, and 4555 connections (88.70% coverage)
+
+--------------------------------------------------------------------------------
+Lattice TRACE Report - Hold, Version Diamond (64-bit) 3.12.1.454
+Wed Jun 15 17:39:48 2022
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
+
+Report Information
+------------------
+Command line:    trce -v 10 -gt -sethld -sp 1 -sphld m -o P3041_impl1.twr -gui -msgset C:/Kevan/A3041/P3041A/promote.xml P3041_impl1.ncd P3041_impl1.prf 
+Design file:     p3041_impl1.ncd
+Preference file: p3041_impl1.prf
+Device,speed:    LCMXO2-1200ZE,m
+Report level:    verbose report, limited to 10 items per preference
+--------------------------------------------------------------------------------
+
+2 potential circuit loops found in timing analysis.
+BLOCK ASYNCPATHS
+BLOCK RESETPATHS
+BLOCK RD_DURING_WR_PATHS
+BLOCK INTERCLOCKDOMAIN PATHS
+--------------------------------------------------------------------------------
+
+
+
+Timing summary (Hold):
+---------------
+
+Timing errors: 0  Score: 0
+Cumulative negative slack: 0
+
+Constraints cover 286879 paths, 11 nets, and 4555 connections (88.70% coverage)
+
+
+
+Timing summary (Setup and Hold):
+---------------
+
+Timing errors: 0 (setup), 0 (hold)
+Score: 0 (setup), 0 (hold)
+Cumulative negative slack: 0 (0+0)
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+
+Total CPU Time: 1 secs 
+Total REAL Time: 0 secs 
+Peak Memory Usage: 52 MB
+
+
+tmcheck -par "P3041_impl1.par" 
+
+bitgen -f "P3041_impl1.t2b" -w "P3041_impl1.ncd"  -jedec "P3041_impl1.prf"
+
+
+BITGEN: Bitstream Generator Diamond (64-bit) 3.12.1.454
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
+
+
+Loading design for application Bitgen from file P3041_impl1.ncd.
+Design name: main
+NCD version: 3.3
+Vendor:      LATTICE
+Device:      LCMXO2-1200ZE
+Package:     WLCSP25
+Performance: 1
+Loading device for application Bitgen from file 'xo2c1200.nph' in environment: C:/lscc/diamond/3.12/ispfpga.
+Package Status:                     Final          Version 1.44.
+Performance Hardware Data Status:   Final          Version 34.4.
+
+Running DRC.
+INFO: Design contains EBR with ASYNC Reset Mode that has a limitation: The use of the EBR block asynchronous reset requires that certain timing be met between the clock and the reset within the memory block. See the device specific data sheet for additional details.
+INFO: Design contains pre-loadable EBR during configuration that has a requirement: Since the GSR is disabled for the EBR, make sure write enable and chip enable are inactive during wake-up, so that the pre-loaded initialization values will not be corrupted during wake-up state.
+DRC detected 0 errors and 0 warnings.
+Reading Preference File from P3041_impl1.prf.
+    <postMsg mid="1083784" type="Warning" dynamic="0" navigation="0"  />
+
+Preference Summary:
++---------------------------------+---------------------------------+
+|  Preference                     |  Current Setting                |
++---------------------------------+---------------------------------+
+|                         RamCfg  |                        Reset**  |
++---------------------------------+---------------------------------+
+|                     MCCLK_FREQ  |                         2.08**  |
++---------------------------------+---------------------------------+
+|                  CONFIG_SECURE  |                          OFF**  |
++---------------------------------+---------------------------------+
+|                          INBUF  |                           ON**  |
++---------------------------------+---------------------------------+
+|                      JTAG_PORT  |                        DISABLE  |
++---------------------------------+---------------------------------+
+|                       SDM_PORT  |                      DISABLE**  |
++---------------------------------+---------------------------------+
+|                 SLAVE_SPI_PORT  |                      DISABLE**  |
++---------------------------------+---------------------------------+
+|                MASTER_SPI_PORT  |                      DISABLE**  |
++---------------------------------+---------------------------------+
+|                       I2C_PORT  |                      DISABLE**  |
++---------------------------------+---------------------------------+
+|        MUX_CONFIGURATION_PORTS  |                         ENABLE  |
++---------------------------------+---------------------------------+
+|                  CONFIGURATION  |                          CFG**  |
++---------------------------------+---------------------------------+
+|                COMPRESS_CONFIG  |                           ON**  |
++---------------------------------+---------------------------------+
+|                        MY_ASSP  |                          OFF**  |
++---------------------------------+---------------------------------+
+|               ONE_TIME_PROGRAM  |                          OFF**  |
++---------------------------------+---------------------------------+
+|                 ENABLE_TRANSFR  |                      DISABLE**  |
++---------------------------------+---------------------------------+
+|                  SHAREDEBRINIT  |                      DISABLE**  |
++---------------------------------+---------------------------------+
+|            BACKGROUND_RECONFIG  |                          OFF**  |
++---------------------------------+---------------------------------+
+ *  Default setting.
+ ** The specified setting matches the default setting.
+
+
+Creating bit map...
+ 
+Bitstream Status: Final           Version 1.95.
+ 
+Saving bit stream in "P3041_impl1.jed".
+ 
+===========
+UFM Summary.
+===========
+UFM Size:        511 Pages (128*511 Bits).
+UFM Utilization: General Purpose Flash Memory.
+ 
+Available General Purpose Flash Memory:  511 Pages (Page 0 to Page 510).
+Initialized UFM Pages:                     0 Page.
+ 
+Total CPU Time: 3 secs 
+Total REAL Time: 3 secs 
+Peak Memory Usage: 255 MB

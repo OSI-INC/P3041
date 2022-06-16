@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BuildStatus>
+    <Strategy name="Strategy1">
+        <Milestone name="Export" build_result="0" build_time="0">
+            <Task name="IBIS" build_result="0" update_result="2" update_time="1655329187"/>
+            <Task name="TimingSimFileVlg" build_result="0" update_result="2" update_time="1655329187"/>
+            <Task name="TimingSimFileVHD" build_result="0" update_result="2" update_time="1655329187"/>
+            <Task name="Bitgen" build_result="0" update_result="2" update_time="1655329187"/>
+            <Task name="Jedecgen" build_result="2" update_result="0" update_time="1655329191"/>
+        </Milestone>
+        <Milestone name="Map" build_result="2" build_time="1655329158">
+            <Task name="Map" build_result="2" update_result="0" update_time="1655329158"/>
+            <Task name="MapTrace" build_result="2" update_result="0" update_time="1655329159"/>
+            <Task name="MapVerilogSimFile" build_result="0" update_result="2" update_time="1655329158"/>
+            <Task name="MapVHDLSimFile" build_result="0" update_result="2" update_time="1655329158"/>
+        </Milestone>
+        <Milestone name="PAR" build_result="2" build_time="1655329187">
+            <Task name="PAR" build_result="2" update_result="0" update_time="1655329187"/>
+            <Task name="PARTrace" build_result="2" update_result="0" update_time="1655329188"/>
+            <Task name="IOTiming" build_result="0" update_result="2" update_time="1655329187"/>
+        </Milestone>
+        <Milestone name="Synthesis" build_result="2" build_time="1655329155">
+            <Task name="Synplify_Synthesis" build_result="2" update_result="0" update_time="1655329155"/>
+        </Milestone>
+        <Milestone name="TOOL_Report" build_result="0" build_time="0">
+            <Task name="HDLE" build_result="0" update_result="2" update_time="1651254059"/>
+            <Task name="BKM" build_result="0" update_result="2" update_time="1651254059"/>
+            <Task name="SSO" build_result="0" update_result="2" update_time="1651254059"/>
+            <Task name="PIODRC" build_result="0" update_result="2" update_time="1651254059"/>
+            <Task name="DEC" build_result="0" update_result="2" update_time="1651254059"/>
+        </Milestone>
+        <Milestone name="Translate" build_result="2" build_time="1655329156">
+            <Task name="Translate" build_result="2" update_result="0" update_time="1655329156"/>
+        </Milestone>
+        <Report name=".vdbs/P3035_impl1_map.vdb" last_build_time="0" last_build_size="0"/>
+        <Report name=".vdbs/P3041_impl1_map.vdb" last_build_time="0" last_build_size="0"/>
+        <Report name="IBIS/P3035_impl1.ibs" last_build_time="1611089934" last_build_size="74511"/>
+        <Report name="P3035_impl1.bgn" last_build_time="1619818357" last_build_size="6306"/>
+        <Report name="P3035_impl1.edi" last_build_time="1648841172" last_build_size="1036945"/>
+        <Report name="P3035_impl1.ior" last_build_time="1606278430" last_build_size="2602"/>
+        <Report name="P3035_impl1.jed" last_build_time="1619818357" last_build_size="350453"/>
+        <Report name="P3035_impl1.lsedata" last_build_time="1619818269" last_build_size="3258601"/>
+        <Report name="P3035_impl1.ncd" last_build_time="1648840733" last_build_size="1245549"/>
+        <Report name="P3035_impl1.ngd" last_build_time="1622202246" last_build_size="914530"/>
+        <Report name="P3035_impl1.tw1" last_build_time="1622202248" last_build_size="20840"/>
+        <Report name="P3035_impl1.twr" last_build_time="1648840734" last_build_size="178553"/>
+        <Report name="P3035_impl1_map.ncd" last_build_time="1622202247" last_build_size="830913"/>
+        <Report name="P3035_impl1_mapvho.sdf" last_build_time="1606269510" last_build_size="755790"/>
+        <Report name="P3035_impl1_mapvho.vho" last_build_time="1606269510" last_build_size="5030493"/>
+        <Report name="P3041_impl1.bgn" last_build_time="1655329191" last_build_size="4906"/>
+        <Report name="P3041_impl1.edi" last_build_time="1655329154" last_build_size="947880"/>
+        <Report name="P3041_impl1.jed" last_build_time="1655329191" last_build_size="350422"/>
+        <Report name="P3041_impl1.lsedata" last_build_time="1649775718" last_build_size="2464807"/>
+        <Report name="P3041_impl1.ncd" last_build_time="1655329187" last_build_size="1200673"/>
+        <Report name="P3041_impl1.ngd" last_build_time="1655329156" last_build_size="865016"/>
+        <Report name="P3041_impl1.tw1" last_build_time="1655329159" last_build_size="20383"/>
+        <Report name="P3041_impl1.twr" last_build_time="1655329188" last_build_size="165981"/>
+        <Report name="P3041_impl1_map.ncd" last_build_time="1655329158" last_build_size="803068"/>
+    </Strategy>
+</BuildStatus>

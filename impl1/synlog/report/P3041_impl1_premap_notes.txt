@@ -1,0 +1,52 @@
+@N: MF916 |Option synthesis_strategy=base is enabled. 
+@N: MF248 |Running in 64-bit mode.
+@N: MF666 |Clock conversion enabled. (Command "set_option -fix_gated_and_generated_clocks 1" in the project file.)
+@N: FX493 |Applying initial value "0" on instance Command_Processor\.RBI.
+@N: FX493 |Applying initial value "0" on instance Synchronize_RP\.RPS.
+@N: FX493 |Applying initial value "0" on instance TXD.
+@N: FX493 |Applying initial value "0" on instance SAD.
+@N: FX493 |Applying initial value "0" on instance Initiate_Command\.IC.
+@N: FX493 |Applying initial value "0" on instance Terminate_Command\.TC.
+@N: FX493 |Applying initial value "0" on instance Frequency_Modulation\.FHI.
+@N: FX493 |Applying initial value "0" on instance Byte_Receiver\.RBD.
+@N: FX493 |Applying initial value "0" on instance Byte_Receiver\.BYTERR.
+@N: FX493 |Applying initial value "0" on instance no_stop_bit.
+@N: FX493 |Applying initial value "0" on instance TXA.
+@N: FX493 |Applying initial value "0" on instance SAA.
+@N: FX493 |Applying initial value "0" on instance Byte_Receiver\.BITS.
+@N: FX493 |Applying initial value "00000000" on instance sensor_bits_in[7:0].
+@N: FX493 |Applying initial value "1111111111111111" on instance crc[15:0].
+@N: FX493 |Applying initial value "0000000" on instance counter[6:0].
+@N: FX493 |Applying initial value "0" on instance SAI.
+@N: FX493 |Applying initial value "0" on instance TXI.
+@N: FX493 |Applying initial value "0" on instance SWRST.
+@N: FX493 |Applying initial value "0000000000000000" on instance xmit_bits[15:0].
+@N: FX493 |Applying initial value "000000000" on instance counter_1[8:0].
+@N: FX493 |Applying initial value "00" on instance tp_reg[1:0].
+@N: FX493 |Applying initial value "0110" on instance tx_low[3:0].
+@N: FX493 |Applying initial value "0" on instance Error_Check\.CRCERR.
+@N: FX493 |Applying initial value "0" on instance TXB.
+@N: FX493 |Applying initial value "0" on instance Command_Processor\.CMDRDY.
+@N: FX493 |Applying initial value "0" on instance Command_Processor\.CPA.
+@N: FX493 |Applying initial value "1" on instance state_4[5].
+@N: FX493 |Applying initial value "0" on instance state_4[4].
+@N: FX493 |Applying initial value "0" on instance state_4[3].
+@N: FX493 |Applying initial value "0" on instance state_4[2].
+@N: FX493 |Applying initial value "0" on instance state_4[1].
+@N: FX493 |Applying initial value "0" on instance state_4[0].
+@N: MO225 :"c:\kevan\a3041\p3041a\main.vhd":477:2:477:3|There are no possible illegal states for state machine state_2[0:3] (in view: work.main(behavior)); safe FSM implementation is not required.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[1] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[2] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[3] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[4] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[5] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[6] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[7] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[10] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[11] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[12] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[15] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041a\osr8v3.vhd":421:2:421:3|Removing sequential instance state[18] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: MF578 |Incompatible asynchronous control logic preventing generated clock conversion.
+@N: FX1184 |Applying syn_allowed_resources blockrams=7 on top level netlist main 
+@N: FX1143 |Skipping assigning INTERNAL_VREF to iobanks, because the table of mapping from pin to iobank is not initialized.

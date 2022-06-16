@@ -1,0 +1,22 @@
+@N: MF284 |Setting synthesis effort to medium for the design
+@N: MF916 |Option synthesis_strategy=base is enabled. 
+@N: MF248 |Running in 64-bit mode.
+@N: MF666 |Clock conversion enabled. (Command "set_option -fix_gated_and_generated_clocks 1" in the project file.)
+@N: MF284 |Setting synthesis effort to medium for the design
+@N: MH105 |UMR3 is only supported for HAPS-80.
+@N: MH105 |UMR3 is only supported for HAPS-80.
+@N: MO225 :"c:\kevan\a3041\p3041\main.vhd":458:2:458:3|There are no possible illegal states for state machine state_1[0:3] (in view: work.main(behavior)); safe FSM implementation is not required.
+@N: BN362 :"c:\kevan\a3041\p3041\osr8v1r1.vhd":440:2:440:3|Removing sequential instance state[1] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041\osr8v1r1.vhd":440:2:440:3|Removing sequential instance state[2] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041\osr8v1r1.vhd":440:2:440:3|Removing sequential instance state[3] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041\osr8v1r1.vhd":440:2:440:3|Removing sequential instance state[4] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041\osr8v1r1.vhd":440:2:440:3|Removing sequential instance state[5] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041\osr8v1r1.vhd":440:2:440:3|Removing sequential instance state[6] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041\osr8v1r1.vhd":440:2:440:3|Removing sequential instance state[7] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041\osr8v1r1.vhd":440:2:440:3|Removing sequential instance state[10] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041\osr8v1r1.vhd":440:2:440:3|Removing sequential instance state[11] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041\osr8v1r1.vhd":440:2:440:3|Removing sequential instance state[12] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041\osr8v1r1.vhd":440:2:440:3|Removing sequential instance state[15] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: BN362 :"c:\kevan\a3041\p3041\osr8v1r1.vhd":440:2:440:3|Removing sequential instance state[18] (in view: work.OSR8_CPU(behavior)) of type view:PrimLib.dffr(prim) because it does not drive other instances.
+@N: MF578 |Incompatible asynchronous control logic preventing generated clock conversion.
+@N: FX1143 |Skipping assigning INTERNAL_VREF to iobanks, because the table of mapping from pin to iobank is not initialized.

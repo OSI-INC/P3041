@@ -1,0 +1,2765 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BaliMessageLog>
+    <Task name="MapVHDLSimFile">
+        <Message>
+            <ID>35400250</ID>
+            <Severity>Info</Severity>
+            <Dynamic>0</Dynamic>
+        </Message>
+    </Task>
+    <Task name="IBIS">
+        <Message>
+            <ID>1191031</ID>
+            <Severity>Info</Severity>
+        </Message>
+    </Task>
+    <Task name="Map">
+        <Message>
+            <ID>1100441</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>C:/Kevan/A3041/P3041A/P3041.lpf(16): Semantic error in &quot;USE DOUT TRUE CELL &quot;xdac_1_0io[1]&quot; ;&quot;: </Dynamic>
+            <Dynamic>xdac_1_0io[1]</Dynamic>
+            <Dynamic>xdac_1_0io[1]</Dynamic>
+            <Navigation>C:/Kevan/A3041/P3041A/P3041.lpf</Navigation>
+            <Navigation>16</Navigation>
+        </Message>
+        <Message>
+            <ID>52101186</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MachXO2</Dynamic>
+        </Message>
+        <Message>
+            <ID>52101110</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MachXO2</Dynamic>
+            <Dynamic>MachXO2</Dynamic>
+        </Message>
+        <Message>
+            <ID>51001030</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>RESET_1</Dynamic>
+        </Message>
+        <Message>
+            <ID>52101147</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>Power_Controller/PCNTR_Inst0</Dynamic>
+        </Message>
+        <Message>
+            <ID>52101151</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>Power_Controller/PCNTR_Inst0</Dynamic>
+        </Message>
+        <Message>
+            <ID>51001051</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>Command_Memory/CMD_RAM_0_0_0_0</Dynamic>
+        </Message>
+    </Task>
+    <Task name="Lattice_Synthesis">
+        <Message>
+            <ID>35002000</ID>
+            <Severity>Info</Severity>
+        </Message>
+        <Message>
+            <ID>35001781</ID>
+            <Severity>Info</Severity>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(289): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>289</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(588): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>588</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(614): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>614</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(869): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>869</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(939): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>939</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(965): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>965</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(980): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>980</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1004): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1004</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1028): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1028</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1065): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1065</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1075): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1075</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1146): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1146</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1230): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1230</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1248): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1248</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1284): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1284</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(349): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>349</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(362): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>362</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(411): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>411</Navigation>
+        </Message>
+        <Message>
+            <ID>35001200</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>main</Dynamic>
+        </Message>
+        <Message>
+            <ID>35921504</ID>
+            <Severity>Info</Severity>
+            <Dynamic></Dynamic>
+            <Dynamic>C:/Kevan/A3041/P3041A/impl1</Dynamic>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/cmd_ram.vhd(14): </Dynamic>
+            <Dynamic>cmd_ram</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/cmd_ram.vhd</Navigation>
+            <Navigation>14</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/cmd_ram.vhd(28): </Dynamic>
+            <Dynamic>structure</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/cmd_ram.vhd</Navigation>
+            <Navigation>28</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/rom.vhd(14): </Dynamic>
+            <Dynamic>rom</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/rom.vhd</Navigation>
+            <Navigation>14</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/rom.vhd(23): </Dynamic>
+            <Dynamic>structure</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/rom.vhd</Navigation>
+            <Navigation>23</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/ram.vhd(14): </Dynamic>
+            <Dynamic>ram</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/ram.vhd</Navigation>
+            <Navigation>14</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/ram.vhd(25): </Dynamic>
+            <Dynamic>structure</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/ram.vhd</Navigation>
+            <Navigation>25</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/entities.vhd(6): </Dynamic>
+            <Dynamic>ring_oscillator</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/entities.vhd</Navigation>
+            <Navigation>6</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/entities.vhd(13): </Dynamic>
+            <Dynamic>behavior</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/entities.vhd</Navigation>
+            <Navigation>13</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/entities.vhd(105): </Dynamic>
+            <Dynamic>pcu</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/entities.vhd</Navigation>
+            <Navigation>105</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/entities.vhd(113): </Dynamic>
+            <Dynamic>structure</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/entities.vhd</Navigation>
+            <Navigation>113</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(62): </Dynamic>
+            <Dynamic>osr8_cpu</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>62</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(91): </Dynamic>
+            <Dynamic>behavior</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>91</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(27): </Dynamic>
+            <Dynamic>main</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>27</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(93): </Dynamic>
+            <Dynamic>behavior</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>93</Navigation>
+        </Message>
+        <Message>
+            <ID>35921443</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(281): </Dynamic>
+            <Dynamic>clock</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>281</Navigation>
+        </Message>
+        <Message>
+            <ID>35921443</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(295): </Dynamic>
+            <Dynamic>outclock</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>295</Navigation>
+        </Message>
+        <Message>
+            <ID>35921443</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(1041): </Dynamic>
+            <Dynamic>wrclock</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>1041</Navigation>
+        </Message>
+        <Message>
+            <ID>35921443</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(1048): </Dynamic>
+            <Dynamic>rdclock</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>1048</Navigation>
+        </Message>
+        <Message>
+            <ID>35921443</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(1049): </Dynamic>
+            <Dynamic>rdclocken</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>1049</Navigation>
+        </Message>
+        <Message>
+            <ID>35921178</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(93): </Dynamic>
+            <Dynamic>behavior</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>93</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/cmd_ram.vhd(14): </Dynamic>
+            <Dynamic>cmd_ram</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/cmd_ram.vhd</Navigation>
+            <Navigation>14</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/cmd_ram.vhd(28): </Dynamic>
+            <Dynamic>structure</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/cmd_ram.vhd</Navigation>
+            <Navigation>28</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/cmd_ram.vhd(14): </Dynamic>
+            <Dynamic>cmd_ram</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/cmd_ram.vhd</Navigation>
+            <Navigation>14</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/cmd_ram.vhd(28): </Dynamic>
+            <Dynamic>structure</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/cmd_ram.vhd</Navigation>
+            <Navigation>28</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/rom.vhd(14): </Dynamic>
+            <Dynamic>rom</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/rom.vhd</Navigation>
+            <Navigation>14</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/rom.vhd(23): </Dynamic>
+            <Dynamic>structure</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/rom.vhd</Navigation>
+            <Navigation>23</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/rom.vhd(14): </Dynamic>
+            <Dynamic>rom</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/rom.vhd</Navigation>
+            <Navigation>14</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/rom.vhd(23): </Dynamic>
+            <Dynamic>structure</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/rom.vhd</Navigation>
+            <Navigation>23</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/ram.vhd(14): </Dynamic>
+            <Dynamic>ram</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/ram.vhd</Navigation>
+            <Navigation>14</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/ram.vhd(25): </Dynamic>
+            <Dynamic>structure</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/ram.vhd</Navigation>
+            <Navigation>25</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/ram.vhd(14): </Dynamic>
+            <Dynamic>ram</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/ram.vhd</Navigation>
+            <Navigation>14</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/ram.vhd(25): </Dynamic>
+            <Dynamic>structure</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/ram.vhd</Navigation>
+            <Navigation>25</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/entities.vhd(6): </Dynamic>
+            <Dynamic>ring_oscillator</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/entities.vhd</Navigation>
+            <Navigation>6</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/entities.vhd(13): </Dynamic>
+            <Dynamic>behavior</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/entities.vhd</Navigation>
+            <Navigation>13</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/entities.vhd(105): </Dynamic>
+            <Dynamic>pcu</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/entities.vhd</Navigation>
+            <Navigation>105</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/entities.vhd(113): </Dynamic>
+            <Dynamic>structure</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/entities.vhd</Navigation>
+            <Navigation>113</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(62): </Dynamic>
+            <Dynamic>osr8_cpu</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>62</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(91): </Dynamic>
+            <Dynamic>behavior</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>91</Navigation>
+        </Message>
+        <Message>
+            <ID>35921012</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(27): </Dynamic>
+            <Dynamic>main</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>27</Navigation>
+        </Message>
+        <Message>
+            <ID>35921010</ID>
+            <Severity>Info</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(93): </Dynamic>
+            <Dynamic>behavior</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>93</Navigation>
+        </Message>
+        <Message>
+            <ID>35921443</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(281): </Dynamic>
+            <Dynamic>clock</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>281</Navigation>
+        </Message>
+        <Message>
+            <ID>35921443</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(295): </Dynamic>
+            <Dynamic>outclock</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>295</Navigation>
+        </Message>
+        <Message>
+            <ID>35921443</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(1041): </Dynamic>
+            <Dynamic>wrclock</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>1041</Navigation>
+        </Message>
+        <Message>
+            <ID>35921443</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(1048): </Dynamic>
+            <Dynamic>rdclock</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>1048</Navigation>
+        </Message>
+        <Message>
+            <ID>35921443</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(1049): </Dynamic>
+            <Dynamic>rdclocken</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>1049</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(289): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>289</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(588): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>588</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(614): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>614</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(869): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>869</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(939): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>939</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(965): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>965</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(980): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>980</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1004): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1004</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1028): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1028</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1065): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1065</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1075): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1075</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1146): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1146</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1230): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1230</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1248): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1248</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/osr8v3.vhd(1284): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/osr8v3.vhd</Navigation>
+            <Navigation>1284</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(349): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>349</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(362): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>362</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(257): </Dynamic>
+            <Dynamic>cpa</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>257</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(257): </Dynamic>
+            <Dynamic>dactive</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>257</Navigation>
+        </Message>
+        <Message>
+            <ID>35921613</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(259): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>259</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(335): </Dynamic>
+            <Dynamic>cpu_addr</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>335</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(336): </Dynamic>
+            <Dynamic>cpu_addr</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>336</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(341): </Dynamic>
+            <Dynamic>cpu_data_out</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>341</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(342): </Dynamic>
+            <Dynamic>cpu_addr</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>342</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(343): </Dynamic>
+            <Dynamic>cpu_addr</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>343</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(349): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>349</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(351): </Dynamic>
+            <Dynamic>cpuwr</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>351</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(352): </Dynamic>
+            <Dynamic>ram_out</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>352</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(354): </Dynamic>
+            <Dynamic>cpuds</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>354</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(357): </Dynamic>
+            <Dynamic>cpuwr</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>357</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(358): </Dynamic>
+            <Dynamic>cmd_out</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>358</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(361): </Dynamic>
+            <Dynamic>cpuwr</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>361</Navigation>
+        </Message>
+        <Message>
+            <ID>35928037</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(362): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>362</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(363): </Dynamic>
+            <Dynamic>sensor_bits_in</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>363</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(364): </Dynamic>
+            <Dynamic>int_bits</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>364</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(365): </Dynamic>
+            <Dynamic>int_mask</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>365</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(366): </Dynamic>
+            <Dynamic>int_period</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>366</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(370): </Dynamic>
+            <Dynamic>tck_frequency</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>370</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(372): </Dynamic>
+            <Dynamic>cmdrdy</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>372</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(376): </Dynamic>
+            <Dynamic>cmd_wr_addr</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>376</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(378): </Dynamic>
+            <Dynamic>cmd_wr_addr</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>378</Navigation>
+        </Message>
+        <Message>
+            <ID>35921613</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(434): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>434</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(505): </Dynamic>
+            <Dynamic>rck</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>505</Navigation>
+        </Message>
+        <Message>
+            <ID>35921613</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(508): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>508</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(587): </Dynamic>
+            <Dynamic>int_bits</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>587</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(587): </Dynamic>
+            <Dynamic>int_mask</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>587</Navigation>
+        </Message>
+        <Message>
+            <ID>35921613</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(588): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>588</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(674): </Dynamic>
+            <Dynamic>cs</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>674</Navigation>
+        </Message>
+        <Message>
+            <ID>35921613</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(675): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>675</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(705): </Dynamic>
+            <Dynamic>tx_channel</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>705</Navigation>
+        </Message>
+        <Message>
+            <ID>35921251</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(706): </Dynamic>
+            <Dynamic>tx_channel</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>706</Navigation>
+        </Message>
+        <Message>
+            <ID>35921613</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(779): </Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>779</Navigation>
+        </Message>
+        <Message>
+            <ID>35931002</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(127): </Dynamic>
+            <Dynamic>xmit_bits[15]</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>127</Navigation>
+        </Message>
+        <Message>
+            <ID>35931002</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(129): </Dynamic>
+            <Dynamic>tx_low[3]</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>129</Navigation>
+        </Message>
+        <Message>
+            <ID>35921205</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(91): </Dynamic>
+            <Dynamic>main</Dynamic>
+            <Dynamic>behavior</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>91</Navigation>
+        </Message>
+        <Message>
+            <ID>35001771</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>TXA</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001771</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>SAI_keep</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001771</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>TXI_keep</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001771</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>SAD_keep</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001771</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>SAA_keep</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001771</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>TXD_keep</Dynamic>
+        </Message>
+        <Message>
+            <ID>35935013</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(433): </Dynamic>
+            <Dynamic>SAI_553</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>433</Navigation>
+        </Message>
+        <Message>
+            <ID>35935013</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>c:/kevan/a3041/p3041a/main.vhd(583): </Dynamic>
+            <Dynamic>int_bits[5]_598</Dynamic>
+            <Navigation>c:/kevan/a3041/p3041a/main.vhd</Navigation>
+            <Navigation>583</Navigation>
+        </Message>
+        <Message>
+            <ID>35001747</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>4</Dynamic>
+            <Dynamic>Command_Processor.state</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001747</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>3</Dynamic>
+            <Dynamic>Command_Processor.state</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001716</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>BUFBA</Dynamic>
+        </Message>
+        <Message>
+            <ID>35002005</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>SDO</Dynamic>
+        </Message>
+        <Message>
+            <ID>35002005</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>TP3</Dynamic>
+        </Message>
+        <Message>
+            <ID>35002005</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>TP4</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001774</ID>
+            <Severity>Info</Severity>
+            <Dynamic>Boost_Controller.state</Dynamic>
+            <Dynamic>one-hot</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001747</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>3</Dynamic>
+            <Dynamic>xdac</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001747</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>2</Dynamic>
+            <Dynamic>xdac</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001747</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>1</Dynamic>
+            <Dynamic>xdac</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001747</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>7</Dynamic>
+            <Dynamic>int_set</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001747</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>6</Dynamic>
+            <Dynamic>int_set</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001747</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>5</Dynamic>
+            <Dynamic>int_set</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001747</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>4</Dynamic>
+            <Dynamic>int_set</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001747</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>2</Dynamic>
+            <Dynamic>int_set</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001747</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>1</Dynamic>
+            <Dynamic>int_set</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001747</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>0</Dynamic>
+            <Dynamic>int_set</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001747</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>6</Dynamic>
+            <Dynamic>\CPU/CPU.state</Dynamic>
+        </Message>
+        <Message>
+            <ID>35002005</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>SDO</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001779</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>PowerUp.state_i0</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001779</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>RESET_I_0_645</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001779</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>TXB_613</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001779</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>Byte_Receiver.no_stop_bit_626</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001779</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>BITS_630</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001779</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CRCERR_635</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001779</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CPRST_556</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001752</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>RESET_I_0_645</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001752</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>RESET_I_0</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001752</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>RESET_I_0_646_i1</Dynamic>
+        </Message>
+        <Message>
+            <ID>35001699</ID>
+            <Severity>Info</Severity>
+            <Dynamic>RPS_619</Dynamic>
+            <Dynamic>IFS1P3DX</Dynamic>
+        </Message>
+        <Message>
+            <ID>1166052</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>logical</Dynamic>
+            <Dynamic>SDO</Dynamic>
+            <Navigation>SDO</Navigation>
+        </Message>
+        <Message>
+            <ID>1166064</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>input</Dynamic>
+            <Dynamic>SDO</Dynamic>
+        </Message>
+        <Message>
+            <ID>1166052</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>logical</Dynamic>
+            <Dynamic>cpu_addr_10</Dynamic>
+            <Navigation>cpu_addr_10</Navigation>
+        </Message>
+        <Message>
+            <ID>1163101</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>3</Dynamic>
+        </Message>
+    </Task>
+    <Task name="PAR">
+        <Message>
+            <ID>61061044</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MachXO2</Dynamic>
+        </Message>
+        <Message>
+            <ID>61061008</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>RCK_c</Dynamic>
+            <Dynamic>Primary</Dynamic>
+            <Dynamic>RCK</Dynamic>
+            <Dynamic>E1</Dynamic>
+            <Dynamic>Primary</Dynamic>
+        </Message>
+        <Message>
+            <ID>62061008</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>RCK_c</Dynamic>
+        </Message>
+        <Message>
+            <ID>66011008</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>
+   Signal=CPU/un1_state_20[0] loads=1 clock_loads=1
+   Signal=Fast_CK/RIN loads=5 clock_loads=4
+   Signal=Power_Controller/GND loads=1 clock_loads=1</Dynamic>
+        </Message>
+        <Message>
+            <ID>66011008</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>
+   Signal=CPU/un1_state_20[0] loads=1 clock_loads=1
+   Signal=Fast_CK/RIN loads=5 clock_loads=4
+   Signal=Power_Controller/GND loads=1 clock_loads=1</Dynamic>
+        </Message>
+    </Task>
+    <Task name="Jedecgen">
+        <Message>
+            <ID>1083784</ID>
+            <Severity>Warning</Severity>
+        </Message>
+    </Task>
+    <Task name="Synplify_Synthesis">
+        <Message>
+            <ID>2011000</ID>
+            <Severity>Info</Severity>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG296 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:230:10:230:16|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Dynamic>
+            <Navigation>CG296</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>230</Navigation>
+            <Navigation>10</Navigation>
+            <Navigation>230</Navigation>
+            <Navigation>16</Navigation>
+            <Navigation>Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:255:22:255:24|Referenced variable cpa is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>255</Navigation>
+            <Navigation>22</Navigation>
+            <Navigation>255</Navigation>
+            <Navigation>24</Navigation>
+            <Navigation>Referenced variable cpa is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:255:29:255:35|Referenced variable dactive is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>255</Navigation>
+            <Navigation>29</Navigation>
+            <Navigation>255</Navigation>
+            <Navigation>35</Navigation>
+            <Navigation>Referenced variable dactive is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:360:4:360:7|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>360</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>360</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:347:2:347:5|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>347</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>347</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:409:5:409:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>409</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>409</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG296 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:327:7:327:13|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Dynamic>
+            <Navigation>CG296</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>327</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>327</Navigation>
+            <Navigation>13</Navigation>
+            <Navigation>Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:368:50:368:62|Referenced variable tck_frequency is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>368</Navigation>
+            <Navigation>50</Navigation>
+            <Navigation>368</Navigation>
+            <Navigation>62</Navigation>
+            <Navigation>Referenced variable tck_frequency is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:361:36:361:49|Referenced variable sensor_bits_in is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>361</Navigation>
+            <Navigation>36</Navigation>
+            <Navigation>361</Navigation>
+            <Navigation>49</Navigation>
+            <Navigation>Referenced variable sensor_bits_in is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:362:37:362:44|Referenced variable int_bits is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>362</Navigation>
+            <Navigation>37</Navigation>
+            <Navigation>362</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Referenced variable int_bits is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:364:36:364:45|Referenced variable int_period is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>364</Navigation>
+            <Navigation>36</Navigation>
+            <Navigation>364</Navigation>
+            <Navigation>45</Navigation>
+            <Navigation>Referenced variable int_period is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:363:37:363:44|Referenced variable int_mask is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>363</Navigation>
+            <Navigation>37</Navigation>
+            <Navigation>363</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Referenced variable int_mask is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:370:9:370:14|Referenced variable cmdrdy is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>370</Navigation>
+            <Navigation>9</Navigation>
+            <Navigation>370</Navigation>
+            <Navigation>14</Navigation>
+            <Navigation>Referenced variable cmdrdy is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:352:26:352:30|Referenced variable cpuds is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>352</Navigation>
+            <Navigation>26</Navigation>
+            <Navigation>352</Navigation>
+            <Navigation>30</Navigation>
+            <Navigation>Referenced variable cpuds is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:349:10:349:14|Referenced variable cpuwr is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>10</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>14</Navigation>
+            <Navigation>Referenced variable cpuwr is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:333:34:333:41|Referenced variable cpu_addr is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>333</Navigation>
+            <Navigation>34</Navigation>
+            <Navigation>333</Navigation>
+            <Navigation>41</Navigation>
+            <Navigation>Referenced variable cpu_addr is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:356:19:356:25|Referenced variable cmd_out is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>356</Navigation>
+            <Navigation>19</Navigation>
+            <Navigation>356</Navigation>
+            <Navigation>25</Navigation>
+            <Navigation>Referenced variable cmd_out is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:339:12:339:23|Referenced variable cpu_data_out is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>339</Navigation>
+            <Navigation>12</Navigation>
+            <Navigation>339</Navigation>
+            <Navigation>23</Navigation>
+            <Navigation>Referenced variable cpu_data_out is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:374:34:374:44|Referenced variable cmd_wr_addr is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>374</Navigation>
+            <Navigation>34</Navigation>
+            <Navigation>374</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Referenced variable cmd_wr_addr is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:350:19:350:25|Referenced variable ram_out is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>350</Navigation>
+            <Navigation>19</Navigation>
+            <Navigation>350</Navigation>
+            <Navigation>25</Navigation>
+            <Navigation>Referenced variable ram_out is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG296 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:510:24:510:30|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Dynamic>
+            <Navigation>CG296</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>510</Navigation>
+            <Navigation>24</Navigation>
+            <Navigation>510</Navigation>
+            <Navigation>30</Navigation>
+            <Navigation>Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:585:26:585:33|Referenced variable int_mask is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>585</Navigation>
+            <Navigation>26</Navigation>
+            <Navigation>585</Navigation>
+            <Navigation>33</Navigation>
+            <Navigation>Referenced variable int_mask is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG296 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:679:22:679:28|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Dynamic>
+            <Navigation>CG296</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>679</Navigation>
+            <Navigation>22</Navigation>
+            <Navigation>679</Navigation>
+            <Navigation>28</Navigation>
+            <Navigation>Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:703:17:703:26|Referenced variable tx_channel is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>703</Navigation>
+            <Navigation>17</Navigation>
+            <Navigation>703</Navigation>
+            <Navigation>26</Navigation>
+            <Navigation>Referenced variable tx_channel is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:916:17:916:21|Variable state read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>916</Navigation>
+            <Navigation>17</Navigation>
+            <Navigation>916</Navigation>
+            <Navigation>21</Navigation>
+            <Navigation>Variable state read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:962:10:962:14|Variable state read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>962</Navigation>
+            <Navigation>10</Navigation>
+            <Navigation>962</Navigation>
+            <Navigation>14</Navigation>
+            <Navigation>Variable state read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:990:11:990:15|Variable state read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>990</Navigation>
+            <Navigation>11</Navigation>
+            <Navigation>990</Navigation>
+            <Navigation>15</Navigation>
+            <Navigation>Variable state read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:990:26:990:30|Variable state read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>990</Navigation>
+            <Navigation>26</Navigation>
+            <Navigation>990</Navigation>
+            <Navigation>30</Navigation>
+            <Navigation>Variable state read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:916:17:916:21|Variable state read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>916</Navigation>
+            <Navigation>17</Navigation>
+            <Navigation>916</Navigation>
+            <Navigation>21</Navigation>
+            <Navigation>Variable state read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:962:10:962:14|Variable state read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>962</Navigation>
+            <Navigation>10</Navigation>
+            <Navigation>962</Navigation>
+            <Navigation>14</Navigation>
+            <Navigation>Variable state read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:990:11:990:15|Variable state read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>990</Navigation>
+            <Navigation>11</Navigation>
+            <Navigation>990</Navigation>
+            <Navigation>15</Navigation>
+            <Navigation>Variable state read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:990:26:990:30|Variable state read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>990</Navigation>
+            <Navigation>26</Navigation>
+            <Navigation>990</Navigation>
+            <Navigation>30</Navigation>
+            <Navigation>Variable state read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1022:32:1022:34|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1022</Navigation>
+            <Navigation>32</Navigation>
+            <Navigation>1022</Navigation>
+            <Navigation>34</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1022:20:1022:22|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1022</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>1022</Navigation>
+            <Navigation>22</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1023:20:1023:22|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1023</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>1023</Navigation>
+            <Navigation>22</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1024:32:1024:34|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1024</Navigation>
+            <Navigation>32</Navigation>
+            <Navigation>1024</Navigation>
+            <Navigation>34</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1024:20:1024:22|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1024</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>1024</Navigation>
+            <Navigation>22</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1025:32:1025:34|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1025</Navigation>
+            <Navigation>32</Navigation>
+            <Navigation>1025</Navigation>
+            <Navigation>34</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1025:20:1025:22|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1025</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>1025</Navigation>
+            <Navigation>22</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1026:20:1026:22|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1026</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>1026</Navigation>
+            <Navigation>22</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1027:42:1027:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1027</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1027</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1022:32:1022:34|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1022</Navigation>
+            <Navigation>32</Navigation>
+            <Navigation>1022</Navigation>
+            <Navigation>34</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1022:20:1022:22|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1022</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>1022</Navigation>
+            <Navigation>22</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1023:20:1023:22|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1023</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>1023</Navigation>
+            <Navigation>22</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1024:32:1024:34|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1024</Navigation>
+            <Navigation>32</Navigation>
+            <Navigation>1024</Navigation>
+            <Navigation>34</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1024:20:1024:22|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1024</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>1024</Navigation>
+            <Navigation>22</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1025:32:1025:34|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1025</Navigation>
+            <Navigation>32</Navigation>
+            <Navigation>1025</Navigation>
+            <Navigation>34</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1025:20:1025:22|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1025</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>1025</Navigation>
+            <Navigation>22</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1026:20:1026:22|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1026</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>1026</Navigation>
+            <Navigation>22</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1027:42:1027:44|Variable crc read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1027</Navigation>
+            <Navigation>42</Navigation>
+            <Navigation>1027</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Variable crc read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1111:10:1111:14|Variable state read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1111</Navigation>
+            <Navigation>10</Navigation>
+            <Navigation>1111</Navigation>
+            <Navigation>14</Navigation>
+            <Navigation>Variable state read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1121:23:1121:27|Variable state read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1121</Navigation>
+            <Navigation>23</Navigation>
+            <Navigation>1121</Navigation>
+            <Navigation>27</Navigation>
+            <Navigation>Variable state read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1111:10:1111:14|Variable state read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1111</Navigation>
+            <Navigation>10</Navigation>
+            <Navigation>1111</Navigation>
+            <Navigation>14</Navigation>
+            <Navigation>Variable state read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD603 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1121:23:1121:27|Variable state read before being assigned? This may cause a simulation mismatch</Dynamic>
+            <Navigation>CD603</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1121</Navigation>
+            <Navigation>23</Navigation>
+            <Navigation>1121</Navigation>
+            <Navigation>27</Navigation>
+            <Navigation>Variable state read before being assigned? This may cause a simulation mismatch </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD638 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:175:20:175:24|Signal intgs is undriven. Either assign the signal a value or remove the signal declaration.</Dynamic>
+            <Navigation>CD638</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>175</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>175</Navigation>
+            <Navigation>24</Navigation>
+            <Navigation>Signal intgs is undriven. Either assign the signal a value or remove the signal declaration.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD638 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:175:27:175:31|Signal intas is undriven. Either assign the signal a value or remove the signal declaration.</Dynamic>
+            <Navigation>CD638</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>175</Navigation>
+            <Navigation>27</Navigation>
+            <Navigation>175</Navigation>
+            <Navigation>31</Navigation>
+            <Navigation>Signal intas is undriven. Either assign the signal a value or remove the signal declaration.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD638 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:197:8:197:13|Signal bytsel is undriven. Either assign the signal a value or remove the signal declaration.</Dynamic>
+            <Navigation>CD638</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>197</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>197</Navigation>
+            <Navigation>13</Navigation>
+            <Navigation>Signal bytsel is undriven. Either assign the signal a value or remove the signal declaration.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:289:2:289:5|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>289</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>289</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:588:5:588:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>588</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>588</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:614:5:614:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>614</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>614</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:939:5:939:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>939</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>939</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:869:4:869:7|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>869</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>869</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:980:5:980:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>980</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>980</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:1004:5:1004:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>1004</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>1004</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:965:4:965:7|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>965</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>965</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:1028:4:1028:7|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>1028</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>1028</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:1075:5:1075:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>1075</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>1075</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:1065:4:1065:7|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>1065</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>1065</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:1231:4:1231:7|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>1231</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>1231</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:1147:3:1147:6|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>1147</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>1147</Navigation>
+            <Navigation>6</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:1249:3:1249:6|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>1249</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>1249</Navigation>
+            <Navigation>6</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:1285:2:1285:5|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>1285</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>1285</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG296 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:1298:18:1298:24|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Dynamic>
+            <Navigation>CG296</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>1298</Navigation>
+            <Navigation>18</Navigation>
+            <Navigation>1298</Navigation>
+            <Navigation>24</Navigation>
+            <Navigation>Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:1302:20:1302:21|Referenced variable ck is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>1302</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>1302</Navigation>
+            <Navigation>21</Navigation>
+            <Navigation>Referenced variable ck is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD638 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:216:27:216:31|Signal alu_z is undriven. Either assign the signal a value or remove the signal declaration.</Dynamic>
+            <Navigation>CD638</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>216</Navigation>
+            <Navigation>27</Navigation>
+            <Navigation>216</Navigation>
+            <Navigation>31</Navigation>
+            <Navigation>Signal alu_z is undriven. Either assign the signal a value or remove the signal declaration.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD638 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:216:34:216:38|Signal alu_v is undriven. Either assign the signal a value or remove the signal declaration.</Dynamic>
+            <Navigation>CD638</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>216</Navigation>
+            <Navigation>34</Navigation>
+            <Navigation>216</Navigation>
+            <Navigation>38</Navigation>
+            <Navigation>Signal alu_v is undriven. Either assign the signal a value or remove the signal declaration.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL117 :&quot;C:\Kevan\A3041\P3041A\OSR8V3.vhd&quot;:1146:2:1146:3|Latch generated from process for signal alu_cin; possible missing assignment in an if or case statement.</Dynamic>
+            <Navigation>CL117</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\OSR8V3.vhd</Navigation>
+            <Navigation>1146</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>1146</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Latch generated from process for signal alu_cin; possible missing assignment in an if or case statement.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD280 :&quot;C:\Kevan\A3041\P3041A\Entities.vhd&quot;:37:11:37:15|Unbound component BUFBA mapped to black box</Dynamic>
+            <Navigation>CD280</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Entities.vhd</Navigation>
+            <Navigation>37</Navigation>
+            <Navigation>11</Navigation>
+            <Navigation>37</Navigation>
+            <Navigation>15</Navigation>
+            <Navigation>Unbound component BUFBA mapped to black box</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1072:18:1072:27|Pruning unused register next_state(4 downto 0). Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1072</Navigation>
+            <Navigation>18</Navigation>
+            <Navigation>1072</Navigation>
+            <Navigation>27</Navigation>
+            <Navigation>Pruning unused register next_state(4 downto 0). Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1021:60:1021:60|Pruning unused register i(31 downto 28). Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>60</Navigation>
+            <Navigation>1021</Navigation>
+            <Navigation>60</Navigation>
+            <Navigation>Pruning unused register i(31 downto 28). Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1004:16:1004:23|Pruning unused register next_crc(15 downto 0). Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1004</Navigation>
+            <Navigation>16</Navigation>
+            <Navigation>1004</Navigation>
+            <Navigation>23</Navigation>
+            <Navigation>Pruning unused register next_crc(15 downto 0). Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:976:10:976:10|Pruning unused register i(31 downto 28). Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>976</Navigation>
+            <Navigation>10</Navigation>
+            <Navigation>976</Navigation>
+            <Navigation>10</Navigation>
+            <Navigation>Pruning unused register i(31 downto 28). Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:187:2:187:5|Pruning unused register Byte_Receiver.BYTS. Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>187</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>187</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>Pruning unused register Byte_Receiver.BYTS. Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:182:2:182:3|Pruning unused register Receive_Command.RC. Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>182</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>182</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Pruning unused register Receive_Command.RC. Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:527:2:527:3|Pruning unused register CPUIRQ_1. Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>527</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>527</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Pruning unused register CPUIRQ_1. Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL271 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:385:2:385:3|Pruning unused bits 7 to 2 of tp_reg_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.</Dynamic>
+            <Navigation>CL271</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Pruning unused bits 7 to 2 of tp_reg_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL265 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:385:2:385:3|Removing unused bit 5 of int_set_4(7 downto 0). Either assign all bits or reduce the width of the signal.</Dynamic>
+            <Navigation>CL265</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Removing unused bit 5 of int_set_4(7 downto 0). Either assign all bits or reduce the width of the signal.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL265 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:385:2:385:3|Removing unused bit 3 of int_set_4(7 downto 0). Either assign all bits or reduce the width of the signal.</Dynamic>
+            <Navigation>CL265</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Removing unused bit 3 of int_set_4(7 downto 0). Either assign all bits or reduce the width of the signal.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL271 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:385:2:385:3|Pruning unused bits 4 to 3 of int_rst_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.</Dynamic>
+            <Navigation>CL271</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Pruning unused bits 4 to 3 of int_rst_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL177 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:880:18:880:27|Sharing sequential element next_state and merging state. Add a syn_preserve attribute to the element to prevent sharing.</Dynamic>
+            <Navigation>CL177</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>880</Navigation>
+            <Navigation>18</Navigation>
+            <Navigation>880</Navigation>
+            <Navigation>27</Navigation>
+            <Navigation>Sharing sequential element next_state and merging state. Add a syn_preserve attribute to the element to prevent sharing.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL111 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:527:2:527:3|All reachable assignments to int_bits(3) are '0'; removing register. To preserve a constant register, use the syn_preserve attribute.</Dynamic>
+            <Navigation>CL111</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>527</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>527</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>All reachable assignments to int_bits(3) are '0'; removing register. To preserve a constant register, use the syn_preserve attribute.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL190 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:527:2:527:3|Optimizing register bit int_bits(5) to a constant 0. To keep the instance, apply constraint syn_preserve=1 on the instance.</Dynamic>
+            <Navigation>CL190</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>527</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>527</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Optimizing register bit int_bits(5) to a constant 0. To keep the instance, apply constraint syn_preserve=1 on the instance.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL260 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:527:2:527:3|Pruning register bit 5 of int_bits(7 downto 1). If this is not the intended behavior, drive the input with valid values, or an input from the top level.</Dynamic>
+            <Navigation>CL260</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>527</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>527</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Pruning register bit 5 of int_bits(7 downto 1). If this is not the intended behavior, drive the input with valid values, or an input from the top level.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL249 :&quot;C:\Kevan\A3041\P3041A\Main.vhd&quot;:1072:11:1072:15|Initial value is not supported on state machine state</Dynamic>
+            <Navigation>CL249</Navigation>
+            <Navigation>C:\Kevan\A3041\P3041A\Main.vhd</Navigation>
+            <Navigation>1072</Navigation>
+            <Navigation>11</Navigation>
+            <Navigation>1072</Navigation>
+            <Navigation>15</Navigation>
+            <Navigation>Initial value is not supported on state machine state</Navigation>
+        </Message>
+        <Message>
+            <ID>2019993</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>FX474 |User-specified initial value defined for some sequential elements which can prevent optimum synthesis results from being achieved.</Dynamic>
+            <Navigation>FX474</Navigation>
+            <Navigation>User-specified initial value defined for some sequential elements which can prevent optimum synthesis results from being achieved. </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>BN288 :&quot;c:\kevan\a3041\p3041a\main.vhd&quot;:385:2:385:3|Register CPRST with set has an initial value of 0. Ignoring initial value.</Dynamic>
+            <Navigation>BN288</Navigation>
+            <Navigation>c:\kevan\a3041\p3041a\main.vhd</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Register CPRST with set has an initial value of 0. Ignoring initial value.  </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>BN287 :&quot;c:\kevan\a3041\p3041a\main.vhd&quot;:385:2:385:3|Register DACTIVE with reset has an initial value of 1. Ignoring initial value.</Dynamic>
+            <Navigation>BN287</Navigation>
+            <Navigation>c:\kevan\a3041\p3041a\main.vhd</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Register DACTIVE with reset has an initial value of 1. Ignoring initial value.  </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>BN287 :&quot;c:\kevan\a3041\p3041a\main.vhd&quot;:385:2:385:3|Register tck_divisor[3:0] with reset has an initial value of 1. Ignoring initial value.</Dynamic>
+            <Navigation>BN287</Navigation>
+            <Navigation>c:\kevan\a3041\p3041a\main.vhd</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Register tck_divisor[3:0] with reset has an initial value of 1. Ignoring initial value.  </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>BN287 :&quot;c:\kevan\a3041\p3041a\main.vhd&quot;:385:2:385:3|Register tx_channel[7:0] with reset has an initial value of 1. Ignoring initial value.</Dynamic>
+            <Navigation>BN287</Navigation>
+            <Navigation>c:\kevan\a3041\p3041a\main.vhd</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>385</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Register tx_channel[7:0] with reset has an initial value of 1. Ignoring initial value.  </Navigation>
+        </Message>
+        <Message>
+            <ID>2019993</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>BZ101 |Potential glitch can occur at the output of 15 instances</Dynamic>
+            <Navigation>BZ101</Navigation>
+            <Navigation>Potential glitch can occur at the output of 15 instances  </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MT531 :&quot;c:\kevan\a3041\p3041a\osr8v3.vhd&quot;:1146:2:1146:3|Found signal identified as System clock which controls 1 sequential elements including CPU.alu_cin.  Using this clock, which has no specified timing constraint, can prevent conversion of gated or generated clocks and can adversely impact design performance.</Dynamic>
+            <Navigation>MT531</Navigation>
+            <Navigation>c:\kevan\a3041\p3041a\osr8v3.vhd</Navigation>
+            <Navigation>1146</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>1146</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Found signal identified as System clock which controls 1 sequential elements including CPU.alu_cin.  Using this clock, which has no specified timing constraint, can prevent conversion of gated or generated clocks and can adversely impact design performance. </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MT529 :&quot;c:\kevan\a3041\p3041a\ram.vhd&quot;:114:4:114:14|Found inferred clock main|RCK which controls 345 sequential elements including RAM.RAM_0_0_0_0. This clock has no specified timing constraint which may prevent conversion of gated or generated clocks and may adversely impact design performance.</Dynamic>
+            <Navigation>MT529</Navigation>
+            <Navigation>c:\kevan\a3041\p3041a\ram.vhd</Navigation>
+            <Navigation>114</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>114</Navigation>
+            <Navigation>14</Navigation>
+            <Navigation>Found inferred clock main|RCK which controls 345 sequential elements including RAM.RAM_0_0_0_0. This clock has no specified timing constraint which may prevent conversion of gated or generated clocks and may adversely impact design performance. </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MT529 :&quot;c:\kevan\a3041\p3041a\entities.vhd&quot;:65:2:65:3|Found inferred clock ring_oscillator|RIN which controls 5 sequential elements including Fast_CK.count[3:0]. This clock has no specified timing constraint which may prevent conversion of gated or generated clocks and may adversely impact design performance.</Dynamic>
+            <Navigation>MT529</Navigation>
+            <Navigation>c:\kevan\a3041\p3041a\entities.vhd</Navigation>
+            <Navigation>65</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>65</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Found inferred clock ring_oscillator|RIN which controls 5 sequential elements including Fast_CK.count[3:0]. This clock has no specified timing constraint which may prevent conversion of gated or generated clocks and may adversely impact design performance. </Navigation>
+        </Message>
+        <Message>
+            <ID>2019993</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>FX474 |User-specified initial value defined for some sequential elements which can prevent optimum synthesis results from being achieved.</Dynamic>
+            <Navigation>FX474</Navigation>
+            <Navigation>User-specified initial value defined for some sequential elements which can prevent optimum synthesis results from being achieved. </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MT246 :&quot;c:\kevan\a3041\p3041a\entities.vhd&quot;:140:4:140:14|Blackbox PCNTR is missing a user supplied timing model. This may have a negative effect on timing analysis and optimizations (Quality of Results)</Dynamic>
+            <Navigation>MT246</Navigation>
+            <Navigation>c:\kevan\a3041\p3041a\entities.vhd</Navigation>
+            <Navigation>140</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>140</Navigation>
+            <Navigation>14</Navigation>
+            <Navigation>Blackbox PCNTR is missing a user supplied timing model. This may have a negative effect on timing analysis and optimizations (Quality of Results)</Navigation>
+        </Message>
+        <Message>
+            <ID>2019993</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MT420 |Found inferred clock main|RCK with period 1000.00ns. Please declare a user-defined clock on port RCK.</Dynamic>
+            <Navigation>MT420</Navigation>
+            <Navigation>Found inferred clock main|RCK with period 1000.00ns. Please declare a user-defined clock on port RCK.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019993</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MT646 |Found inferred clock ring_oscillator|RIN with period 1000.00ns. Please declare a clock for each of the following:</Dynamic>
+            <Navigation>MT646</Navigation>
+            <Navigation>Found inferred clock ring_oscillator|RIN with period 1000.00ns. Please declare a clock for each of the following:</Navigation>
+        </Message>
+    </Task>
+</BaliMessageLog>

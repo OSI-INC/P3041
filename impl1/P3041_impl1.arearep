@@ -1,0 +1,91 @@
+----------------------------------------------------------------------
+Report for cell main.TECH
+Register bits:  253 of 1337 (18.923%)
+I/O cells:      16
+                                  Cell usage:
+                               cell     count   Res Usage(%)
+                              BUFBA         4          100.0
+                              CCU2D        76          100.0
+                              DP8KC         5          100.0
+                            FD1P3AX        97          100.0
+                            FD1P3BX         2          100.0
+                            FD1P3DX        26          100.0
+                            FD1P3JX        28          100.0
+                             FD1S1A         1          100.0
+                             FD1S1B         1          100.0
+                            FD1S3AX        43          100.0
+                            FD1S3BX         2          100.0
+                            FD1S3DX        13          100.0
+                            FD1S3IX        25          100.0
+                            FD1S3JX        11          100.0
+                                GSR         1          100.0
+                                 IB         2          100.0
+                           IFS1P3DX         1          100.0
+                                INV         3          100.0
+                            L6MUX21         5          100.0
+                               LUT4      1500          100.0
+                              MUX81        11          100.0
+                                 OB        14          100.0
+                           OFS1P3DX         1          100.0
+                           OFS1P3IX         2          100.0
+                              PCNTR         1          100.0
+                              PFUMX       250          100.0
+                          ROM128X1A         2          100.0
+SUB MODULES
+        OSR8_CPU(12,11,0,3,768,240)         1
+                                PCU         1
+                                RAM         1
+                                ROM         1
+                    ring_oscillator         1
+                              TOTAL      2132
+----------------------------------------------------------------------
+Report for cell ring_oscillator.v1
+Instance Path : Fast_CK
+                                  Cell usage:
+                               cell     count   Res Usage(%)
+                              BUFBA         4          100.0
+                            FD1S3AX         4            9.3
+                            FD1S3IX         1            4.0
+                               LUT4         8            0.5
+                              TOTAL        17
+----------------------------------------------------------------------
+Report for cell PCU.v1
+Instance Path : Power_Controller
+                                  Cell usage:
+                               cell     count   Res Usage(%)
+                              PCNTR         1          100.0
+                              TOTAL         1
+----------------------------------------------------------------------
+Report for cell RAM.v1
+Instance Path : RAM
+                                  Cell usage:
+                               cell     count   Res Usage(%)
+                              DP8KC         1           20.0
+                              TOTAL         1
+----------------------------------------------------------------------
+Report for cell OSR8_CPU(12,11,0,3,768,240).v1
+Instance Path : CPU
+                                  Cell usage:
+                               cell     count   Res Usage(%)
+                              CCU2D        53           69.7
+                            FD1P3AX        96           99.0
+                            FD1P3BX         2          100.0
+                            FD1P3DX        26          100.0
+                            FD1P3JX        16           57.1
+                             FD1S1A         1          100.0
+                            FD1S3AX         8           18.6
+                            FD1S3BX         1           50.0
+                            FD1S3DX         8           61.5
+                            L6MUX21         5          100.0
+                               LUT4      1335           89.0
+                              MUX81        11          100.0
+                              PFUMX       238           95.2
+                              TOTAL      1800
+----------------------------------------------------------------------
+Report for cell ROM.v1
+Instance Path : ROM
+                                  Cell usage:
+                               cell     count   Res Usage(%)
+                              DP8KC         4           80.0
+                               LUT4         4            0.3
+                              TOTAL         8

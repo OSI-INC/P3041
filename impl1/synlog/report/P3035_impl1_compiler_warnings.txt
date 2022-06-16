@@ -1,0 +1,51 @@
+@W: CD274 :"C:\Kevan\A3041\P3041\Main.vhd":345:4:345:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\Main.vhd":336:2:336:5|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\Main.vhd":384:5:384:8|Incomplete case statement - add more cases or a when others
+@W: CG296 :"C:\Kevan\A3041\P3041\Main.vhd":317:7:317:13|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041\Main.vhd":346:35:346:48|Referenced variable sensor_data_in is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041\Main.vhd":348:36:348:43|Referenced variable int_bits is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041\Main.vhd":350:35:350:44|Referenced variable int_period is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041\Main.vhd":349:36:349:43|Referenced variable int_mask is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041\Main.vhd":341:26:341:30|Referenced variable cpuds is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041\Main.vhd":338:10:338:14|Referenced variable cpuwr is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041\Main.vhd":323:34:323:41|Referenced variable cpu_addr is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041\Main.vhd":329:12:329:23|Referenced variable cpu_data_out is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041\Main.vhd":353:35:353:52|Referenced variable cpu_multiplier_out is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041\Main.vhd":339:19:339:25|Referenced variable ram_out is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041\Main.vhd":352:49:352:61|Referenced variable tck_frequency is not in sensitivity list.
+@W: CG296 :"C:\Kevan\A3041\P3041\Main.vhd":491:24:491:30|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041\Main.vhd":584:26:584:33|Referenced variable int_mask is not in sensitivity list.
+@W: CG296 :"C:\Kevan\A3041\P3041\Main.vhd":850:22:850:28|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041\Main.vhd":874:17:874:26|Referenced variable tx_channel is not in sensitivity list.
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":308:2:308:5|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":607:5:607:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":635:5:635:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":961:5:961:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":891:4:891:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":1002:5:1002:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":1026:5:1026:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":987:4:987:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":1050:4:1050:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":1097:5:1097:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":1087:4:1087:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":1253:4:1253:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":1169:3:1169:6|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":1271:3:1271:6|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":1310:2:1310:5|Incomplete case statement - add more cases or a when others
+@W: CD638 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":233:27:233:31|Signal alu_z is undriven. Either assign the signal a value or remove the signal declaration.
+@W: CD638 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":233:34:233:38|Signal alu_v is undriven. Either assign the signal a value or remove the signal declaration.
+@W: CL117 :"C:\Kevan\A3041\P3041\OSR8V1R1.vhd":1168:2:1168:3|Latch generated from process for signal alu_cin; possible missing assignment in an if or case statement.
+@W: CL168 :"C:\Kevan\A3041\P3041\MUL.vhd":215:4:215:17|Removing instance scuba_vhi_inst because it does not drive other instances. To preserve this instance, use the syn_noprune synthesis directive.
+@W: CL168 :"C:\Kevan\A3041\P3041\P3035A_RAM.vhd":542:4:542:7|Removing instance FF_1 because it does not drive other instances. To preserve this instance, use the syn_noprune synthesis directive.
+@W: CD280 :"C:\Kevan\A3041\P3041\Entities.vhd":37:11:37:15|Unbound component BUFBA mapped to black box
+@W: CL169 :"C:\Kevan\A3041\P3041\Main.vhd":506:2:506:3|Pruning unused register CPUIRQ_1. Make sure that there are no unused intermediate registers.
+@W: CL271 :"C:\Kevan\A3041\P3041\Main.vhd":363:2:363:3|Pruning unused bits 7 to 1 of tp_reg_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.
+@W: CL265 :"C:\Kevan\A3041\P3041\Main.vhd":363:2:363:3|Removing unused bit 7 of sensor_addr_4(7 downto 0). Either assign all bits or reduce the width of the signal.
+@W: CL265 :"C:\Kevan\A3041\P3041\Main.vhd":363:2:363:3|Removing unused bit 5 of int_set_4(7 downto 0). Either assign all bits or reduce the width of the signal.
+@W: CL190 :"C:\Kevan\A3041\P3041\Main.vhd":506:2:506:3|Optimizing register bit int_bits(5) to a constant 0. To keep the instance, apply constraint syn_preserve=1 on the instance.
+@W: CL260 :"C:\Kevan\A3041\P3041\Main.vhd":506:2:506:3|Pruning register bit 5 of int_bits(7 downto 0). If this is not the intended behavior, drive the input with valid values, or an input from the top level.
+@W: CL190 :"C:\Kevan\A3041\P3041\Main.vhd":751:2:751:3|Optimizing register bit state(4) to a constant 0. To keep the instance, apply constraint syn_preserve=1 on the instance.
+@W: CL190 :"C:\Kevan\A3041\P3041\Main.vhd":751:2:751:3|Optimizing register bit state(5) to a constant 0. To keep the instance, apply constraint syn_preserve=1 on the instance.
+@W: CL279 :"C:\Kevan\A3041\P3041\Main.vhd":751:2:751:3|Pruning register bits 5 to 4 of state(5 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.
+@W: CL249 :"C:\Kevan\A3041\P3041\Main.vhd":610:2:610:3|Initial value is not supported on state machine state
+

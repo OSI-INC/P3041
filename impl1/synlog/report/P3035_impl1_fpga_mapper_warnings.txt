@@ -1,0 +1,3 @@
+@W: MT246 :"c:\kevan\a3041\p3041\entities.vhd":140:4:140:14|Blackbox PCNTR is missing a user supplied timing model. This may have a negative effect on timing analysis and optimizations (Quality of Results)
+@W: MT420 |Found inferred clock main|RCK with period 1000.00ns. Please declare a user-defined clock on port RCK.
+@W: MT420 |Found inferred clock ring_oscillator|RIN with period 1000.00ns. Please declare a user-defined clock on net Fast_CK.RIN.

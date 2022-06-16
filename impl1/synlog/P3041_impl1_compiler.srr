@@ -1,0 +1,348 @@
+
+Copyright (C) 1994-2021 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: R-2021.03L-SP1
+Install: C:\lscc\diamond\3.12\synpbase
+OS: Windows 6.1
+
+Hostname: VMBOX_WINDOWS7
+
+Implementation : impl1
+Synopsys HDL Compiler, Version comp202103synp2, Build 093R, Built Aug 10 2021 09:15:36, @
+
+@N|Running in 64-bit mode
+###########################################################[
+
+Copyright (C) 1994-2021 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: R-2021.03L-SP1
+Install: C:\lscc\diamond\3.12\synpbase
+OS: Windows 6.1
+
+Hostname: VMBOX_WINDOWS7
+
+Implementation : impl1
+Synopsys VHDL Compiler, Version comp202103synp2, Build 093R, Built Aug 10 2021 09:15:36, @
+
+@N|Running in 64-bit mode
+@N:"C:\Kevan\A3041\P3041A\Main.vhd":25:7:25:10|Top entity is set to main.
+File C:\Kevan\A3041\P3041A\ROM.vhd changed - recompiling
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\lscc\diamond\3.12\cae_library\synthesis\vhdl\machxo2.vhd'.
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\Kevan\A3041\P3041A\OSR8V3.vhd'.
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\Kevan\A3041\P3041A\CMD_RAM.vhd'.
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\Kevan\A3041\P3041A\ROM.vhd'.
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\Kevan\A3041\P3041A\RAM.vhd'.
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\Kevan\A3041\P3041A\Entities.vhd'.
+@N: CD140 :	| Using the VHDL 1993 Standard for file 'C:\Kevan\A3041\P3041A\Main.vhd'.
+VHDL syntax check successful!
+File C:\Kevan\A3041\P3041A\ROM.vhd changed - recompiling
+@N: CD630 :"C:\Kevan\A3041\P3041A\Main.vhd":25:7:25:10|Synthesizing work.main.behavior.
+@W: CG296 :"C:\Kevan\A3041\P3041A\Main.vhd":230:10:230:16|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":255:22:255:24|Referenced variable cpa is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":255:29:255:35|Referenced variable dactive is not in sensitivity list.
+@W: CD274 :"C:\Kevan\A3041\P3041A\Main.vhd":360:4:360:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\Main.vhd":347:2:347:5|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\Main.vhd":409:5:409:8|Incomplete case statement - add more cases or a when others
+@W: CG296 :"C:\Kevan\A3041\P3041A\Main.vhd":327:7:327:13|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":368:50:368:62|Referenced variable tck_frequency is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":361:36:361:49|Referenced variable sensor_bits_in is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":362:37:362:44|Referenced variable int_bits is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":364:36:364:45|Referenced variable int_period is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":363:37:363:44|Referenced variable int_mask is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":370:9:370:14|Referenced variable cmdrdy is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":352:26:352:30|Referenced variable cpuds is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":349:10:349:14|Referenced variable cpuwr is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":333:34:333:41|Referenced variable cpu_addr is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":356:19:356:25|Referenced variable cmd_out is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":339:12:339:23|Referenced variable cpu_data_out is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":374:34:374:44|Referenced variable cmd_wr_addr is not in sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":350:19:350:25|Referenced variable ram_out is not in sensitivity list.
+@N: CD364 :"C:\Kevan\A3041\P3041A\Main.vhd":461:4:461:16|Removing redundant assignment.
+@N: CD364 :"C:\Kevan\A3041\P3041A\Main.vhd":464:4:464:16|Removing redundant assignment.
+@W: CG296 :"C:\Kevan\A3041\P3041A\Main.vhd":510:24:510:30|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":585:26:585:33|Referenced variable int_mask is not in sensitivity list.
+@W: CG296 :"C:\Kevan\A3041\P3041A\Main.vhd":679:22:679:28|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\Main.vhd":703:17:703:26|Referenced variable tx_channel is not in sensitivity list.
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":916:17:916:21|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":962:10:962:14|Variable state read before being assigned? This may cause a simulation mismatch 
+@N: CD364 :"C:\Kevan\A3041\P3041A\Main.vhd":974:4:974:9|Removing redundant assignment.
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":990:11:990:15|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":990:26:990:30|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":916:17:916:21|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":962:10:962:14|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":990:11:990:15|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":990:26:990:30|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1022:32:1022:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1022:20:1022:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1023:20:1023:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1024:32:1024:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1024:20:1024:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1025:32:1025:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1025:20:1025:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1026:20:1026:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1027:42:1027:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:42:1021:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1022:32:1022:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1022:20:1022:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1023:20:1023:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1024:32:1024:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1024:20:1024:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1025:32:1025:34|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1025:20:1025:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1026:20:1026:22|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1027:42:1027:44|Variable crc read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1111:10:1111:14|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1121:23:1121:27|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1111:10:1111:14|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD603 :"C:\Kevan\A3041\P3041A\Main.vhd":1121:23:1121:27|Variable state read before being assigned? This may cause a simulation mismatch 
+@W: CD638 :"C:\Kevan\A3041\P3041A\Main.vhd":175:20:175:24|Signal intgs is undriven. Either assign the signal a value or remove the signal declaration.
+@W: CD638 :"C:\Kevan\A3041\P3041A\Main.vhd":175:27:175:31|Signal intas is undriven. Either assign the signal a value or remove the signal declaration.
+@W: CD638 :"C:\Kevan\A3041\P3041A\Main.vhd":197:8:197:13|Signal bytsel is undriven. Either assign the signal a value or remove the signal declaration.
+@N: CD630 :"C:\Kevan\A3041\P3041A\CMD_RAM.vhd":14:7:14:13|Synthesizing work.cmd_ram.structure.
+@N: CD630 :"C:\lscc\diamond\3.12\cae_library\synthesis\vhdl\machxo2.vhd":1699:10:1699:14|Synthesizing work.dp8kc.syn_black_box.
+Post processing for work.dp8kc.syn_black_box
+@N: CD630 :"C:\lscc\diamond\3.12\cae_library\synthesis\vhdl\machxo2.vhd":1490:10:1490:12|Synthesizing work.vlo.syn_black_box.
+Post processing for work.vlo.syn_black_box
+@N: CD630 :"C:\lscc\diamond\3.12\cae_library\synthesis\vhdl\machxo2.vhd":1483:10:1483:12|Synthesizing work.vhi.syn_black_box.
+Post processing for work.vhi.syn_black_box
+Post processing for work.cmd_ram.structure
+Running optimization stage 1 on CMD_RAM .......
+Finished optimization stage 1 on CMD_RAM (CPU Time 0h:00m:00s, Memory Used current: 95MB peak: 95MB)
+@N: CD630 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":62:7:62:14|Synthesizing work.osr8_cpu.behavior.
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":289:2:289:5|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":588:5:588:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":614:5:614:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":939:5:939:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":869:4:869:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":980:5:980:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1004:5:1004:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":965:4:965:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1028:4:1028:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1075:5:1075:8|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1065:4:1065:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1231:4:1231:7|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1147:3:1147:6|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1249:3:1249:6|Incomplete case statement - add more cases or a when others
+@W: CD274 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1285:2:1285:5|Incomplete case statement - add more cases or a when others
+@W: CG296 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1298:18:1298:24|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.
+@W: CG290 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1302:20:1302:21|Referenced variable ck is not in sensitivity list.
+@W: CD638 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":216:27:216:31|Signal alu_z is undriven. Either assign the signal a value or remove the signal declaration.
+@W: CD638 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":216:34:216:38|Signal alu_v is undriven. Either assign the signal a value or remove the signal declaration.
+Post processing for work.osr8_cpu.behavior
+Running optimization stage 1 on OSR8_CPU .......
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_L[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_H[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_A[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_E[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_D[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_C[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_B[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal cpu_addr[11:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal cpu_data_out[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_IY[11:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal reg_IX[11:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@W: CL117 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":1146:2:1146:3|Latch generated from process for signal alu_cin; possible missing assignment in an if or case statement.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal second_operand[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal first_operand[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Feedback mux created for signal opcode[6:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+Finished optimization stage 1 on OSR8_CPU (CPU Time 0h:00m:00s, Memory Used current: 101MB peak: 111MB)
+@N: CD630 :"C:\Kevan\A3041\P3041A\ROM.vhd":14:7:14:9|Synthesizing work.rom.structure.
+Post processing for work.rom.structure
+Running optimization stage 1 on ROM .......
+Finished optimization stage 1 on ROM (CPU Time 0h:00m:00s, Memory Used current: 101MB peak: 111MB)
+@N: CD630 :"C:\Kevan\A3041\P3041A\RAM.vhd":14:7:14:9|Synthesizing work.ram.structure.
+Post processing for work.ram.structure
+Running optimization stage 1 on RAM .......
+Finished optimization stage 1 on RAM (CPU Time 0h:00m:00s, Memory Used current: 101MB peak: 111MB)
+@N: CD630 :"C:\Kevan\A3041\P3041A\Entities.vhd":6:7:6:21|Synthesizing work.ring_oscillator.behavior.
+@W: CD280 :"C:\Kevan\A3041\P3041A\Entities.vhd":37:11:37:15|Unbound component BUFBA mapped to black box
+@N: CD630 :"C:\Kevan\A3041\P3041A\Entities.vhd":37:11:37:15|Synthesizing work.bufba.syn_black_box.
+Post processing for work.bufba.syn_black_box
+Running optimization stage 1 on BUFBA .......
+Finished optimization stage 1 on BUFBA (CPU Time 0h:00m:00s, Memory Used current: 101MB peak: 111MB)
+Post processing for work.ring_oscillator.behavior
+Running optimization stage 1 on ring_oscillator .......
+Finished optimization stage 1 on ring_oscillator (CPU Time 0h:00m:00s, Memory Used current: 101MB peak: 111MB)
+@N: CD630 :"C:\Kevan\A3041\P3041A\Entities.vhd":105:7:105:9|Synthesizing work.pcu.structure.
+@N: CD630 :"C:\lscc\diamond\3.12\cae_library\synthesis\vhdl\machxo2.vhd":2163:10:2163:14|Synthesizing work.pcntr.syn_black_box.
+Post processing for work.pcntr.syn_black_box
+Post processing for work.pcu.structure
+Running optimization stage 1 on PCU .......
+Finished optimization stage 1 on PCU (CPU Time 0h:00m:00s, Memory Used current: 101MB peak: 111MB)
+Post processing for work.main.behavior
+Running optimization stage 1 on main .......
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":1072:18:1072:27|Pruning unused register next_state(4 downto 0). Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":1021:60:1021:60|Pruning unused register i(31 downto 28). Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":1004:16:1004:23|Pruning unused register next_crc(15 downto 0). Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":976:10:976:10|Pruning unused register i(31 downto 28). Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":187:2:187:5|Pruning unused register Byte_Receiver.BYTS. Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":182:2:182:3|Pruning unused register Receive_Command.RC. Make sure that there are no unused intermediate registers.
+@W: CL169 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|Pruning unused register CPUIRQ_1. Make sure that there are no unused intermediate registers.
+@W: CL271 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Pruning unused bits 7 to 2 of tp_reg_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.
+@W: CL265 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Removing unused bit 5 of int_set_4(7 downto 0). Either assign all bits or reduce the width of the signal.
+@W: CL265 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Removing unused bit 3 of int_set_4(7 downto 0). Either assign all bits or reduce the width of the signal.
+@W: CL271 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Pruning unused bits 4 to 3 of int_rst_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.
+@W: CL177 :"C:\Kevan\A3041\P3041A\Main.vhd":880:18:880:27|Sharing sequential element next_state and merging state. Add a syn_preserve attribute to the element to prevent sharing.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal xmit_bits[15:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal int_set[7:6]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal int_rst[7:5]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal int_set[4:4]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal int_set[2:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal int_rst[2:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal SWRST. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal tx_low[3:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":385:2:385:3|Feedback mux created for signal tp_reg[1:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":594:57:594:57|Feedback mux created for signal sensor_bits_in[7:0]. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":134:15:134:20|Feedback mux created for signal SAA. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":594:57:594:57|Feedback mux created for signal SAD. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@W: CL111 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|All reachable assignments to int_bits(3) are '0'; removing register. To preserve a constant register, use the syn_preserve attribute.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|Feedback mux created for signal TXDS. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+@A: CL282 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|Feedback mux created for signal SADS. It is possible a set/reset assignment for this is signal missing. To improve timing and area, specify a set/reset value.
+Finished optimization stage 1 on main (CPU Time 0h:00m:00s, Memory Used current: 102MB peak: 111MB)
+Running optimization stage 2 on PCU .......
+Finished optimization stage 2 on PCU (CPU Time 0h:00m:00s, Memory Used current: 102MB peak: 111MB)
+Running optimization stage 2 on BUFBA .......
+Finished optimization stage 2 on BUFBA (CPU Time 0h:00m:00s, Memory Used current: 102MB peak: 111MB)
+Running optimization stage 2 on ring_oscillator .......
+Finished optimization stage 2 on ring_oscillator (CPU Time 0h:00m:00s, Memory Used current: 102MB peak: 111MB)
+Running optimization stage 2 on RAM .......
+Finished optimization stage 2 on RAM (CPU Time 0h:00m:00s, Memory Used current: 102MB peak: 111MB)
+Running optimization stage 2 on ROM .......
+Finished optimization stage 2 on ROM (CPU Time 0h:00m:00s, Memory Used current: 102MB peak: 111MB)
+Running optimization stage 2 on OSR8_CPU .......
+@N: CL201 :"C:\Kevan\A3041\P3041A\OSR8V3.vhd":421:2:421:3|Trying to extract state machine for register state.
+Extracted state machine for register state
+State machine has 19 reachable states with original encodings of:
+   00000000
+   00000001
+   00000010
+   00000011
+   00000100
+   00001000
+   00001001
+   00001010
+   00001011
+   00010000
+   00100000
+   00100001
+   00100010
+   00100011
+   00101000
+   00101001
+   00101010
+   00101011
+   10000000
+Finished optimization stage 2 on OSR8_CPU (CPU Time 0h:00m:00s, Memory Used current: 109MB peak: 121MB)
+Running optimization stage 2 on CMD_RAM .......
+Finished optimization stage 2 on CMD_RAM (CPU Time 0h:00m:00s, Memory Used current: 109MB peak: 121MB)
+Running optimization stage 2 on main .......
+@W: CL190 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|Optimizing register bit int_bits(5) to a constant 0. To keep the instance, apply constraint syn_preserve=1 on the instance.
+@W: CL260 :"C:\Kevan\A3041\P3041A\Main.vhd":527:2:527:3|Pruning register bit 5 of int_bits(7 downto 1). If this is not the intended behavior, drive the input with valid values, or an input from the top level.
+@N: CL201 :"C:\Kevan\A3041\P3041A\Main.vhd":1072:11:1072:15|Trying to extract state machine for register state.
+Extracted state machine for register state
+State machine has 6 reachable states with original encodings of:
+   00000
+   00001
+   00010
+   00011
+   00100
+   00101
+@W: CL249 :"C:\Kevan\A3041\P3041A\Main.vhd":1072:11:1072:15|Initial value is not supported on state machine state
+@N: CL201 :"C:\Kevan\A3041\P3041A\Main.vhd":477:2:477:3|Trying to extract state machine for register state.
+Extracted state machine for register state
+State machine has 4 reachable states with original encodings of:
+   00
+   01
+   10
+   11
+@N: CL201 :"C:\Kevan\A3041\P3041A\Main.vhd":442:2:442:3|Trying to extract state machine for register state.
+Extracted state machine for register state
+State machine has 3 reachable states with original encodings of:
+   00
+   01
+   10
+Finished optimization stage 2 on main (CPU Time 0h:00m:00s, Memory Used current: 113MB peak: 121MB)
+
+For a summary of runtime and memory usage per design unit, please see file:
+==========================================================
+@L: C:\Kevan\A3041\P3041A\impl1\synwork\layer0.rt.csv
+
+
+At c_vhdl Exit (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 113MB peak: 121MB)
+
+Process took 0h:00m:02s realtime, 0h:00m:01s cputime
+
+Process completed successfully.
+# Wed Jun 15 17:39:02 2022
+
+###########################################################]
+###########################################################[
+
+Copyright (C) 1994-2021 Synopsys, Inc.
+This Synopsys software and all associated documentation are proprietary to Synopsys, Inc.
+and may only be used pursuant to the terms and conditions of a written license agreement
+with Synopsys, Inc. All other use, reproduction, modification, or distribution of the
+Synopsys software or the associated documentation is strictly prohibited.
+Tool: Synplify Pro (R)
+Build: R-2021.03L-SP1
+Install: C:\lscc\diamond\3.12\synpbase
+OS: Windows 6.1
+
+Hostname: VMBOX_WINDOWS7
+
+Implementation : impl1
+Synopsys Synopsys Netlist Linker, Version comp202103synp2, Build 093R, Built Aug 10 2021 09:15:36, @
+
+@N|Running in 64-bit mode
+File C:\Kevan\A3041\P3041A\impl1\synwork\layer0.srs changed - recompiling
+
+At syn_nfilter Exit (Real Time elapsed 0h:00m:00s; CPU Time elapsed 0h:00m:00s; Memory used current: 90MB peak: 90MB)
+
+Process took 0h:00m:01s realtime, 0h:00m:01s cputime
+
+Process completed successfully.
+# Wed Jun 15 17:39:03 2022
+
+###########################################################]
+
+For a summary of runtime and memory usage for all design units, please see file:
+==========================================================
+@L: C:\Kevan\A3041\P3041A\impl1\synwork\P3041_impl1_comp.rt.csv
+
+@END
+
+At c_hdl Exit (Real Time elapsed 0h:00m:02s; CPU Time elapsed 0h:00m:01s; Memory used current: 21MB peak: 21MB)
+
+Process took 0h:00m:02s realtime, 0h:00m:01s cputime
+
+Process completed successfully.
+# Wed Jun 15 17:39:03 2022
+
+###########################################################]
