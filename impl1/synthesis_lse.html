@@ -1,517 +1,0 @@
-<HTML>
-<HEAD><TITLE>Synthesis and Ngdbuild Report</TITLE>
-<STYLE TYPE="text/css">
-<!--
- body,pre{    font-family:'Courier New', monospace;    color: #000000;    font-size:88%;    background-color: #ffffff;}h1 {    font-weight: bold;    margin-top: 24px;    margin-bottom: 10px;    border-bottom: 3px solid #000;    font-size: 1em;}h2 {    font-weight: bold;    margin-top: 18px;    margin-bottom: 5px;    font-size: 0.90em;}h3 {    font-weight: bold;    margin-top: 12px;    margin-bottom: 5px;    font-size: 0.80em;}p {    font-size:78%;}P.Table {    margin-top: 4px;    margin-bottom: 4px;    margin-right: 4px;    margin-left: 4px;}table{    border-width: 1px 1px 1px 1px;    border-style: solid solid solid solid;    border-color: black black black black;    border-collapse: collapse;}th {    font-weight:bold;    padding: 4px;    border-width: 1px 1px 1px 1px;    border-style: solid solid solid solid;    border-color: black black black black;    vertical-align:top;    text-align:left;    font-size:78%;}td {    padding: 4px;    border-width: 1px 1px 1px 1px;    border-style: solid solid solid solid;    border-color: black black black black;    vertical-align:top;    font-size:78%;}a {    color:#013C9A;    text-decoration:none;}a:visited {    color:#013C9A;}a:hover, a:active {    text-decoration:underline;    color:#5BAFD4;}.pass{background-color: #00ff00;}.fail{background-color: #ff0000;}.comment{    font-size: 90%;    font-style: italic;}
--->
-</STYLE>
-</HEAD>
-<PRE><A name="Syn"></A><B><U><big>Synthesis and Ngdbuild  Report</big></U></B>
-synthesis:  version Diamond (64-bit) 3.12.1.454
-
-Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
-Copyright (c) 1995 AT&T Corp.   All rights reserved.
-Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
-Copyright (c) 2001 Agere Systems   All rights reserved.
-Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
-Tue Apr 12 11:01:57 2022
-
-
-Command Line:  synthesis -f P3041_impl1_lattice.synproj -gui -msgset C:/Kevan/A3041/P3041A/promote.xml 
-
-Synthesis options:
-The -a option is MachXO2.
-The -s option is 1.
-The -t option is WLCSP25.
-The -d option is LCMXO2-1200ZE.
-Using package WLCSP25.
-Using performance grade 1.
-                                                          
-
-##########################################################
-
-### Lattice Family : MachXO2
-
-### Device  : LCMXO2-1200ZE
-
-### Package : WLCSP25
-
-### Speed   : 1
-
-##########################################################
-
-                                                          
-
-INFO - synthesis: User-Selected Strategy Settings
-Optimization goal = Area
-The -top option is not used.
-Target frequency = 1.000000 MHz.
-Maximum fanout = 1000.
-Timing path count = 3 (default)
-BRAM utilization = 100.000000 %
-DSP usage = true
-DSP utilization = 100.000000 %
-fsm_encoding_style = auto
-resolve_mixed_drivers = 0
-fix_gated_clocks = 1
-
-Mux style = Auto
-Use Carry Chain = true
-carry_chain_length = 0
-Loop Limit = 1950.
-Use IO Insertion = TRUE
-Use IO Reg = AUTO
-
-Resource Sharing = TRUE
-Propagate Constants = TRUE
-Remove Duplicate Registers = TRUE
-force_gsr = no
-ROM style = auto
-RAM style = auto
-The -comp option is FALSE.
-The -syn option is FALSE.
--p C:/lscc/diamond/3.12/ispfpga/xo2c00/data (searchpath added)
--p C:/Kevan/A3041/P3041A/impl1 (searchpath added)
--p C:/Kevan/A3041/P3041A (searchpath added)
-VHDL library = work
-VHDL design file = C:/Kevan/A3041/P3041A/CMD_RAM.vhd
-VHDL design file = C:/Kevan/A3041/P3041A/CMD_RAM.vhd
-VHDL design file = C:/Kevan/A3041/P3041A/ROM.vhd
-VHDL design file = C:/Kevan/A3041/P3041A/ROM.vhd
-VHDL design file = C:/Kevan/A3041/P3041A/RAM.vhd
-VHDL design file = C:/Kevan/A3041/P3041A/RAM.vhd
-VHDL design file = C:/Kevan/A3041/P3041A/Entities.vhd
-VHDL design file = C:/Kevan/A3041/P3041A/OSR8V3.vhd
-VHDL design file = C:/Kevan/A3041/P3041A/Main.vhd
-NGD file = P3041_impl1.ngd
--sdc option: SDC file input not used.
--lpf option: Output file option is ON.
-Hardtimer checking is enabled (default). The -dt option is not used.
-The -r option is OFF. [ Remove LOC Properties is OFF. ]
-Technology check ok...
-
-Analyzing Verilog file C:/lscc/diamond/3.12/ispfpga/userware/NT/SYNTHESIS_HEADERS/machxo2.v. VERI-1482
-Compile design.
-Compile Design Begin
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(289): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(588): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(614): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(869): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(939): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(965): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(980): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1004): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1028): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1065): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1075): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1146): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1230): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1248): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1284): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(349): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(362): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(411): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: Setting main as the top-level module. To specify the top-level module explicitly, use the -top option.
-INFO - synthesis: The default VHDL library search path is now "C:/Kevan/A3041/P3041A/impl1". VHDL-1504
-Analyzing VHDL file c:/kevan/a3041/p3041a/cmd_ram.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/cmd_ram.vhd(14): analyzing entity cmd_ram. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/cmd_ram.vhd(28): analyzing architecture structure. VHDL-1010
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/rom.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/rom.vhd(14): analyzing entity rom. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/rom.vhd(23): analyzing architecture structure. VHDL-1010
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/ram.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/ram.vhd(14): analyzing entity ram. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/ram.vhd(25): analyzing architecture structure. VHDL-1010
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/entities.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/entities.vhd(6): analyzing entity ring_oscillator. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/entities.vhd(13): analyzing architecture behavior. VHDL-1010
-INFO - synthesis: c:/kevan/a3041/p3041a/entities.vhd(105): analyzing entity pcu. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/entities.vhd(113): analyzing architecture structure. VHDL-1010
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/osr8v3.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(62): analyzing entity osr8_cpu. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(91): analyzing architecture behavior. VHDL-1010
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/main.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/main.vhd(27): analyzing entity main. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/main.vhd(93): analyzing architecture behavior. VHDL-1010
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(281): actual for formal port clock is neither a static name nor a globally static expression. VHDL-1443
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(295): actual for formal port outclock is neither a static name nor a globally static expression. VHDL-1443
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(1041): actual for formal port wrclock is neither a static name nor a globally static expression. VHDL-1443
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(1048): actual for formal port rdclock is neither a static name nor a globally static expression. VHDL-1443
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(1049): actual for formal port rdclocken is neither a static name nor a globally static expression. VHDL-1443
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(93): overwriting existing secondary unit behavior. VHDL-1178
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/cmd_ram.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/cmd_ram.vhd(14): analyzing entity cmd_ram. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/cmd_ram.vhd(28): analyzing architecture structure. VHDL-1010
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/cmd_ram.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/cmd_ram.vhd(14): analyzing entity cmd_ram. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/cmd_ram.vhd(28): analyzing architecture structure. VHDL-1010
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/rom.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/rom.vhd(14): analyzing entity rom. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/rom.vhd(23): analyzing architecture structure. VHDL-1010
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/rom.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/rom.vhd(14): analyzing entity rom. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/rom.vhd(23): analyzing architecture structure. VHDL-1010
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/ram.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/ram.vhd(14): analyzing entity ram. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/ram.vhd(25): analyzing architecture structure. VHDL-1010
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/ram.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/ram.vhd(14): analyzing entity ram. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/ram.vhd(25): analyzing architecture structure. VHDL-1010
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/entities.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/entities.vhd(6): analyzing entity ring_oscillator. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/entities.vhd(13): analyzing architecture behavior. VHDL-1010
-INFO - synthesis: c:/kevan/a3041/p3041a/entities.vhd(105): analyzing entity pcu. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/entities.vhd(113): analyzing architecture structure. VHDL-1010
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/osr8v3.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(62): analyzing entity osr8_cpu. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(91): analyzing architecture behavior. VHDL-1010
-unit main is not yet analyzed. VHDL-1485
-Analyzing VHDL file c:/kevan/a3041/p3041a/main.vhd. VHDL-1481
-INFO - synthesis: c:/kevan/a3041/p3041a/main.vhd(27): analyzing entity main. VHDL-1012
-INFO - synthesis: c:/kevan/a3041/p3041a/main.vhd(93): analyzing architecture behavior. VHDL-1010
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(281): actual for formal port clock is neither a static name nor a globally static expression. VHDL-1443
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(295): actual for formal port outclock is neither a static name nor a globally static expression. VHDL-1443
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(1041): actual for formal port wrclock is neither a static name nor a globally static expression. VHDL-1443
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(1048): actual for formal port rdclock is neither a static name nor a globally static expression. VHDL-1443
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(1049): actual for formal port rdclocken is neither a static name nor a globally static expression. VHDL-1443
-unit main is not yet analyzed. VHDL-1485
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(289): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(588): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(614): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(869): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(939): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(965): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(980): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1004): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1028): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1065): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1075): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1146): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1230): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1248): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/osr8v3.vhd(1284): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(349): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(362): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-unit main is not yet analyzed. VHDL-1485
-c:/kevan/a3041/p3041a/main.vhd(27): executing main(behavior)
-
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(257): cpa should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(257): dactive should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(259): incomplete sensitivity list specified, assuming completeness. VHDL-1613
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(335): cpu_addr should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(336): cpu_addr should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(341): cpu_data_out should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(342): cpu_addr should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(343): cpu_addr should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(349): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(351): cpuwr should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(352): ram_out should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(354): cpuds should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(357): cpuwr should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(358): cmd_out should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(361): cpuwr should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(362): case statement does not cover all choices. 'others' clause is needed. VHDL-1037
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(363): sensor_bits_in should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(364): int_bits should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(365): int_mask should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(366): int_period should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(370): tck_frequency should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(372): cmdrdy should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(376): cmd_wr_addr should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(378): cmd_wr_addr should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(434): incomplete sensitivity list specified, assuming completeness. VHDL-1613
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(505): rck should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(508): incomplete sensitivity list specified, assuming completeness. VHDL-1613
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(587): int_bits should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(587): int_mask should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(588): incomplete sensitivity list specified, assuming completeness. VHDL-1613
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(674): cs should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(675): incomplete sensitivity list specified, assuming completeness. VHDL-1613
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(705): tx_channel should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(706): tx_channel should be on the sensitivity list of the process. VHDL-1251
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(779): incomplete sensitivity list specified, assuming completeness. VHDL-1613
-Removed duplicate sequential element Byte_Receiver.state(6 bit), because it is equivalent to Byte_Receiver.next_state
-
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(127): net xmit_bits[15] does not have a driver. VDB-1002
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(129): net tx_low[3] does not have a driver. VDB-1002
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(91): replacing existing netlist main(behavior). VHDL-1205
-Top module name (VHDL): main
-Loading NGL library 'C:/lscc/diamond/3.12/ispfpga/xo2c00a/data/xo2alib.ngl'...
-Loading NGL library 'C:/lscc/diamond/3.12/ispfpga/xo2c00/data/xo2clib.ngl'...
-Loading NGL library 'C:/lscc/diamond/3.12/ispfpga/mg5g00/data/mg5glib.ngl'...
-Loading NGL library 'C:/lscc/diamond/3.12/ispfpga/or5g00/data/orc5glib.ngl'...
-Loading device for application map from file 'xo2c1200.nph' in environment: C:/lscc/diamond/3.12/ispfpga.
-Package Status:                     Final          Version 1.44.
-Top-level module name = main.
-WARNING - synthesis: Initial value found on net TXA will be ignored due to unrecognized driver type
-WARNING - synthesis: Initial value found on net SAI_keep will be ignored due to unrecognized driver type
-WARNING - synthesis: Initial value found on net TXI_keep will be ignored due to unrecognized driver type
-WARNING - synthesis: Initial value found on net SAD_keep will be ignored due to unrecognized driver type
-WARNING - synthesis: Initial value found on net SAA_keep will be ignored due to unrecognized driver type
-WARNING - synthesis: Initial value found on net TXD_keep will be ignored due to unrecognized driver type
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(433): Register SAI_553 is stuck at Zero. VDB-5013
-WARNING - synthesis: c:/kevan/a3041/p3041a/main.vhd(583): Register int_bits[5]_598 is stuck at Zero. VDB-5013
-WARNING - synthesis: Bit 4 of Register Command_Processor.state is stuck at Zero
-WARNING - synthesis: Bit 3 of Register Command_Processor.state is stuck at Zero
-WARNING - synthesis: Couldn't bind cell BUFBA to technology library
-WARNING - synthesis: I/O Port SDO 's net has no driver and is unused.
-WARNING - synthesis: I/O Port TP3 's net has no driver and is unused.
-WARNING - synthesis: I/O Port TP4 's net has no driver and is unused.
-######## Missing driver on net TP3. Patching with GND.
-######## Missing driver on net TP4. Patching with GND.
-######## Missing driver on net xmit_bits[15]. Patching with GND.
-######## Missing driver on net xmit_bits[14]. Patching with GND.
-######## Missing driver on net xmit_bits[13]. Patching with GND.
-######## Missing driver on net xmit_bits[12]. Patching with GND.
-######## Missing driver on net xmit_bits[11]. Patching with GND.
-######## Missing driver on net xmit_bits[10]. Patching with GND.
-######## Missing driver on net xmit_bits[9]. Patching with GND.
-######## Missing driver on net xmit_bits[8]. Patching with GND.
-######## Missing driver on net xmit_bits[7]. Patching with GND.
-######## Missing driver on net xmit_bits[6]. Patching with GND.
-######## Missing driver on net xmit_bits[5]. Patching with GND.
-######## Missing driver on net xmit_bits[4]. Patching with GND.
-######## Missing driver on net xmit_bits[3]. Patching with GND.
-######## Missing driver on net xmit_bits[2]. Patching with GND.
-######## Missing driver on net xmit_bits[1]. Patching with GND.
-######## Missing driver on net xmit_bits[0]. Patching with GND.
-######## Missing driver on net tx_low[3]. Patching with GND.
-######## Missing driver on net tx_low[2]. Patching with GND.
-######## Missing driver on net tx_low[1]. Patching with GND.
-######## Missing driver on net tx_low[0]. Patching with GND.
-INFO - synthesis: Extracted state machine for register 'Boost_Controller.state' with one-hot encoding
-original encoding -> new encoding (one-hot encoding)
-
- 00 -> 0001
-
- 01 -> 0010
-
- 10 -> 0100
-
- 11 -> 1000
-
-
-
-
-WARNING - synthesis: Bit 4 of Register xdac is stuck at Zero
-WARNING - synthesis: Bit 3 of Register xdac is stuck at Zero
-WARNING - synthesis: Bit 2 of Register xdac is stuck at Zero
-WARNING - synthesis: Bit 1 of Register xdac is stuck at Zero
-Removed duplicate sequential element int_rst(8 bit), because it is equivalent to int_set
-
-WARNING - synthesis: Bit 7 of Register int_set is stuck at Zero
-WARNING - synthesis: Bit 6 of Register int_set is stuck at Zero
-WARNING - synthesis: Bit 5 of Register int_set is stuck at Zero
-WARNING - synthesis: Bit 4 of Register int_set is stuck at Zero
-WARNING - synthesis: Bit 2 of Register int_set is stuck at Zero
-WARNING - synthesis: Bit 1 of Register int_set is stuck at Zero
-WARNING - synthesis: Bit 0 of Register int_set is stuck at Zero
-WARNING - synthesis: Bit 6 of Register \CPU/CPU.state is stuck at Zero
-WARNING - synthesis: I/O Port SDO 's net has no driver and is unused.
-Optimized async. reset : ONL_N_65 on data cone feeding flop : 
-
-
- Boost_Controller.state_FSM_i3
-
-
-WARNING - synthesis: Initial value found on instance PowerUp.state_i0 will be ignored.
-WARNING - synthesis: Initial value found on instance RESET_I_0_645 will be ignored.
-WARNING - synthesis: Initial value found on instance TXB_613 will be ignored.
-WARNING - synthesis: Initial value found on instance Byte_Receiver.no_stop_bit_626 will be ignored.
-WARNING - synthesis: Initial value found on instance BITS_630 will be ignored.
-WARNING - synthesis: Initial value found on instance CRCERR_635 will be ignored.
-WARNING - synthesis: Initial value found on instance CPRST_556 will be ignored.
-WARNING - synthesis: mRegister RESET_I_0_645 is stuck at Zero
-WARNING - synthesis: mRegister RESET_I_0 is stuck at Zero
-WARNING - synthesis: mRegister RESET_I_0_646_i1 is stuck at Zero
-INFO - synthesis: Register RPS_619 of type IFS1P3DX will not be replicated.
-Applying 1.000000 MHz constraint to all clocks
-
-Results of NGD DRC are available in main_drc.log.
-Loading NGL library 'C:/lscc/diamond/3.12/ispfpga/xo2c00a/data/xo2alib.ngl'...
-Loading NGL library 'C:/lscc/diamond/3.12/ispfpga/xo2c00/data/xo2clib.ngl'...
-Loading NGL library 'C:/lscc/diamond/3.12/ispfpga/mg5g00/data/mg5glib.ngl'...
-Loading NGL library 'C:/lscc/diamond/3.12/ispfpga/or5g00/data/orc5glib.ngl'...
-WARNING - synthesis: logical net 'SDO' has no load.
-WARNING - synthesis: input pad net 'SDO' has no legal load.
-WARNING - synthesis: logical net 'cpu_addr_10' has no load.
-WARNING - synthesis: DRC complete with 3 warnings.
-All blocks are expanded and NGD expansion is successful.
-Writing NGD file P3041_impl1.ngd.
-
-################### Begin Area Report (main)######################
-Number of register bits => 253 of 1337 (18 % )
-BUFBA => 4
-CCU2D => 76
-DP8KC => 5
-FD1P3AX => 97
-FD1P3BX => 2
-FD1P3DX => 26
-FD1P3JX => 28
-FD1S1A => 1
-FD1S1B => 1
-FD1S3AX => 43
-FD1S3BX => 2
-FD1S3DX => 13
-FD1S3IX => 25
-FD1S3JX => 11
-GSR => 1
-IB => 2
-IFS1P3DX => 1
-INV => 3
-L6MUX21 => 5
-LUT4 => 1500
-MUX81 => 11
-OB => 14
-OFS1P3DX => 1
-OFS1P3IX => 2
-PCNTR => 1
-PFUMX => 250
-ROM128X1A => 2
-################### End Area Report ##################
-
-################### Begin BlackBox Report ######################
-TSALL => 1
-################### End BlackBox Report ##################
-
-################### Begin Clock Report ######################
-Clock Nets
-Number of Clocks: 7
-  Net : CK, loads : 225
-  Net : TCK, loads : 20
-  Net : CK_keep_N_7, loads : 6
-  Net : Fast_CK/RIN, loads : 6
-  Net : Fast_CK/FCK, loads : 3
-  Net : RCK_N_79, loads : 1
-  Net : CPU/alu_cin_N_949, loads : 1
-Clock Enable Nets
-Number of Clock Enables: 23
-Top 10 highest fanout Clock Enables:
-  Net : CPU/CK_keep_enable_91, loads : 22
-  Net : CPU/CK_keep_enable_130, loads : 16
-  Net : RCK_c_1_enable_12, loads : 12
-  Net : CPU/CK_keep_enable_33, loads : 11
-  Net : CPU/CK_keep_enable_50, loads : 11
-  Net : CPU/CK_keep_enable_64, loads : 8
-  Net : CPU/CK_keep_enable_98, loads : 8
-  Net : CPU/CK_keep_enable_105, loads : 8
-  Net : CPU/CK_keep_enable_71, loads : 8
-  Net : CPU/CK_keep_enable_136, loads : 8
-Highest fanout non-clock nets
-Top 10 highest fanout non-clock nets:
-  Net : prog_data_0, loads : 163
-  Net : CPU/CPU.state_0, loads : 141
-  Net : prog_data_5, loads : 96
-  Net : CPU/CPU.state_2, loads : 92
-  Net : prog_data_2, loads : 91
-  Net : CPU/n3376, loads : 91
-  Net : prog_data_1, loads : 87
-  Net : CPU/CPU.state_3, loads : 87
-  Net : RESET_N_280, loads : 81
-  Net : CPU/CPU.opcode_0, loads : 73
-################### End Clock Report ##################
-
-<A name="lse_trs"></A><B><U><big>Timing Report Summary</big></U></B>
---------------
---------------------------------------------------------------------------------
-Constraint                              |   Constraint|       Actual|Levels
---------------------------------------------------------------------------------
-                                        |             |             |
-create_clock -period 1000.000000 -name  |             |             |
-clk5 [get_nets \CPU/alu_cin_N_949]      |            -|            -|     0  
-                                        |             |             |
-create_clock -period 1000.000000 -name  |             |             |
-clk4 [get_nets CK_keep_N_7]             |            -|            -|     0  
-                                        |             |             |
-create_clock -period 1000.000000 -name  |             |             |
-clk3 [get_nets \Fast_CK/RIN]            |    1.000 MHz|   82.169 MHz|     3  
-                                        |             |             |
-create_clock -period 1000.000000 -name  |             |             |
-clk2 [get_nets TCK]                     |    1.000 MHz|   49.422 MHz|     5  
-                                        |             |             |
-create_clock -period 1000.000000 -name  |             |             |
-clk1 [get_nets FCK]                     |    1.000 MHz|  100.020 MHz|     2  
-                                        |             |             |
-create_clock -period 1000.000000 -name  |             |             |
-clk0 [get_nets CK]                      |    1.000 MHz|   13.084 MHz|    20  
-                                        |             |             |
---------------------------------------------------------------------------------
-
-
-All constraints were met.
-
-
-Peak Memory Usage: 128.711  MB
-
---------------------------------------------------------------
-Elapsed CPU time for LSE flow : 9.173  secs
---------------------------------------------------------------
-
-
-
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-<BR>
-</PRE></FONT>
-</BODY>
-</HTML>
