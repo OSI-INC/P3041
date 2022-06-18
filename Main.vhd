@@ -25,7 +25,10 @@
 -- must assert ENTCK for sample transmission. If the CPU asserts ENTCK for sensor access, so
 -- much the better: the access will go faster and the sensor will be awake for less time. Add
 -- second interrupt timer. Remove TXD and SAD interrupts. Move stack overflow interrupt to bit 
--- seven.
+-- seven. The command processor now asserts CPA untile the CPU resets its state to idle. We will
+-- have OND asserted by CPA until the CPU asserts CPRST. Add the CMDRDY interrupt so the CPU
+-- can respond promptly to new commands if neccessary. Otherwise CPU can use the CMDRDY memory
+-- location to poll for new commands.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -379,10 +382,7 @@ begin
 					when mmu_spl => cpu_data_in <= std_logic_vector(to_unsigned((start_sp rem 256),8));
 					when mmu_tcf =>
 						cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
-					when mmu_crdy => 
-						if CMDRDY then
-							cpu_data_in(1) <= '1';
-						end if;
+					when mmu_crdy => cpu_data_in(0) <= to_std_logic(CMDRDY);
 					when mmu_cchi => 
 						cpu_data_in(1 downto 0) <= cmd_wr_addr(9 downto 8);
 					when mmu_cclo =>
@@ -575,9 +575,13 @@ begin
 				int_bits(1) <= '1';
 			end if;
 			
-			-- The CPU dedicated inputs INT2..INT6 the CPU sets and resets
+			-- The command ready interrupt is set if and onl if we have CMDRDY. It
+			-- cannot be cleared with the interrupt reset bits. We must use CMDRST.
+			int_bits(2) <= to_std_logic(CMDRDY);
+			
+			-- The CPU dedicated inputs INT3..INT6 the CPU sets and resets
 			-- through the int_rst and int_set control registers.
-			for i in 2 to 6 loop
+			for i in 3 to 6 loop
 				if (int_rst(i) = '1') then
 					int_bits(i) <= '0';
 				elsif (int_set(i) = '1') then
@@ -1049,7 +1053,7 @@ begin
 -- Command Memory
 	Command_Memory : entity CMD_RAM port map (
 		WrClock => not RCK,
-		WrClockEn => '1',
+		WrClockEn => to_std_logic(CPA),
 		Reset => '0', 
 		WE => CMWR,
 		WrAddress => cmd_wr_addr, 
@@ -1063,10 +1067,12 @@ begin
 -- It stores command bytes in the Command Memory until it detects Terminate Command (TC). If
 -- the Error Check reports no error, the Command Processor generates a command interrupt and
 -- sets its command byte counter to the number of bytes received. The CPU can then read all
--- bytes out of the Command Memory. The Command Processor runs on the reference clock,
--- which is 32.768 kHz, and proceeds to a new state every clock cycle. The Command Processor-- will be disabled until the CPU releases it by asserting CPRST. The CPA signal is 
--- asserted by the Command Processor as soon as a command is initiated, and CPA instructs the-- Power Controller to keep power applied to the logic chip. At the end of command processing, 
--- CPA is unasserted. We assume the CPU will, if necessary, assert another signal to keep the-- logic chip powered up.
+-- bytes out of the Command Memory. The Command Processor runs on the reference clock, which
+-- is 32.768 kHz, and proceeds to a new state every clock cycle. The Command Processor will-- be disabled until the CPU releases it by asserting CPRST. The CPA signal is asserted by
+-- by the Command Processor as soon as a command is initiated, and CPA instructs the Power-- Controller to keep power applied to the logic chip. At the end of command processing, 
+-- CPA is remains asserted until the CPU resets the Command Processor with CPRST. The CPU can
+-- detect Command Ready (CMDRDY) either through the CMDRY interrupt or the CMDRDY memory
+-- location.
 	Command_Processor: process is
 		
 		-- General-purpose state names for the Command Processor
@@ -1143,7 +1149,7 @@ begin
 		
 		-- There are two possible sources of error: a failure in the cyclic redundancy
 		-- check (CRCERR) or an error in the structure of a command byte (BYTERR). If either
-		-- is asserted, we go back to idle. Otherwise, we wait for the CPU to 
+		-- is asserted, we go back to idle.
 		if (state = check_cmd_s) then
 			if CRCERR or BYTERR then 
 				next_state := idle_s;
@@ -1152,11 +1158,15 @@ begin
 			end if;
 		end if;
 
-		-- When the CPU asserts CPRST, we return to the idle state, otherwise we are
-		-- waiting for the CPU to process the command bytes.
+		-- We have a completed command in memory, waiting for the CPU to read it out.
+		-- We assert CMDRDY and wait until the CPU asserts CPRST. The command processor
+		-- will ignore any further command transmission.
 		if (state = complete_s) then
 			next_state := complete_s;
 		end if;
+		
+		-- Command Ready tells the CPU that a command is available.
+		CMDRDY <= (state = complete_s);
 		
 		-- Reset response.
 		if CPRST then next_state := idle_s; end if;
@@ -1165,12 +1175,9 @@ begin
 		state := next_state;
 		
 		-- Command Processor Active is true whenever the state is not idle.
-		CPA <= (state /= idle_s) and (state /= complete_s);
+		CPA <= (state /= idle_s);
 		
-		-- Command Ready tells the CPU that a command is available.
-		CMDRDY <= (state = complete_s);
-		
-		-- The Command Memory Address is always equal to the Command Processor's
+		-- The Command Memory Write Address is always equal to the Command Processor's
 		-- addr variable.
 		cmd_wr_addr <= std_logic_vector(to_unsigned(addr,cmd_addr_len));
 	end process;

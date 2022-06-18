@@ -14,6 +14,9 @@ const device_id        55  ; Will be used as the first channel number.
 const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
 
 ; Address Map Constants
+const mmu_vmem 0x0000 ; Base of variable memory
+const mmu_cmem 0x0400 ; Base of command memory
+const mmu_ctrl 0x0800 ; Base of control space
 const mmu_bmb  0x0800 ; Sensor Data HI Byte 
 const mmu_scr  0x0801 ; Sensor Control Register
 const mmu_irqb 0x0802 ; Interrupt Request Bits
@@ -39,8 +42,8 @@ const mmu_cpr  0x0815 ; Command Processor Reset
 const mmu_dva  0x0816 ; Device Active 
 const mmu_onl  0x0817 ; On Lamp
 const mmu_sph  0x0819 ; Initial Stack Pointer HI Byte
-const mmu_spl  0x0820 ; Initial Stack Pointer LO Byte
-const mmu_itp2 0x0821 ; Interrupt Timer Two Period 
+const mmu_spl  0x081A ; Initial Stack Pointer LO Byte
+const mmu_itp2 0x081B ; Interrupt Timer Two Period 
 
 ; Timing Constants.
 const min_tcf       75  ; Minimum TCK periods per half RCK period.
@@ -192,16 +195,25 @@ ld (mmu_imsk),A      ; to enable timer one interrupt.
 ; ------------------------------------------------------------
 
 ; The main program loops. The interrupt will be running 
-; in the background, and they do all the work.
+; in the background. The main loop checks for commands.
 main:
 
 ld A,(mmu_tpr)      ; Load the test point register.
 or A,0x02           ; Set bit one and
 ld (mmu_tpr),A      ; write to test point register.
+
+ld A,(mmu_crf)      ; Fetch Command Ready (CMDRDY) flag.
+and A,0x01          ; Check bit zero,
+jp z,no_cmd         ; Jump if it's clear.
+
+; Here we will later insert code to read out, interpret, and execute comands.
+; For now we just reset the command processor and ignore the commands.
+ld (mmu_cpr),A      ; Write to Command Processor Clear location.
+
+no_cmd:
 and A,0xFD          ; Clear bit one and
 ld (mmu_tpr),A      ; write to test point register.
-ld A,0xFF           ; Delay for 255 clock cycles.
-dly A               ; so as to make the test pulse rare.
+
 jp main             ; Repeat the main loop.
 
 
