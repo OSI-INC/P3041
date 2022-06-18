@@ -20,7 +20,7 @@ const mmu_irqb 0x0802 ; Interrupt Request Bits
 const mmu_imsk 0x0803 ; Interrupt Mask Bits
 const mmu_irst 0x0804 ; Interrupt Reset Bits
 const mmu_iset 0x0805 ; Interrupt Set Bits
-const mmu_itp  0x0806 ; Interrupt Timer Period 
+const mmu_itp1 0x0806 ; Interrupt Timer One Period 
 const mmu_rst  0x0807 ; System Reset
 const mmu_xhb  0x0808 ; Transmit HI Byte
 const mmu_xlb  0x0809 ; Transmit LO Byte
@@ -40,6 +40,7 @@ const mmu_dva  0x0816 ; Device Active
 const mmu_onl  0x0817 ; On Lamp
 const mmu_sph  0x0819 ; Initial Stack Pointer HI Byte
 const mmu_spl  0x0820 ; Initial Stack Pointer LO Byte
+const mmu_itp2 0x0821 ; Interrupt Timer Two Period 
 
 ; Timing Constants.
 const min_tcf       75  ; Minimum TCK periods per half RCK period.
@@ -62,8 +63,12 @@ jp interrupt
 
 
 ; ------------------------------------------------------------
-; Calibrate the transmit clock frequency. Will leave the
-; transmit clock disabled and cpu boost turned off.
+; Calibrate the transmit clock frequency. We take the CPU out
+; of boost, turn off the transmit clock, and repeat a cycle of
+; setting the transmit clock divisor and running the transmit 
+; clock to measure its frequency. Eventually we get a diviso
+; that provides a transmit period in the range 195-215 ns. We
+; leave the transmit clock off at the end.
 calibrate_tck:
 push A           ; Push A onto the stack to save it
 push B           ; Push B onto the stack to save it
@@ -90,34 +95,36 @@ pop A            ; Restore A
 ret              ; Return from subroutine
 
 ; ------------------------------------------------------------
-; The interrupt routine. 
+; The interrupt routine.
 interrupt:
 push F              ; Save the flags onto the stack.
 push A              ; Save A on stack
-
-ld A,(mmu_tpr)      ; Load the test point register.
-or A,0x01           ; Set bit zero and
-ld (mmu_tpr),A      ; write to test point register.
 
 ld A,0x01           ; Set bit zero to one.
 ld (mmu_etc),A      ; Enable the transmit clock, TCK.
 ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
 
+ld A,(mmu_tpr)      ; Load the test point register.
+or A,0x01           ; Set bit zero and
+ld (mmu_tpr),A      ; write to test point register.
+
+ld A,tx_frequency   ; Set the low radio frequency
+ld (mmu_xfc),A      ; for sample transmission
+
 ld A,device_id      ; Load A with channel number.
 ld (mmu_xcn),A      ; Write the channel number.
+
 ld A,(ramp_ctr)     ; Load A with ramp counter.
 ld (mmu_xhb),A      ; Write counter to transmit HI byte.
 inc A               ; Increment counter.
 ld (ramp_ctr),A     ; Write new value to memory.
 ld A,0x00           ; Load A with zero.
 ld (mmu_xlb),A      ; Write zero to transmit LO byte.
-ld (mmu_xcr),A      ; Any write to transmit control register.
-ld A,tx_delay       ; Load A with the sample transmission delay.
-dly A               ; and wait for sample transmission to complete.
 
-ld A,0x00           ; Clear bit zero to zero.
-ld (mmu_bcc),A      ; Move CPU back to slow RCK.
-ld (mmu_etc),A      ; Stop the transmit clock.
+ld (mmu_xcr),A      ; Provokes transmission
+
+ld A,tx_delay       ; Load A with the sample transmission delay
+dly A               ; and wait for sample transmission to complete.
 
 ld A,(mmu_tpr)      ; Load the test point register.
 and A,0xFE          ; Clear bit zero and
@@ -125,6 +132,10 @@ ld (mmu_tpr),A      ; write to test point register.
 
 ld A,0xFF           ; Set all bits to one and use to
 ld (mmu_irst),A     ; reset all interrupts.
+
+ld A,0x00           ; Clear bit zero to zero.
+ld (mmu_bcc),A      ; Move CPU back to slow RCK.
+ld (mmu_etc),A      ; Stop the transmit clock.
 
 pop A               ; Restore A
 pop F               ; Restore the flags.
@@ -161,10 +172,6 @@ jp nz,pwr_up_lp
 ; Calibrate the transmit clock.
 call calibrate_tck
 
-; Set the low radio frequency for sample transmission
-ld A,tx_frequency
-ld (mmu_xfc),A
-
 ; Set the ramp counter to zero.
 ld A,0x00
 ld (ramp_ctr),A
@@ -178,9 +185,9 @@ ld A,0xFF            ; Load A with ones
 ld (mmu_irst),A      ; and reset all interrupts.
 ld A,sample_period   ; Load A with the sample period,
 dec A                ; and decrement to get the value
-ld (mmu_itp),A       ; we write to timer period register.
+ld (mmu_itp1),A      ; we write to timer one period register.
 ld A,0x01            ; Set bit zero of A to one and use
-ld (mmu_imsk),A      ; to enable the timer interrupt.
+ld (mmu_imsk),A      ; to enable timer one interrupt.
 
 ; ------------------------------------------------------------
 

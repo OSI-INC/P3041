@@ -9,7 +9,7 @@
 -- Adjust Stack Pointer location in OSR8V1, so now have OSR8V1R2 for this minor revision. When we
 -- compile, we use 1235 of 1280 LUTs.
 
--- V1.1, 12-APR-22: We switch to OSR8V3, which has generic constants by which we configure
+-- V1.1, 12-APR-22: We switch to OSR8V3, which hasTX generic constants by which we configure
 -- its memory space. Many edits on default values and arrangement of constants. Correct bug in 
 -- sensor readout that expands the code. Reduce the cpu memory to 4 KB. The first 1 KB is for
 -- Random Access Memory. The first 768 Bytes are for variables, the final 256 Bytes for the stack. 
@@ -21,6 +21,11 @@
 -- V1.2, 15-JUN-22: First version to run on the A3041AV1 assembly. Test points working, micro-
 -- processor running, interrupts correct, self-calibration of TCK correct, transmission correct.
 
+-- V1.3, 17-JUN-22: The transmit clock turns on only when the CPU says so with ENTCK. The CPU
+-- must assert ENTCK for sample transmission. If the CPU asserts ENTCK for sensor access, so
+-- much the better: the access will go faster and the sensor will be awake for less time. Add
+-- second interrupt timer. Remove TXD and SAD interrupts. Move stack overflow interrupt to bit 
+-- seven.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -64,16 +69,16 @@ entity main is
 	constant ctrl_range : integer := 2;
 	
 -- Memory Map Constants, low nibble addresses in units of bytes;
-	constant mmu_sdb  : integer := 0; -- Sensor Data Byte
-	constant mmu_scr  : integer := 1; -- Sensor Control Register
-	constant mmu_irqb : integer := 2; -- Interrupt Request Bits
-	constant mmu_imsk : integer := 3; -- Interrupt Mask Bits
-	constant mmu_irst : integer := 4; -- Interrupt Reset Bits
-	constant mmu_iset : integer := 5; -- Interrupt Set Bits
-	constant mmu_itp  : integer := 6; -- Interrupt Timer Period 
-	constant mmu_rst  : integer := 7; -- System Reset
-	constant mmu_xhb  : integer := 8; -- Transmit HI Byte
-	constant mmu_xlb  : integer := 9; -- Transmit LO Byte
+	constant mmu_sdb  : integer := 0;  -- Sensor Data Byte
+	constant mmu_scr  : integer := 1;  -- Sensor Control Register
+	constant mmu_irqb : integer := 2;  -- Interrupt Request Bits
+	constant mmu_imsk : integer := 3;  -- Interrupt Mask Bits
+	constant mmu_irst : integer := 4;  -- Interrupt Reset Bits
+	constant mmu_iset : integer := 5;  -- Interrupt Set Bits
+	constant mmu_itp1 : integer := 6;  -- Interrupt Timer One Period 
+	constant mmu_rst  : integer := 7;  -- System Reset
+	constant mmu_xhb  : integer := 8;  -- Transmit HI Byte
+	constant mmu_xlb  : integer := 9;  -- Transmit LO Byte
 	constant mmu_xcn  : integer := 10; -- Transmit Channel Number
 	constant mmu_xcr  : integer := 11; -- Transmit Control Register
 	constant mmu_xfc  : integer := 12; -- Transmit Frequency Calibration
@@ -90,6 +95,7 @@ entity main is
 	constant mmu_onl  : integer := 23; -- On Lamp
 	constant mmu_sph  : integer := 25; -- Initial Stack Pointer HI Byte
 	constant mmu_spl  : integer := 26; -- Initial Stack Pointer LO Byte
+	constant mmu_itp2 : integer := 27; -- Interrupt Timer Two Period
 end;
 
 architecture behavior of main is
@@ -174,10 +180,10 @@ architecture behavior of main is
 	signal CPUSIG : std_logic_vector(2 downto 0); -- Signals for debugging.
 
 -- Interrupt Handler signals.
-	signal int_mask, int_period, int_bits, 
+	signal int_mask, int_period_1, int_period_2, int_bits, 
 		int_rst, int_set : std_logic_vector(7 downto 0);
 	signal TXDS, SADS, INTGS, INTAS : boolean;
-	signal INTCTRZ : boolean; -- Interrupt Counter Zero Flag
+	signal INTZ1, INTZ2 : boolean; -- Interrupt Counter Zero Flag
 	
 -- Byte Receiver
 	signal RPS, -- Radio Frequency Power Synchronized
@@ -249,20 +255,22 @@ begin
 		end if;
 		
 		-- The OND signal keeps power applied to the logic chip after
-		-- RP is unasserted, which is the case after the 5-ms initiate
+		-- RP is unasserted, which is the case after the initializing
 		-- pulse, when command bits are incoming, and after the end of
-		-- command transmistion. We assert OND when we have a stimulus
-		-- running (SRUN), the command processor is active (CPA), data
-		-- transmission is enabled (TXEN), an acknowledgement has been
-		-- requested (AKRQ), or a battery voltage reading has been 
-		-- requested (BVRQ).
+		-- command transmistion. We assert OND when we have the command
+		-- processor is active (CPA) or the microprocessor has asserted
+		-- Device Active (DACTIVE).
 		OND <= to_std_logic(CPA or DACTIVE);
 
 	end process;
 	
 	
--- Ring Oscillator. This oscillator runs only during message transmission.
-	FCKEN <= to_std_logic(TXI or TXA or TXD or SAI or SAA or SAD or ENTCK);
+-- Ring Oscillator. This oscillator turns on when the microprocessor asserts
+-- Enable Transmit Clock (ENTCK). The transmit clock must be running during a
+-- sample transmission in order for the timing of the transmission to be correct.
+-- The transmit clock should be turned on during a sensor access as well, so that
+-- the sensor access will be quick and the sensor can power down again sooner.
+	FCKEN <= to_std_logic(ENTCK);
 	Fast_CK : entity ring_oscillator port map (
 		ENABLE => FCKEN, 
 		calib => tck_divisor,
@@ -365,7 +373,8 @@ begin
 					when mmu_sdb => cpu_data_in <= sensor_bits_in;
 					when mmu_irqb => cpu_data_in <= int_bits;
 					when mmu_imsk => cpu_data_in <= int_mask;
-					when mmu_itp => cpu_data_in <= int_period;
+					when mmu_itp1 => cpu_data_in <= int_period_1;
+					when mmu_itp2 => cpu_data_in <= int_period_2;
 					when mmu_sph => cpu_data_in <= std_logic_vector(to_unsigned((start_sp / 256),8));
 					when mmu_spl => cpu_data_in <= std_logic_vector(to_unsigned((start_sp rem 256),8));
 					when mmu_tcf =>
@@ -393,7 +402,8 @@ begin
 			BOOST <= false;
 			tck_divisor <= default_tck_divisor;
 			tx_channel <= 0;
-			int_period <= (others => '1');
+			int_period_1 <= (others => '1');
+			int_period_2 <= (others => '1');
 			int_mask <= (others => '0');
 			CPRST <= true;
 			ONL <= '0';
@@ -418,7 +428,8 @@ begin
 						when mmu_xcr => TXI <= true;
 						when mmu_xfc => tx_low <= to_integer(unsigned(cpu_data_out));
 						when mmu_imsk => int_mask <= cpu_data_out;
-						when mmu_itp => int_period <= cpu_data_out;
+						when mmu_itp1 => int_period_1 <= cpu_data_out;
+						when mmu_itp2 => int_period_2 <= cpu_data_out;
 						when mmu_irst => int_rst <= cpu_data_out;
 						when mmu_iset => int_set <= cpu_data_out;
 						when mmu_rst => SWRST <= (cpu_data_out(0) = '1');
@@ -512,85 +523,82 @@ begin
 	-- The Interrupt_Controller provides the interrupt signal to the CPU in response to
 	-- sensor and timer events. By default, at power-up, all interrupts are masked.
 	Interrupt_Controller : process (RCK,CK,RESET) is
-	variable counter : integer range 0 to 255;
+	variable counter_1, counter_2 : integer range 0 to 255;
 	begin
-		-- The timer itself, counting down from int_period to zero with
-		-- period RCK. It never stops, so we can generate regular, periodic 
-		-- interrupts. We use the falling edge of RCK to count down, or 
-		-- else the compiler gets confused when generating our delayed signal
-		-- INTCTRZ in the next section.
+		-- The interrupt timers, counting down from int_period to zero with
+		-- period RCK. They never stop, so we can generate regular, periodic 
+		-- interrupts. We use the falling edge of RCK to count down, or else
+		-- the compiler gets confused when generating our delayed signal zero
+		-- signal in the next section, where we are using CK as a clock.
 		if falling_edge(RCK) then
-			if (counter = 0) then
-				counter := to_integer(unsigned(int_period));
+			if (counter_1 = 0) then
+				counter_1 := to_integer(unsigned(int_period_1));
 			else
-				counter := counter - 1;
+				counter_1 := counter_1 - 1;
+			end if;
+			if (counter_2 = 0) then
+				counter_2 := to_integer(unsigned(int_period_2));
+			else
+				counter_2 := counter_2 - 1;
 			end if;
 		end if;
 
-		-- The interrupt management runs of CK, which can be RCK or TCK.
+		-- The interrupt management runs off CK, which can be RCK or TCK.
 		if (RESET = '1') then
 			CPUIRQ <= false;
 			int_bits <= (others => '0');
-			INTCTRZ <= false;
+			INTZ1 <= false;
+			INTZ2 <= false;
 		elsif rising_edge(CK) then
 		
 			-- Edge detecting signals.
 			TXDS <= TXD;
 			SADS <= SAD;
 			
-			-- The timer interrupt is set when the counter is zero
+			-- The timer one interrupt is set when counter one is zero
 			-- and reset when we write of 1 to int_rst(0).
-			INTCTRZ <= (counter = 0);
+			INTZ1 <= (counter_1 = 0);
 			if (int_rst(0) = '1') then
 				int_bits(0) <= '0';
-			elsif ((counter = 0) and (not INTCTRZ))
+			elsif ((counter_1 = 0) and (not INTZ1))
 					or (int_set(0) = '1') then
 				int_bits(0) <= '1';
 			end if;
 			
-			-- The TXD interrupt is set on a rising edge of
-			-- TXD and reset upon a write of 1 to int_rst(1).
+			-- The timer two interrupt is set when counter two is zero
+			-- and reset when we write of 1 to int_rst(0).
+			INTZ2 <= (counter_2 = 0);
 			if (int_rst(1) = '1') then
 				int_bits(1) <= '0';
-			elsif ((not TXDS) and TXD) 
+			elsif ((counter_2 = 0) and (not INTZ2))
 					or (int_set(1) = '1') then
 				int_bits(1) <= '1';
 			end if;
 			
-			-- The SAD interrupt is set on a rising edge of
-			-- SAD and reset upon a write of 1 to int_rst(2).
-			if (int_rst(2) = '1') then
-				int_bits(2) <= '0';
-			elsif ((not SADS) and SAD) 
-					or (int_set(2) = '1') then
-				int_bits(2) <= '1';
-			end if;
-						
-			-- Stack overflow interrupt.
-			if (int_rst(5) = '1') then
-				int_bits(5) <= '0';
-			elsif CPUSTOF or (int_set(4) = '1') then
-				int_bits(4) <= '1';
-			end if;			
-			
-			-- The CPU dedicated inputs INT1..INT2 the CPU sets and resets
-			-- itself through the int_rst and int_set control registers.
-			for i in 6 to 7 loop
+			-- The CPU dedicated inputs INT2..INT6 the CPU sets and resets
+			-- through the int_rst and int_set control registers.
+			for i in 2 to 6 loop
 				if (int_rst(i) = '1') then
 					int_bits(i) <= '0';
 				elsif (int_set(i) = '1') then
 					int_bits(i) <= '1';
 				end if;
 			end loop;
+			
+			-- Stack overflow interrupt.
+			if (int_rst(7) = '1') then
+				int_bits(7) <= '0';
+			elsif CPUSTOF or (int_set(7) = '1') then
+				int_bits(7) <= '1';
+			end if;			
 		end if;
 
 		-- We generate an interrupt if any one interrupt bit is 
 		-- set and unmasked.
 		CPUIRQ <= (int_bits and int_mask) /= "00000000";
 	end process;
-	
 
-	-- The Sensor Controller reads out the eight-bit battery monitoring DAC when it
+	-- The Sensor Controller reads out the eight-bit battery monitoring ADC when it
 	-- sees Sensor Access Initiate (SAI). When it is done, it asserts Sensor Access 
 	-- Done (SAD). It runs off the Transmit Clock (TCK), which starts up with the 
 	-- assertion of SAI and continues until both SAI and SAD are un-asserted.

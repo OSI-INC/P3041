@@ -4,9 +4,9 @@
   (keywordMap (keywordLevel 0))
   (status
     (written
-      (timestamp 2022 6 15 17 38 46)
+      (timestamp 2022 6 17 19 42 4)
       (program "SCUBA" (version "Diamond (64-bit) 3.12.1.454"))))
-      (comment "C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type bram -wp 00 -rp 1100 -addr_width 12 -data_width 8 -num_rows 4096 -cascade 11 -memfile c:/kevan/a3041/p3041a/rom.mem -memformat hex ")
+      (comment "C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type bram -wp 00 -rp 1100 -addr_width 12 -data_width 8 -num_rows 4096 -cascade 11 -memfile c:/kevan/a3041/p3041/ROM.mem -memformat hex ")
   (library ORCLIB
     (edifLevel 0)
     (technology
@@ -213,7 +213,7 @@
             (property MEM_LPC_FILE
               (string "ROM.lpc"))
             (property MEM_INIT_FILE
-              (string "rom.mem"))
+              (string "ROM.mem"))
             (property INITVAL_1F
               (string "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000"))
             (property INITVAL_1E
@@ -275,9 +275,9 @@
             (property INITVAL_02
               (string "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000"))
             (property INITVAL_01
-              (string "0x00000000000000000000000000000000000000000000203E110A86D0185202001180400288204EC4"))
+              (string "0x00000000000000000000000000000000000000000000203E110A86D0185202001180420189F02438"))
             (property INITVAL_00
-              (string "0x11C000883C00E11128110083818A1000804010700285102E401C209020D80224C08A4C0881009871"))
+              (string "0x002101E01C08C50088101C6140801002021180500285102E401C209020D80224C08A4C0881009841"))
             (property CSDECODE_B
               (string "0b111"))
             (property CSDECODE_A
@@ -308,7 +308,7 @@
             (property MEM_LPC_FILE
               (string "ROM.lpc"))
             (property MEM_INIT_FILE
-              (string "rom.mem"))
+              (string "ROM.mem"))
             (property INITVAL_1F
               (string "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000"))
             (property INITVAL_1E
@@ -370,9 +370,9 @@
             (property INITVAL_02
               (string "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000"))
             (property INITVAL_01
-              (string "0x00000000000000000000000000000000000000000000100E091844012441120191804312848002C0"))
+              (string "0x00000000000000000000000000000000000000000000100E09184401244112019180410480700424"))
             (property INITVAL_00
-              (string "0x11209094640CE09184790481014C90008A40345013C40120240C0471209E0F20E0800C1C89001800"))
+              (string "0x04A291229C04E091C8900849A080121206909C5013C40120240C0471209E0F20E0800C1C89001820"))
             (property CSDECODE_B
               (string "0b111"))
             (property CSDECODE_A
@@ -403,7 +403,7 @@
             (property MEM_LPC_FILE
               (string "ROM.lpc"))
             (property MEM_INIT_FILE
-              (string "rom.mem"))
+              (string "ROM.mem"))
             (property INITVAL_1F
               (string "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000"))
             (property INITVAL_1E
@@ -465,9 +465,9 @@
             (property INITVAL_02
               (string "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000"))
             (property INITVAL_01
-              (string "0x000000000000000000000000000000000000000000002016511E84D02044030411A04402200014DE"))
+              (string "0x000000000000000000000000000000000000000000002016511E84D02044030411A0440002B0F05E"))
             (property INITVAL_00
-              (string "0x02EA11C84F00E511E8410886D0081100A0402075020450264611E4002200082100F4E100A1115030"))
+              (string "0x10E910781D08ED100A111681008814020411A045020450264611E4002200082100F4E100A1115030"))
             (property CSDECODE_B
               (string "0b111"))
             (property CSDECODE_A
@@ -504,7 +504,7 @@
             (property MEM_LPC_FILE
               (string "ROM.lpc"))
             (property MEM_INIT_FILE
-              (string "rom.mem"))
+              (string "ROM.mem"))
             (property INITVAL_1F
               (string "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000"))
             (property INITVAL_1E
@@ -566,9 +566,9 @@
             (property INITVAL_02
               (string "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000"))
             (property INITVAL_01
-              (string "0x00000000000000000000000000000000000000000000200E001A0040000000800180000000200AC0"))
+              (string "0x00000000000000000000000000000000000000000000200E001A0040000000800180000101700000"))
             (property INITVAL_00
-              (string "0x0000000000006001A000000100000000200000000000000200000000005000000002000000000010"))
+              (string "0x000000000C0064000000080000000400000000000000000200000000005000000002000000000010"))
             (property CSDECODE_B
               (string "0b111"))
             (property CSDECODE_A
