@@ -31,8 +31,9 @@
 -- location to poll for new commands. Combine readback of CMDRDY and ENTCK in a single status
 -- register. Now CPU can check ENTCK, allowing interrupts to restor prior state of ENTCK.-- Eliminate stack overflow interrupt. Eliminate stack pointer base and height locations in mmu. 
 -- The CPU program will set the stack pointer the first thing it does. The OSR8 will initialize 
--- SP to zero. An interrupt routine can monitor the stack if we are worried about overflow. 
--- Increase interrupt timers length from eight to sixteen bits to support long stimulus periods.
+-- SP to zero. An interrupt routine can monitor the stack if we are worried about overflow. With
+-- these simplifications, we are now able to increase the length of the interrupt timers to 
+-- sixteen bits from eight. Code is 1224 LUTs. Eliminating an interrupt timer saves 19 LUTs.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -518,11 +519,11 @@ begin
 	Interrupt_Controller : process (RCK,CK,RESET) is
 	variable counter_1, counter_2 : integer range 0 to 65535;
 	begin
-		-- The interrupt timers, counting down from int_period to zero with
-		-- period RCK. They never stop, so we can generate regular, periodic 
-		-- interrupts. We use the falling edge of RCK to count down, or else
-		-- the compiler gets confused when generating our delayed signal zero
-		-- signal in the next section, where we are using CK as a clock.
+		-- The interrupt timers, counting down from their interrupt period to zero 
+		-- clock RCK. They never stop. They allow us to generate regular, periodic 
+		-- interrupts. We use the falling edge of RCK to count down, or else the
+		-- compiler gets confused when generating our delayed zero signal in the 
+		-- next section, where we are using CK as a clock.
 		if falling_edge(RCK) then
 			if (counter_1 = 0) then
 				counter_1 := to_integer(unsigned(int_period_1));
