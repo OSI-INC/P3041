@@ -21,14 +21,18 @@
 -- V1.2, 15-JUN-22: First version to run on the A3041AV1 assembly. Test points working, micro-
 -- processor running, interrupts correct, self-calibration of TCK correct, transmission correct.
 
--- V1.3, 17-JUN-22: The transmit clock turns on only when the CPU says so with ENTCK. The CPU
+-- V1.3, 18-JUN-22: The transmit clock turns on only when the CPU says so with ENTCK. The CPU
 -- must assert ENTCK for sample transmission. If the CPU asserts ENTCK for sensor access, so
 -- much the better: the access will go faster and the sensor will be awake for less time. Add
 -- second interrupt timer. Remove TXD and SAD interrupts. Move stack overflow interrupt to bit 
 -- seven. The command processor now asserts CPA untile the CPU resets its state to idle. We will
 -- have OND asserted by CPA until the CPU asserts CPRST. Add the CMDRDY interrupt so the CPU
 -- can respond promptly to new commands if neccessary. Otherwise CPU can use the CMDRDY memory
--- location to poll for new commands.
+-- location to poll for new commands. Combine readback of CMDRDY and ENTCK in a single status
+-- register. Now CPU can check ENTCK, allowing interrupts to restor prior state of ENTCK.-- Eliminate stack overflow interrupt. Eliminate stack pointer base and height locations in mmu. 
+-- The CPU program will set the stack pointer the first thing it does. The OSR8 will initialize 
+-- SP to zero. An interrupt routine can monitor the stack if we are worried about overflow. 
+-- Increase interrupt timers length from eight to sixteen bits to support long stimulus periods.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -58,8 +62,6 @@ entity main is
 	constant cpu_addr_len : integer := 12;
 	constant start_pc : integer := 0;
 	constant interrupt_pc : integer := 3;
-	constant start_sp : integer := 768;
-	constant height_sp : integer := 240;
 	constant ram_addr_len : integer := 10;
 	constant cmd_addr_len : integer := 10;
 
@@ -78,7 +80,7 @@ entity main is
 	constant mmu_imsk : integer := 3;  -- Interrupt Mask Bits
 	constant mmu_irst : integer := 4;  -- Interrupt Reset Bits
 	constant mmu_iset : integer := 5;  -- Interrupt Set Bits
-	constant mmu_itp1 : integer := 6;  -- Interrupt Timer One Period 
+	constant mmu_it1l : integer := 6;  -- Interrupt Timer One Period Lo
 	constant mmu_rst  : integer := 7;  -- System Reset
 	constant mmu_xhb  : integer := 8;  -- Transmit HI Byte
 	constant mmu_xlb  : integer := 9;  -- Transmit LO Byte
@@ -90,15 +92,15 @@ entity main is
 	constant mmu_tcd  : integer := 15; -- Transmit Clock Divider
 	constant mmu_bcc  : integer := 16; -- Boost CPU Clock
 	constant mmu_tpr  : integer := 17; -- Test Point Register
-	constant mmu_crdy : integer := 18; -- Command Ready
+	constant mmu_sr   : integer := 18; -- Status Register
 	constant mmu_cclo : integer := 19; -- Command Count HI Byte
 	constant mmu_cchi : integer := 20; -- Command Count LO Byte
 	constant mmu_crst : integer := 21; -- Command Processor Reset
 	constant mmu_dact : integer := 22; -- Device Active
 	constant mmu_onl  : integer := 23; -- On Lamp
-	constant mmu_sph  : integer := 25; -- Initial Stack Pointer HI Byte
-	constant mmu_spl  : integer := 26; -- Initial Stack Pointer LO Byte
-	constant mmu_itp2 : integer := 27; -- Interrupt Timer Two Period
+	constant mmu_it2l : integer := 24; -- Interrupt Timer Two Period Lo
+	constant mmu_it1h : integer := 25; -- Interrupt Timer One Period Hi
+	constant mmu_it2h : integer := 26; -- Interrupt Timer Two Period Hi
 end;
 
 architecture behavior of main is
@@ -177,14 +179,13 @@ architecture behavior of main is
 	attribute nomerge of cpu_addr : signal is "";  
 	signal CPUWR, -- Write (Not Read)
 		CPUDS, -- Data Strobe
-		CPUIRQ, -- Interrupt Request
-		CPUSTOF -- Stack Overflow
+		CPUIRQ -- Interrupt Request
 		: boolean; 
 	signal CPUSIG : std_logic_vector(2 downto 0); -- Signals for debugging.
 
 -- Interrupt Handler signals.
-	signal int_mask, int_period_1, int_period_2, int_bits, 
-		int_rst, int_set : std_logic_vector(7 downto 0);
+	signal int_mask, int_bits, int_rst, int_set : std_logic_vector(7 downto 0);
+	signal int_period_1, int_period_2 : std_logic_vector(15 downto 0);
 	signal TXDS, SADS, INTGS, INTAS : boolean;
 	signal INTZ1, INTZ2 : boolean; -- Interrupt Counter Zero Flag
 	
@@ -247,7 +248,7 @@ begin
 		if rising_edge(RCK) then
 			CLRFLAG <= to_std_logic(state = 1);
 			USERSTDBY <= to_std_logic(state >= 3);
-			RESET <= to_std_logic((state < end_state) or SWRST or CPUSTOF);
+			RESET <= to_std_logic((state < end_state) or SWRST);
 
 			if (state = 0) then state := 1;
 			elsif (state = 1) then state := 2;
@@ -316,9 +317,7 @@ begin
 			prog_addr_len => prog_addr_len,
 			cpu_addr_len => cpu_addr_len,
 			start_pc => start_pc,
-			interrupt_pc => interrupt_pc,
-			start_sp => start_sp,
-			height_sp => height_sp
+			interrupt_pc => interrupt_pc
 		)
 		port map (
 			prog_data => prog_data,
@@ -330,7 +329,6 @@ begin
 			DS => CPUDS,
 			IRQ => CPUIRQ,
 			SIG => CPUSIG,
-			STOF => CPUSTOF,
 			RESET => RESET,
 			CK => CK
 		);
@@ -376,17 +374,10 @@ begin
 					when mmu_sdb => cpu_data_in <= sensor_bits_in;
 					when mmu_irqb => cpu_data_in <= int_bits;
 					when mmu_imsk => cpu_data_in <= int_mask;
-					when mmu_itp1 => cpu_data_in <= int_period_1;
-					when mmu_itp2 => cpu_data_in <= int_period_2;
-					when mmu_sph => cpu_data_in <= std_logic_vector(to_unsigned((start_sp / 256),8));
-					when mmu_spl => cpu_data_in <= std_logic_vector(to_unsigned((start_sp rem 256),8));
-					when mmu_tcf =>
-						cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
-					when mmu_crdy => cpu_data_in(0) <= to_std_logic(CMDRDY);
-					when mmu_cchi => 
-						cpu_data_in(1 downto 0) <= cmd_wr_addr(9 downto 8);
-					when mmu_cclo =>
-						cpu_data_in(7 downto 0) <= cmd_wr_addr(7 downto 0);
+					when mmu_tcf => cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
+					when mmu_sr => 
+						cpu_data_in(0) <= to_std_logic(CMDRDY);
+						cpu_data_in(1) <= to_std_logic(ENTCK);
 				end case;
 			end if;
 		end case;
@@ -428,8 +419,10 @@ begin
 						when mmu_xcr => TXI <= true;
 						when mmu_xfc => tx_low <= to_integer(unsigned(cpu_data_out));
 						when mmu_imsk => int_mask <= cpu_data_out;
-						when mmu_itp1 => int_period_1 <= cpu_data_out;
-						when mmu_itp2 => int_period_2 <= cpu_data_out;
+						when mmu_it1l => int_period_1(7 downto 0) <= cpu_data_out;
+						when mmu_it1h => int_period_1(15 downto 8) <= cpu_data_out;
+						when mmu_it2l => int_period_2(7 downto 0) <= cpu_data_out;
+						when mmu_it2h => int_period_2(15 downto 8) <= cpu_data_out;
 						when mmu_irst => int_rst <= cpu_data_out;
 						when mmu_iset => int_set <= cpu_data_out;
 						when mmu_rst => SWRST <= (cpu_data_out(0) = '1');
@@ -523,7 +516,7 @@ begin
 	-- The Interrupt_Controller provides the interrupt signal to the CPU in response to
 	-- sensor and timer events. By default, at power-up, all interrupts are masked.
 	Interrupt_Controller : process (RCK,CK,RESET) is
-	variable counter_1, counter_2 : integer range 0 to 255;
+	variable counter_1, counter_2 : integer range 0 to 65535;
 	begin
 		-- The interrupt timers, counting down from int_period to zero with
 		-- period RCK. They never stop, so we can generate regular, periodic 
@@ -551,10 +544,6 @@ begin
 			INTZ2 <= false;
 		elsif rising_edge(CK) then
 		
-			-- Edge detecting signals.
-			TXDS <= TXD;
-			SADS <= SAD;
-			
 			-- The timer one interrupt is set when counter one is zero
 			-- and reset when we write of 1 to int_rst(0).
 			INTZ1 <= (counter_1 = 0);
@@ -581,20 +570,13 @@ begin
 			
 			-- The CPU dedicated inputs INT3..INT6 the CPU sets and resets
 			-- through the int_rst and int_set control registers.
-			for i in 3 to 6 loop
+			for i in 3 to 7 loop
 				if (int_rst(i) = '1') then
 					int_bits(i) <= '0';
 				elsif (int_set(i) = '1') then
 					int_bits(i) <= '1';
 				end if;
-			end loop;
-			
-			-- Stack overflow interrupt.
-			if (int_rst(7) = '1') then
-				int_bits(7) <= '0';
-			elsif CPUSTOF or (int_set(7) = '1') then
-				int_bits(7) <= '1';
-			end if;			
+			end loop;			
 		end if;
 
 		-- We generate an interrupt if any one interrupt bit is 

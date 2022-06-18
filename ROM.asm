@@ -14,16 +14,19 @@ const device_id        55  ; Will be used as the first channel number.
 const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
 
 ; Address Map Constants
-const mmu_vmem 0x0000 ; Base of variable memory
-const mmu_cmem 0x0400 ; Base of command memory
-const mmu_ctrl 0x0800 ; Base of control space
+const mmu_vmem 0x0000 ; Base of Variable Memory
+const mmu_cmem 0x0400 ; Base of Command Memory
+const mmu_ctrl 0x0800 ; Base of Control Space
+const mmu_sphi   0x00 ; Bottom of Stack, Hi Byte
+const mmu_splo   0x03 ; Bottom of Stack, Lo Byte
+
 const mmu_bmb  0x0800 ; Sensor Data HI Byte 
 const mmu_scr  0x0801 ; Sensor Control Register
 const mmu_irqb 0x0802 ; Interrupt Request Bits
 const mmu_imsk 0x0803 ; Interrupt Mask Bits
 const mmu_irst 0x0804 ; Interrupt Reset Bits
 const mmu_iset 0x0805 ; Interrupt Set Bits
-const mmu_itp1 0x0806 ; Interrupt Timer One Period 
+const mmu_it1l 0x0806 ; Interrupt Timer One Period Lo
 const mmu_rst  0x0807 ; System Reset
 const mmu_xhb  0x0808 ; Transmit HI Byte
 const mmu_xlb  0x0809 ; Transmit LO Byte
@@ -35,15 +38,20 @@ const mmu_tcf  0x080E ; Transmit Clock Frequency
 const mmu_tcd  0x080F ; Transmit Clock Divider
 const mmu_bcc  0x0810 ; Boost CPU Clock
 const mmu_tpr  0x0811 ; Test Point Register
-const mmu_crf  0x0812 ; Command Ready Flag
+const mmu_sr   0x0812 ; Status Register
 const mmu_cch  0x0813 ; Command Count HI
 const mmu_ccl  0x0814 ; Command Count LO
 const mmu_cpr  0x0815 ; Command Processor Reset
 const mmu_dva  0x0816 ; Device Active 
 const mmu_onl  0x0817 ; On Lamp
-const mmu_sph  0x0819 ; Initial Stack Pointer HI Byte
-const mmu_spl  0x081A ; Initial Stack Pointer LO Byte
-const mmu_itp2 0x081B ; Interrupt Timer Two Period 
+const mmu_it2l 0x0818 ; Interrupt Timer Two Period Lo
+const mmu_it1h 0x0819 ; Interrupt Timer One Period Hi
+const mmu_it2h 0x081A ; Interrupt Timer Two Period Hi
+
+
+; Status Bit Masks, for use with status register.
+const sr_cmdrdy  0x01 ; Command Ready Mask
+const sr_entck   0x02 ; Enable Transmit Mask
 
 ; Timing Constants.
 const min_tcf       75  ; Minimum TCK periods per half RCK period.
@@ -148,21 +156,19 @@ rti
 ; Initialize the device. 
 initialize:
 
-; Initialize the stack pointer. We read the correct initial stack
-; pointer value from memory, where it is hard-coded into the 
-; firmware along with a maximum stack height.
-ld A,(mmu_sph)
+; Initialize the stack pointer. The stack pointer starts at zero, but
+; we want to move it to the top of RAM where it can move upwards.
+ld A,mmu_sphi
 push A
 pop H
-ld A,(mmu_spl)
+ld A,mmu_splo
 push A
 pop L 
 ld SP,HL
 
 ; Wait for a while. The power supplies must settle after entering
-; standby mode, and the ring oscillator frequency is sensitive to
-; the power supply voltage. We must let the gyroscope and accelerometer
-; settle down also.
+; standby mode. The ring oscillator frequency is sensitive to the
+; power supply voltage.
 ld A,boot_delay  ; We want start_delay x 256 
 push A           ; cycles of RCK = 32.768 kHz
 pop B            ; before proceeding with execution.
@@ -188,7 +194,9 @@ ld A,0xFF            ; Load A with ones
 ld (mmu_irst),A      ; and reset all interrupts.
 ld A,sample_period   ; Load A with the sample period,
 dec A                ; and decrement to get the value
-ld (mmu_itp1),A      ; we write to timer one period register.
+ld (mmu_it1l),A      ; we write to timer one period lo byte.
+ld A,0x00            ; Load A with zeros so we can
+ld (mmu_it1h),A      ; set the timer one period hi byte.
 ld A,0x01            ; Set bit zero of A to one and use
 ld (mmu_imsk),A      ; to enable timer one interrupt.
 
@@ -202,8 +210,8 @@ ld A,(mmu_tpr)      ; Load the test point register.
 or A,0x02           ; Set bit one and
 ld (mmu_tpr),A      ; write to test point register.
 
-ld A,(mmu_crf)      ; Fetch Command Ready (CMDRDY) flag.
-and A,0x01          ; Check bit zero,
+ld A,(mmu_sr)       ; Fetch status register.
+and A,sr_cmdrdy     ; Check the command ready bit.
 jp z,no_cmd         ; Jump if it's clear.
 
 ; Here we will later insert code to read out, interpret, and execute comands.
