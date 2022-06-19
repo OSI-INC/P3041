@@ -590,7 +590,7 @@ begin
 			
 			-- The timer four interrupt is set when counter four is zero
 			-- and reset when we write of 1 to int_rst(3).
-			INTZ3 <= (counter_4 = 0);
+			INTZ4 <= (counter_4 = 0);
 			if (int_rst(3) = '1') then
 				int_bits(3) <= '0';
 			elsif ((counter_4 = 0) and (not INTZ4))
