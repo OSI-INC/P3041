@@ -23,17 +23,15 @@
 
 -- V1.3, 18-JUN-22: The transmit clock turns on only when the CPU says so with ENTCK. The CPU
 -- must assert ENTCK for sample transmission. If the CPU asserts ENTCK for sensor access, so
--- much the better: the access will go faster and the sensor will be awake for less time. Add
--- second interrupt timer. Remove TXD and SAD interrupts. Move stack overflow interrupt to bit 
--- seven. The command processor now asserts CPA untile the CPU resets its state to idle. We will
--- have OND asserted by CPA until the CPU asserts CPRST. Add the CMDRDY interrupt so the CPU
--- can respond promptly to new commands if neccessary. Otherwise CPU can use the CMDRDY memory
--- location to poll for new commands. Combine readback of CMDRDY and ENTCK in a single status
--- register. Now CPU can check ENTCK, allowing interrupts to restor prior state of ENTCK.-- Eliminate stack overflow interrupt. Eliminate stack pointer base and height locations in mmu. 
--- The CPU program will set the stack pointer the first thing it does. The OSR8 will initialize 
--- SP to zero. An interrupt routine can monitor the stack if we are worried about overflow. With
--- these simplifications, we are now able to increase the length of the interrupt timers to 
--- sixteen bits from eight. Code is 1224 LUTs. Eliminating an interrupt timer saves 19 LUTs.
+-- much the better: the access will go faster and the sensor will be awake for less time. 
+-- Remove TXD, SAD, and stack overflow interrupts. The command processor now asserts CPA until-- the CPU resets its state to idle. We will have OND asserted by CPA until the CPU asserts CPRST. 
+-- Add the CMDRDY interrupt so the CPU can respond promptly to new commands if neccessary. 
+-- Otherwise CPU can use the CMDRDY memory location to poll for new commands. Combine readback of 
+-- CMDRDY and ENTCK in a single status register and add OND. Now CPU can check ENTCK, allowing 
+-- interrupts to restore prior state of ENTCK. Eliminate stack pointer base and height locations-- in memory management unit.  The OSR8 will initialize SP to zero. The CPU program will set the 
+-- stack pointer the first thing it does. An interrupt routine can monitor the stack if we are 
+-- worried about overflow. With these simplifications, we are now able to expand from one eight-
+-- bit interrupt timer to four, each with their own interrupt line.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -51,10 +49,11 @@ entity main is
 		TP3, -- Test Point Three, available on P3-3, also TMS
 		TP4, -- Test Point Four, available on P3-4, also TCK
 		OND, -- Keep Device On
-		ONL, -- Turn Lamp On
 		NCS, -- Chip Select for DAC, Negative-True
 		SCK -- Serial Clock for Battery Voltage DAC
 		: out std_logic;
+		ONL -- Turn Lamp On
+		: inout std_logic;
 		xdac -- Transmit DAC Output, to set data transmit frequency
 		: out std_logic_vector(4 downto 0));
 
@@ -98,12 +97,10 @@ entity main is
 	constant mmu_cchi : integer := 20; -- Command Count LO Byte
 	constant mmu_crst : integer := 21; -- Command Processor Reset
 	constant mmu_dact : integer := 22; -- Device Active
-	constant mmu_it1h : integer := 23; -- Interrupt Timer One Period Hi
-	constant mmu_it1l : integer := 24; -- Interrupt Timer One Period Lo
-	constant mmu_it2h : integer := 25; -- Interrupt Timer Two Period Hi
-	constant mmu_it2l : integer := 26; -- Interrupt Timer Two Period Lo
-	constant mmu_it3h : integer := 27; -- Interrupt Timer Three Period Hi
-	constant mmu_it3l : integer := 28; -- Interrupt Timer Three Period Lo
+	constant mmu_it1p : integer := 23; -- Interrupt Timer One Period
+	constant mmu_it2p : integer := 24; -- Interrupt Timer Two Period
+	constant mmu_it3p : integer := 25; -- Interrupt Timer Three Period
+	constant mmu_it4p : integer := 26; -- Interrupt Timer Four Period
 end;
 
 architecture behavior of main is
@@ -188,9 +185,9 @@ architecture behavior of main is
 
 -- Interrupt Handler signals.
 	signal int_mask, int_bits, int_rst, int_set : std_logic_vector(7 downto 0);
-	signal int_period_1, int_period_2, int_period_3 : std_logic_vector(15 downto 0);
+	signal int_period_1, int_period_2, int_period_3, int_period_4 : std_logic_vector(7 downto 0);
 	signal TXDS, SADS, INTGS, INTAS : boolean;
-	signal INTZ1, INTZ2, INTZ3 : boolean; -- Interrupt Counter Zero Flag
+	signal INTZ1, INTZ2, INTZ3, INTZ4 : boolean; -- Interrupt Counter Zero Flag
 	
 -- Byte Receiver
 	signal RPS, -- Radio Frequency Power Synchronized
@@ -381,6 +378,7 @@ begin
 					when mmu_sr => 
 						cpu_data_in(0) <= to_std_logic(CMDRDY);
 						cpu_data_in(1) <= to_std_logic(ENTCK);
+						cpu_data_in(2) <= ONL;
 				end case;
 			end if;
 		end case;
@@ -425,7 +423,7 @@ begin
 						when mmu_imsk => int_mask <= cpu_data_out;
 						when mmu_irst => int_rst <= cpu_data_out;
 						when mmu_iset => int_set <= cpu_data_out;
-						when mmu_onl => ONL <= to_std_logic(cpu_data_out(0) = '1');
+						when mmu_onl => ONL <= cpu_data_out(0);
 						when mmu_rst => SWRST <= (cpu_data_out(0) = '1');
 						when mmu_etc => ENTCK <= (cpu_data_out(0) = '1');
 						when mmu_tcd => tck_divisor <= to_integer(unsigned(cpu_data_out));
@@ -433,12 +431,10 @@ begin
 						when mmu_tpr => tp_reg <= cpu_data_out;
 						when mmu_crst => CPRST <= true;
 						when mmu_dact => DACTIVE <= (cpu_data_out(0) = '1');
-						when mmu_it1h => int_period_1(15 downto 8) <= cpu_data_out;
-						when mmu_it1l => int_period_1(7 downto 0) <= cpu_data_out;
-						when mmu_it2h => int_period_2(15 downto 8) <= cpu_data_out;
-						when mmu_it2l => int_period_2(7 downto 0) <= cpu_data_out;
-						when mmu_it3h => int_period_3(15 downto 8) <= cpu_data_out;
-						when mmu_it3l => int_period_3(7 downto 0) <= cpu_data_out;
+						when mmu_it1p => int_period_1 <= cpu_data_out;
+						when mmu_it2p => int_period_2 <= cpu_data_out;
+						when mmu_it3p => int_period_3 <= cpu_data_out;
+						when mmu_it4p => int_period_4 <= cpu_data_out;
 					end case;
 				end if;
 			end if;
@@ -522,7 +518,7 @@ begin
 	-- The Interrupt_Controller provides the interrupt signal to the CPU in response to
 	-- sensor and timer events. By default, at power-up, all interrupts are masked.
 	Interrupt_Controller : process (RCK,CK,RESET) is
-	variable counter_1, counter_2, counter_3 : integer range 0 to 65535;
+	variable counter_1, counter_2, counter_3, counter_4 : integer range 0 to 255;
 	begin
 		-- The interrupt timers, counting down from their interrupt period to zero 
 		-- clock RCK. They never stop. They allow us to generate regular, periodic 
@@ -545,6 +541,11 @@ begin
 			else
 				counter_3 := counter_3 - 1;
 			end if;
+			if (counter_4 = 0) then
+				counter_4 := to_integer(unsigned(int_period_4));
+			else
+				counter_4 := counter_4 - 1;
+			end if;
 		end if;
 
 		-- The interrupt management runs off CK, which can be RCK or TCK.
@@ -554,6 +555,7 @@ begin
 			INTZ1 <= false;
 			INTZ2 <= false;
 			INTZ3 <= false;
+			INTZ4 <= false;
 		elsif rising_edge(CK) then
 		
 			-- The timer one interrupt is set when counter one is zero
@@ -586,13 +588,23 @@ begin
 				int_bits(2) <= '1';
 			end if;
 			
+			-- The timer four interrupt is set when counter four is zero
+			-- and reset when we write of 1 to int_rst(3).
+			INTZ3 <= (counter_4 = 0);
+			if (int_rst(3) = '1') then
+				int_bits(3) <= '0';
+			elsif ((counter_4 = 0) and (not INTZ4))
+					or (int_set(3) = '1') then
+				int_bits(3) <= '1';
+			end if;
+			
 			-- The command ready interrupt is set if and onl if we have CMDRDY. It
 			-- cannot be cleared with the interrupt reset bits. We must use CMDRST.
-			int_bits(3) <= to_std_logic(CMDRDY);
+			int_bits(4) <= to_std_logic(CMDRDY);
 			
 			-- The CPU dedicated inputs INT3..INT6 the CPU sets and resets
 			-- through the int_rst and int_set control registers.
-			for i in 4 to 7 loop
+			for i in 5 to 7 loop
 				if (int_rst(i) = '1') then
 					int_bits(i) <= '0';
 				elsif (int_set(i) = '1') then

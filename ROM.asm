@@ -11,8 +11,7 @@
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration
 const device_id        55  ; Will be used as the first channel number.
-const data_sps_lo       0  ; Sample period LO in units of RCK periods.
-const data_sps_hi       1  ; Sample period HI in units of RCK periods.
+const xmit_period     255  ; Transmit period minus one, RCK periods.
 
 ; Address Map Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
@@ -44,24 +43,22 @@ const mmu_cch  0x0813 ; Command Count HI
 const mmu_ccl  0x0814 ; Command Count LO
 const mmu_cpr  0x0815 ; Command Processor Reset
 const mmu_dva  0x0816 ; Device Active 
-const mmu_it1h 0x0817 ; Interrupt Timer One Period Hi
-const mmu_it1l 0x0818 ; Interrupt Timer One Period Lo
-const mmu_it2h 0x0819 ; Interrupt Timer Two Period Hi
-const mmu_it2l 0x081A ; Interrupt Timer Two Period Lo
-const mmu_it3h 0x081B ; Interrupt Timer Three Period Hi
-const mmu_it3l 0x081C ; Interrupt Timer Three Period Lo
+const mmu_it1p 0x0817 ; Interrupt Timer One Period
+const mmu_it2p 0x0818 ; Interrupt Timer Two Period
+const mmu_it3p 0x0819 ; Interrupt Timer Three Period
+const mmu_it4p 0x081A ; Interrupt Timer Four Period
 
 ; Status Bit Masks, for use with status register.
 const sr_cmdrdy  0x01 ; Command Ready Mask
 const sr_entck   0x02 ; Enable Transmit Mask
+const sr_onl     0x03 ; On Lamp
 
 ; Timing Constants.
 const min_tcf       75  ; Minimum TCK periods per half RCK period.
 const tx_delay      50  ; Wait time for sample transmission, TCK periods.
 const sa_delay      70  ; Wait time for sensor access, TCK periods.
-const pwr_up_dly    64  ; Wait time for settling after power up, RCK periods.
+const boot_delay   255  ; Boot delay, RCK periods.
 const initial_tcd   15  ; Max possible value of TCK divisor.
-const boot_delay    10  ; Boot delay in multiples of 7.8 ms.
 
 ; Variable Locations
 const ramp_ctr   0x0000 ; A counter to generate a ramp.
@@ -171,7 +168,7 @@ ld SP,HL
 
 ; Wait for a while. The power supplies must settle after entering
 ; standby mode.
-ld A,pwr_up_dly  ; Load A with power-up delay
+ld A,boot_delay  ; Load A with boot delay
 dly A            ; and wait this number of RCK periods.
 
 ; Calibrate the transmit clock.
@@ -186,10 +183,8 @@ ld (ramp_ctr),A
 ; register is the sample period minus one.
 ld A,0xFF            ; Load A with ones
 ld (mmu_irst),A      ; and reset all interrupts.
-ld A,data_sps_hi     ; Load A with hi byte of sample period
-ld (mmu_it1h),A      ; we write to timer one period hi byte.
-ld A,data_sps_lo     ; Load A with lo byte of sample period
-ld (mmu_it1l),A      ; we write to timer one period lo byte
+ld A,xmit_period     ; Load A with transmit period minus one
+ld (mmu_it1p),A      ; and write to timer one period.
 ld A,0x01            ; Set bit zero of A to one and use
 ld (mmu_imsk),A      ; to enable timer one interrupt.
 
@@ -208,7 +203,8 @@ and A,sr_cmdrdy     ; Check the command ready bit.
 jp z,no_cmd         ; Jump if it's clear.
 
 ; Here we will later insert code to read out, interpret, and execute comands.
-; For now we just reset the command processor and ignore the commands.
+; For now we just reset the command processor and ignore the commands. The 
+; device will turn off unless we have OND jumpered HI.
 ld (mmu_cpr),A      ; Write to Command Processor Clear location.
 
 no_cmd:
