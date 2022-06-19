@@ -81,7 +81,7 @@ entity main is
 	constant mmu_imsk : integer := 3;  -- Interrupt Mask Bits
 	constant mmu_irst : integer := 4;  -- Interrupt Reset Bits
 	constant mmu_iset : integer := 5;  -- Interrupt Set Bits
-	constant mmu_it1l : integer := 6;  -- Interrupt Timer One Period Lo
+	constant mmu_onl  : integer := 6;  -- On Lamp
 	constant mmu_rst  : integer := 7;  -- System Reset
 	constant mmu_xhb  : integer := 8;  -- Transmit HI Byte
 	constant mmu_xlb  : integer := 9;  -- Transmit LO Byte
@@ -98,10 +98,12 @@ entity main is
 	constant mmu_cchi : integer := 20; -- Command Count LO Byte
 	constant mmu_crst : integer := 21; -- Command Processor Reset
 	constant mmu_dact : integer := 22; -- Device Active
-	constant mmu_onl  : integer := 23; -- On Lamp
-	constant mmu_it2l : integer := 24; -- Interrupt Timer Two Period Lo
-	constant mmu_it1h : integer := 25; -- Interrupt Timer One Period Hi
-	constant mmu_it2h : integer := 26; -- Interrupt Timer Two Period Hi
+	constant mmu_it1h : integer := 23; -- Interrupt Timer One Period Hi
+	constant mmu_it1l : integer := 24; -- Interrupt Timer One Period Lo
+	constant mmu_it2h : integer := 25; -- Interrupt Timer Two Period Hi
+	constant mmu_it2l : integer := 26; -- Interrupt Timer Two Period Lo
+	constant mmu_it3h : integer := 27; -- Interrupt Timer Three Period Hi
+	constant mmu_it3l : integer := 28; -- Interrupt Timer Three Period Lo
 end;
 
 architecture behavior of main is
@@ -186,9 +188,9 @@ architecture behavior of main is
 
 -- Interrupt Handler signals.
 	signal int_mask, int_bits, int_rst, int_set : std_logic_vector(7 downto 0);
-	signal int_period_1, int_period_2 : std_logic_vector(15 downto 0);
+	signal int_period_1, int_period_2, int_period_3 : std_logic_vector(15 downto 0);
 	signal TXDS, SADS, INTGS, INTAS : boolean;
-	signal INTZ1, INTZ2 : boolean; -- Interrupt Counter Zero Flag
+	signal INTZ1, INTZ2, INTZ3 : boolean; -- Interrupt Counter Zero Flag
 	
 -- Byte Receiver
 	signal RPS, -- Radio Frequency Power Synchronized
@@ -396,6 +398,7 @@ begin
 			tx_channel <= 0;
 			int_period_1 <= (others => '1');
 			int_period_2 <= (others => '1');
+			int_period_3 <= (others => '1');
 			int_mask <= (others => '0');
 			CPRST <= true;
 			ONL <= '0';
@@ -420,12 +423,9 @@ begin
 						when mmu_xcr => TXI <= true;
 						when mmu_xfc => tx_low <= to_integer(unsigned(cpu_data_out));
 						when mmu_imsk => int_mask <= cpu_data_out;
-						when mmu_it1l => int_period_1(7 downto 0) <= cpu_data_out;
-						when mmu_it1h => int_period_1(15 downto 8) <= cpu_data_out;
-						when mmu_it2l => int_period_2(7 downto 0) <= cpu_data_out;
-						when mmu_it2h => int_period_2(15 downto 8) <= cpu_data_out;
 						when mmu_irst => int_rst <= cpu_data_out;
 						when mmu_iset => int_set <= cpu_data_out;
+						when mmu_onl => ONL <= to_std_logic(cpu_data_out(0) = '1');
 						when mmu_rst => SWRST <= (cpu_data_out(0) = '1');
 						when mmu_etc => ENTCK <= (cpu_data_out(0) = '1');
 						when mmu_tcd => tck_divisor <= to_integer(unsigned(cpu_data_out));
@@ -433,7 +433,12 @@ begin
 						when mmu_tpr => tp_reg <= cpu_data_out;
 						when mmu_crst => CPRST <= true;
 						when mmu_dact => DACTIVE <= (cpu_data_out(0) = '1');
-						when mmu_onl => ONL <= to_std_logic(cpu_data_out(0) = '1');
+						when mmu_it1h => int_period_1(15 downto 8) <= cpu_data_out;
+						when mmu_it1l => int_period_1(7 downto 0) <= cpu_data_out;
+						when mmu_it2h => int_period_2(15 downto 8) <= cpu_data_out;
+						when mmu_it2l => int_period_2(7 downto 0) <= cpu_data_out;
+						when mmu_it3h => int_period_3(15 downto 8) <= cpu_data_out;
+						when mmu_it3l => int_period_3(7 downto 0) <= cpu_data_out;
 					end case;
 				end if;
 			end if;
@@ -517,7 +522,7 @@ begin
 	-- The Interrupt_Controller provides the interrupt signal to the CPU in response to
 	-- sensor and timer events. By default, at power-up, all interrupts are masked.
 	Interrupt_Controller : process (RCK,CK,RESET) is
-	variable counter_1, counter_2 : integer range 0 to 65535;
+	variable counter_1, counter_2, counter_3 : integer range 0 to 65535;
 	begin
 		-- The interrupt timers, counting down from their interrupt period to zero 
 		-- clock RCK. They never stop. They allow us to generate regular, periodic 
@@ -535,6 +540,11 @@ begin
 			else
 				counter_2 := counter_2 - 1;
 			end if;
+			if (counter_3 = 0) then
+				counter_3 := to_integer(unsigned(int_period_3));
+			else
+				counter_3 := counter_3 - 1;
+			end if;
 		end if;
 
 		-- The interrupt management runs off CK, which can be RCK or TCK.
@@ -543,6 +553,7 @@ begin
 			int_bits <= (others => '0');
 			INTZ1 <= false;
 			INTZ2 <= false;
+			INTZ3 <= false;
 		elsif rising_edge(CK) then
 		
 			-- The timer one interrupt is set when counter one is zero
@@ -556,7 +567,7 @@ begin
 			end if;
 			
 			-- The timer two interrupt is set when counter two is zero
-			-- and reset when we write of 1 to int_rst(0).
+			-- and reset when we write of 1 to int_rst(1).
 			INTZ2 <= (counter_2 = 0);
 			if (int_rst(1) = '1') then
 				int_bits(1) <= '0';
@@ -565,13 +576,23 @@ begin
 				int_bits(1) <= '1';
 			end if;
 			
+			-- The timer three interrupt is set when counter three is zero
+			-- and reset when we write of 1 to int_rst(2).
+			INTZ2 <= (counter_3 = 0);
+			if (int_rst(2) = '1') then
+				int_bits(2) <= '0';
+			elsif ((counter_3 = 0) and (not INTZ3))
+					or (int_set(2) = '1') then
+				int_bits(2) <= '1';
+			end if;
+			
 			-- The command ready interrupt is set if and onl if we have CMDRDY. It
 			-- cannot be cleared with the interrupt reset bits. We must use CMDRST.
-			int_bits(2) <= to_std_logic(CMDRDY);
+			int_bits(3) <= to_std_logic(CMDRDY);
 			
 			-- The CPU dedicated inputs INT3..INT6 the CPU sets and resets
 			-- through the int_rst and int_set control registers.
-			for i in 3 to 7 loop
+			for i in 4 to 7 loop
 				if (int_rst(i) = '1') then
 					int_bits(i) <= '0';
 				elsif (int_set(i) = '1') then

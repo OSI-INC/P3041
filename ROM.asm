@@ -11,7 +11,8 @@
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration
 const device_id        55  ; Will be used as the first channel number.
-const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
+const data_sps_lo       0  ; Sample period LO in units of RCK periods.
+const data_sps_hi       1  ; Sample period HI in units of RCK periods.
 
 ; Address Map Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
@@ -26,7 +27,7 @@ const mmu_irqb 0x0802 ; Interrupt Request Bits
 const mmu_imsk 0x0803 ; Interrupt Mask Bits
 const mmu_irst 0x0804 ; Interrupt Reset Bits
 const mmu_iset 0x0805 ; Interrupt Set Bits
-const mmu_it1l 0x0806 ; Interrupt Timer One Period Lo
+const mmu_onl  0x0806 ; On Lamp
 const mmu_rst  0x0807 ; System Reset
 const mmu_xhb  0x0808 ; Transmit HI Byte
 const mmu_xlb  0x0809 ; Transmit LO Byte
@@ -43,11 +44,12 @@ const mmu_cch  0x0813 ; Command Count HI
 const mmu_ccl  0x0814 ; Command Count LO
 const mmu_cpr  0x0815 ; Command Processor Reset
 const mmu_dva  0x0816 ; Device Active 
-const mmu_onl  0x0817 ; On Lamp
-const mmu_it2l 0x0818 ; Interrupt Timer Two Period Lo
-const mmu_it1h 0x0819 ; Interrupt Timer One Period Hi
-const mmu_it2h 0x081A ; Interrupt Timer Two Period Hi
-
+const mmu_it1h 0x0817 ; Interrupt Timer One Period Hi
+const mmu_it1l 0x0818 ; Interrupt Timer One Period Lo
+const mmu_it2h 0x0819 ; Interrupt Timer Two Period Hi
+const mmu_it2l 0x081A ; Interrupt Timer Two Period Lo
+const mmu_it3h 0x081B ; Interrupt Timer Three Period Hi
+const mmu_it3l 0x081C ; Interrupt Timer Three Period Lo
 
 ; Status Bit Masks, for use with status register.
 const sr_cmdrdy  0x01 ; Command Ready Mask
@@ -57,6 +59,7 @@ const sr_entck   0x02 ; Enable Transmit Mask
 const min_tcf       75  ; Minimum TCK periods per half RCK period.
 const tx_delay      50  ; Wait time for sample transmission, TCK periods.
 const sa_delay      70  ; Wait time for sensor access, TCK periods.
+const pwr_up_dly    64  ; Wait time for settling after power up, RCK periods.
 const initial_tcd   15  ; Max possible value of TCK divisor.
 const boot_delay    10  ; Boot delay in multiples of 7.8 ms.
 
@@ -167,16 +170,9 @@ pop L
 ld SP,HL
 
 ; Wait for a while. The power supplies must settle after entering
-; standby mode. The ring oscillator frequency is sensitive to the
-; power supply voltage.
-ld A,boot_delay  ; We want start_delay x 256 
-push A           ; cycles of RCK = 32.768 kHz
-pop B            ; before proceeding with execution.
-pwr_up_lp:
-ld A,0xFF        ; Load A with 255 to give the maximum eight bit
-dly A            ; count, and wait this number of RCK periods.
-dec B            ; Decremnent B until zero.
-jp nz,pwr_up_lp
+; standby mode.
+ld A,pwr_up_dly  ; Load A with power-up delay
+dly A            ; and wait this number of RCK periods.
 
 ; Calibrate the transmit clock.
 call calibrate_tck
@@ -187,16 +183,13 @@ ld (ramp_ctr),A
 
 ; Set interrupt timer interval and enable the timer interrupt to implement
 ; the sample period. The value we want to load into the interrup timer period 
-; register is the sample period minus one, because the interrupt timer counts
-; the value down to zero. So we load A with sample_period, then decrement. If
-; sample_period is zero (0x00), the value we write is 255 (0xFF).
+; register is the sample period minus one.
 ld A,0xFF            ; Load A with ones
 ld (mmu_irst),A      ; and reset all interrupts.
-ld A,sample_period   ; Load A with the sample period,
-dec A                ; and decrement to get the value
-ld (mmu_it1l),A      ; we write to timer one period lo byte.
-ld A,0x00            ; Load A with zeros so we can
-ld (mmu_it1h),A      ; set the timer one period hi byte.
+ld A,data_sps_hi     ; Load A with hi byte of sample period
+ld (mmu_it1h),A      ; we write to timer one period hi byte.
+ld A,data_sps_lo     ; Load A with lo byte of sample period
+ld (mmu_it1l),A      ; we write to timer one period lo byte
 ld A,0x01            ; Set bit zero of A to one and use
 ld (mmu_imsk),A      ; to enable timer one interrupt.
 
