@@ -578,7 +578,7 @@ begin
 			
 			-- The timer three interrupt is set when counter three is zero
 			-- and reset when we write of 1 to int_rst(2).
-			INTZ2 <= (counter_3 = 0);
+			INTZ3 <= (counter_3 = 0);
 			if (int_rst(2) = '1') then
 				int_bits(2) <= '0';
 			elsif ((counter_3 = 0) and (not INTZ3))
