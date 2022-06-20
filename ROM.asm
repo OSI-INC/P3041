@@ -25,7 +25,7 @@ const mmu_scr  0x0801 ; Sensor Control Register
 const mmu_irqb 0x0802 ; Interrupt Request Bits
 const mmu_imsk 0x0803 ; Interrupt Mask Bits
 const mmu_irst 0x0804 ; Interrupt Reset Bits
-const mmu_iset 0x0805 ; Interrupt Set Bits
+const mmu_dva  0x0805 ; Device Active 
 const mmu_onl  0x0806 ; On Lamp
 const mmu_rst  0x0807 ; System Reset
 const mmu_xhb  0x0808 ; Transmit HI Byte
@@ -42,16 +42,19 @@ const mmu_sr   0x0812 ; Status Register
 const mmu_cch  0x0813 ; Command Count HI
 const mmu_ccl  0x0814 ; Command Count LO
 const mmu_cpr  0x0815 ; Command Processor Reset
-const mmu_dva  0x0816 ; Device Active 
-const mmu_it1p 0x0817 ; Interrupt Timer One Period
-const mmu_it2p 0x0818 ; Interrupt Timer Two Period
-const mmu_it3p 0x0819 ; Interrupt Timer Three Period
-const mmu_it4p 0x081A ; Interrupt Timer Four Period
+const mmu_it1p 0x0816 ; Interrupt Timer One Period
+const mmu_it2p 0x0817 ; Interrupt Timer Two Period
+const mmu_it3p 0x0818 ; Interrupt Timer Three Period
+const mmu_it4p 0x0819 ; Interrupt Timer Four Period
 
 ; Status Bit Masks, for use with status register.
-const sr_cmdrdy  0x01 ; Command Ready Mask
-const sr_entck   0x02 ; Enable Transmit Mask
-const sr_onl     0x03 ; On Lamp
+const sr_cmdrdy  0x01 ; Command Ready Flag
+const sr_entck   0x02 ; Enable Transmit Status
+const sr_onl     0x04 ; On Lamp Status
+const sr_saa     0x08 ; Sensor Access Active Flag
+const sr_txa     0x10 ; Transmit Active Flag
+const sr_cpa     0x20 ; Command Processor Active
+const sr_rp      0x40 ; Receive Power
 
 ; Timing Constants.
 const min_tcf       75  ; Minimum TCK periods per half RCK period.

@@ -21,17 +21,18 @@
 -- V1.2, 15-JUN-22: First version to run on the A3041AV1 assembly. Test points working, micro-
 -- processor running, interrupts correct, self-calibration of TCK correct, transmission correct.
 
--- V1.3, 18-JUN-22: The transmit clock turns on only when the CPU says so with ENTCK. The CPU
+-- V1.3, 19-JUN-22: The transmit clock turns on only when the CPU says so with ENTCK. The CPU
 -- must assert ENTCK for sample transmission. If the CPU asserts ENTCK for sensor access, so
 -- much the better: the access will go faster and the sensor will be awake for less time. 
 -- Remove TXD, SAD, and stack overflow interrupts. The command processor now asserts CPA until-- the CPU resets its state to idle. We will have OND asserted by CPA until the CPU asserts CPRST. 
--- Add the CMDRDY interrupt so the CPU can respond promptly to new commands if neccessary. 
--- Otherwise CPU can use the CMDRDY memory location to poll for new commands. Combine readback of 
--- CMDRDY and ENTCK in a single status register and add OND. Now CPU can check ENTCK, allowing 
--- interrupts to restore prior state of ENTCK. Eliminate stack pointer base and height locations-- in memory management unit.  The OSR8 will initialize SP to zero. The CPU program will set the 
--- stack pointer the first thing it does. An interrupt routine can monitor the stack if we are 
--- worried about overflow. With these simplifications, we are now able to expand from one eight-
--- bit interrupt timer to four, each with their own interrupt line.
+-- The CPU can use the CMDRDY memory location to poll for new commands. Combine readback of 
+-- CMDRDY, ENTCK, ONL, SAA, and TXA in a single status register. Eliminate stack pointer base 
+-- and height locations in memory management unit.  The OSR8 will initialize SP to zero. The CPU 
+-- program will set the stack pointer the first thing it does. An interrupt routine can monitor 
+-- the stack if we are worried about overflow. With these simplifications, we are now able to 
+-- expand from one eight-bit interrupt timer to four, each with its own interrupt line. Remove 
+-- CPU software interrupts. Remove interrupt set register. If the CPU wants to generate an interrupt, 
+-- it can use one of the timers.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -79,7 +80,7 @@ entity main is
 	constant mmu_irqb : integer := 2;  -- Interrupt Request Bits
 	constant mmu_imsk : integer := 3;  -- Interrupt Mask Bits
 	constant mmu_irst : integer := 4;  -- Interrupt Reset Bits
-	constant mmu_iset : integer := 5;  -- Interrupt Set Bits
+	constant mmu_dact : integer := 5;  -- Device Active
 	constant mmu_onl  : integer := 6;  -- On Lamp
 	constant mmu_rst  : integer := 7;  -- System Reset
 	constant mmu_xhb  : integer := 8;  -- Transmit HI Byte
@@ -96,11 +97,10 @@ entity main is
 	constant mmu_cclo : integer := 19; -- Command Count HI Byte
 	constant mmu_cchi : integer := 20; -- Command Count LO Byte
 	constant mmu_crst : integer := 21; -- Command Processor Reset
-	constant mmu_dact : integer := 22; -- Device Active
-	constant mmu_it1p : integer := 23; -- Interrupt Timer One Period
-	constant mmu_it2p : integer := 24; -- Interrupt Timer Two Period
-	constant mmu_it3p : integer := 25; -- Interrupt Timer Three Period
-	constant mmu_it4p : integer := 26; -- Interrupt Timer Four Period
+	constant mmu_it1p : integer := 22; -- Interrupt Timer One Period
+	constant mmu_it2p : integer := 23; -- Interrupt Timer Two Period
+	constant mmu_it3p : integer := 24; -- Interrupt Timer Three Period
+	constant mmu_it4p : integer := 25; -- Interrupt Timer Four Period
 end;
 
 architecture behavior of main is
@@ -110,8 +110,8 @@ architecture behavior of main is
 	attribute nomerge : string;
 
 -- Calibration Constants.
-	constant tx_low_default : integer := 6;
-	constant tx_channel_default : integer := 225;
+	constant tx_low_default : integer := 4;
+	constant tx_channel_default : integer := 1;
 
 -- Power Controller
 	signal USERSTDBY, CLRFLAG, SFLAG, STDBY, RESET : std_logic;
@@ -121,7 +121,7 @@ architecture behavior of main is
 	signal DACTIVE : boolean := true; -- Device Active
 	
 -- Ring Oscillator and Transmit Clock
-	signal TCK, FCK, CK, FCKEN : std_logic;
+	signal TCK, FCK, CK : std_logic;
 	attribute syn_keep of TCK, FCK, CK : signal is true;
 	attribute nomerge of TCK, FCK, CK : signal is "";  
 
@@ -131,12 +131,11 @@ architecture behavior of main is
 -- Message Transmission.
 	signal TXI, -- Transmit Initiate
 		TXA, -- Transmit Active
-		TXD, -- Transmit Done
 		TXB, -- Transmit Bit
 		FHI -- Frequency High
 		: boolean := false;
-	attribute syn_keep of TXI, TXA, TXD: signal is true;
-	attribute nomerge of TXI, TXA, TXD : signal is "";  
+	attribute syn_keep of TXI, TXA : signal is true;
+	attribute nomerge of TXI, TXA : signal is "";  
 	signal xmit_bits : std_logic_vector(15 downto 0) := (others => '0');
 	signal tx_channel : integer range 0 to 255 := tx_channel_default; 
 	signal tx_low : integer range 0 to 15 := tx_low_default; 
@@ -144,11 +143,10 @@ architecture behavior of main is
 		
 -- Sensor Controller
 	signal SAI, -- Sensor Access Initiate 
-		SAA, -- Sensor Access Active
-		SAD -- Sensor Access Done
+		SAA -- Sensor Access Active
 		: boolean := false;
-	attribute syn_keep of SAI, SAA, SAD : signal is true;
-	attribute nomerge of SAI, SAA, SAD : signal is "";  
+	attribute syn_keep of SAI, SAA : signal is true;
+	attribute nomerge of SAI, SAA : signal is "";  
 	signal sensor_bits_in : std_logic_vector(7 downto 0) := (others => '0');
 		
 -- Clock Calibrator
@@ -186,14 +184,13 @@ architecture behavior of main is
 -- Interrupt Handler signals.
 	signal int_mask, int_bits, int_rst, int_set : std_logic_vector(7 downto 0);
 	signal int_period_1, int_period_2, int_period_3, int_period_4 : std_logic_vector(7 downto 0);
-	signal TXDS, SADS, INTGS, INTAS : boolean;
 	signal INTZ1, INTZ2, INTZ3, INTZ4 : boolean; -- Interrupt Counter Zero Flag
 	
 -- Byte Receiver
 	signal RPS, -- Radio Frequency Power Synchronized
-		IC, -- Initiate Command Reception
-		TC, -- Terminate Command Reception
-		RC, -- Receiveing Command
+		ICMD, -- Initiate Command Reception
+		TCMD, -- Terminate Command Reception
+		RCMD, -- Receive Command
 		RBI, -- Receive Command Byte Initiate
 		RBD, -- Receive Command Byte Done
 		CRCERR, -- Cyclic Redundancy Checksum Error
@@ -274,9 +271,8 @@ begin
 -- sample transmission in order for the timing of the transmission to be correct.
 -- The transmit clock should be turned on during a sensor access as well, so that
 -- the sensor access will be quick and the sensor can power down again sooner.
-	FCKEN <= to_std_logic(ENTCK);
 	Fast_CK : entity ring_oscillator port map (
-		ENABLE => FCKEN, 
+		ENABLE => to_std_logic(ENTCK), 
 		calib => tck_divisor,
 		CK => FCK);
 	
@@ -333,10 +329,9 @@ begin
 			CK => CK
 		);
 		
--- The Memory Manager maps eight-bit read and write access to the 
--- Sensor Controller, Sample Transmitter, Random Access Memory, and 
--- Interrupt Handler. Byte ordering is big-endian (most significant byte at
--- lower address). 
+-- The Memory Manager maps eight-bit read and write access to the Sensor Controller, Sample 
+-- Transmitter, Random Access Memory, and Interrupt Handler. Byte ordering is big-endian 
+-- (most significant byte at lower address). 
 	MMU : process (CK,RESET) is
 		variable top_bits : integer range 0 to 7;
 		variable bottom_bits : integer range 0 to 63;
@@ -376,9 +371,13 @@ begin
 					when mmu_imsk => cpu_data_in <= int_mask;
 					when mmu_tcf => cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
 					when mmu_sr => 
-						cpu_data_in(0) <= to_std_logic(CMDRDY);
-						cpu_data_in(1) <= to_std_logic(ENTCK);
-						cpu_data_in(2) <= ONL;
+						cpu_data_in(0) <= to_std_logic(CMDRDY); -- Command Ready Flag
+						cpu_data_in(1) <= to_std_logic(ENTCK);  -- Transmit Clock Status
+						cpu_data_in(2) <= ONL;                  -- Lamp Status
+						cpu_data_in(3) <= to_std_logic(SAA);    -- Sensor Access Active Flag
+						cpu_data_in(4) <= to_std_logic(TXA);    -- Transmit Active Flag
+						cpu_data_in(5) <= to_std_logic(CPA);    -- Command Processor Active Flag
+						cpu_data_in(6) <= RP;                   -- Receive Power Flag
 				end case;
 			end if;
 		end case;
@@ -394,9 +393,10 @@ begin
 			BOOST <= false;
 			tck_divisor <= default_tck_divisor;
 			tx_channel <= 0;
-			int_period_1 <= (others => '1');
-			int_period_2 <= (others => '1');
-			int_period_3 <= (others => '1');
+			int_period_1 <= (others => '0');
+			int_period_2 <= (others => '0');
+			int_period_3 <= (others => '0');
+			int_period_4 <= (others => '0');
 			int_mask <= (others => '0');
 			CPRST <= true;
 			ONL <= '0';
@@ -405,12 +405,11 @@ begin
 		-- and transmit activity. Some signals we assert only for one CK period, and 
 		-- these we assert as false by default.
 		elsif falling_edge(CK) then
+			CPRST <= false;
 			SWRST <= false;
 			SAI <= false;
 			TXI <= false;
 			int_rst <= (others => '0');
-			int_set <= (others => '0');
-			CPRST <= false;
 			if CPUDS and CPUWR then 
 				if (top_bits >= ctrl_base) and (top_bits <= ctrl_base+ctrl_range-1) then
 					case bottom_bits is
@@ -422,7 +421,7 @@ begin
 						when mmu_xfc => tx_low <= to_integer(unsigned(cpu_data_out));
 						when mmu_imsk => int_mask <= cpu_data_out;
 						when mmu_irst => int_rst <= cpu_data_out;
-						when mmu_iset => int_set <= cpu_data_out;
+						when mmu_dact => DACTIVE <= (cpu_data_out(0) = '1');
 						when mmu_onl => ONL <= cpu_data_out(0);
 						when mmu_rst => SWRST <= (cpu_data_out(0) = '1');
 						when mmu_etc => ENTCK <= (cpu_data_out(0) = '1');
@@ -430,7 +429,6 @@ begin
 						when mmu_bcc => BOOST <= (cpu_data_out(0) = '1');
 						when mmu_tpr => tp_reg <= cpu_data_out;
 						when mmu_crst => CPRST <= true;
-						when mmu_dact => DACTIVE <= (cpu_data_out(0) = '1');
 						when mmu_it1p => int_period_1 <= cpu_data_out;
 						when mmu_it2p => int_period_2 <= cpu_data_out;
 						when mmu_it3p => int_period_3 <= cpu_data_out;
@@ -520,11 +518,16 @@ begin
 	Interrupt_Controller : process (RCK,CK,RESET) is
 	variable counter_1, counter_2, counter_3, counter_4 : integer range 0 to 255;
 	begin
+	
 		-- The interrupt timers, counting down from their interrupt period to zero 
-		-- clock RCK. They never stop. They allow us to generate regular, periodic 
-		-- interrupts. We use the falling edge of RCK to count down, or else the
-		-- compiler gets confused when generating our delayed zero signal in the 
-		-- next section, where we are using CK as a clock.
+		-- running off RCK. We stop a timer by writing a zero to its interrupt period
+		-- register. Otherwise, they never stop counting down, reloading the period
+		-- value and counting down again. The period register should be loaded with 
+		-- the desired interrupt period minus one, because the count-down includes 
+		-- zero. So 0xFF (255) for the register gives a period of 256 RCK periods. 
+		-- We use the falling edge of RCK to count down or else the compiler can become
+		-- confused when generating our delayed zero signal in the next section, where 
+		-- CK is the clock.
 		if falling_edge(RCK) then
 			if (counter_1 = 0) then
 				counter_1 := to_integer(unsigned(int_period_1));
@@ -548,7 +551,9 @@ begin
 			end if;
 		end if;
 
-		-- The interrupt management runs off CK, which can be RCK or TCK.
+		-- The interrupt management runs off CK, which can be RCK or TCK. On 
+		-- reset, we clear the interrupt request line and the interrupt bits. We
+		-- clear the delayed counter zero lines.
 		if (RESET = '1') then
 			CPUIRQ <= false;
 			int_bits <= (others => '0');
@@ -558,58 +563,43 @@ begin
 			INTZ4 <= false;
 		elsif rising_edge(CK) then
 		
-			-- The timer one interrupt is set when counter one is zero
-			-- and reset when we write of 1 to int_rst(0).
+			-- The timer one interrupt is set when counter_1 goes from value
+			-- one to value zero, and at no other time. We reset when we write 
+			-- 1 to int_rst(0). The timer generates an interrupt on bit zero.
 			INTZ1 <= (counter_1 = 0);
 			if (int_rst(0) = '1') then
 				int_bits(0) <= '0';
-			elsif ((counter_1 = 0) and (not INTZ1))
-					or (int_set(0) = '1') then
+			elsif ((counter_1 = 0) and (not INTZ1)) then
 				int_bits(0) <= '1';
 			end if;
 			
-			-- The timer two interrupt is set when counter two is zero
-			-- and reset when we write of 1 to int_rst(1).
+			-- The timer two interrupt, interrupt bit one.
 			INTZ2 <= (counter_2 = 0);
 			if (int_rst(1) = '1') then
 				int_bits(1) <= '0';
-			elsif ((counter_2 = 0) and (not INTZ2))
-					or (int_set(1) = '1') then
+			elsif ((counter_2 = 0) and (not INTZ2)) then
 				int_bits(1) <= '1';
 			end if;
 			
-			-- The timer three interrupt is set when counter three is zero
-			-- and reset when we write of 1 to int_rst(2).
+			-- The timer three interrupt, interrupt bit two.
 			INTZ3 <= (counter_3 = 0);
 			if (int_rst(2) = '1') then
 				int_bits(2) <= '0';
-			elsif ((counter_3 = 0) and (not INTZ3))
-					or (int_set(2) = '1') then
+			elsif ((counter_3 = 0) and (not INTZ3)) then
 				int_bits(2) <= '1';
 			end if;
 			
-			-- The timer four interrupt is set when counter four is zero
-			-- and reset when we write of 1 to int_rst(3).
+			-- The timer four interrupt, interrupt bit three.
 			INTZ4 <= (counter_4 = 0);
 			if (int_rst(3) = '1') then
 				int_bits(3) <= '0';
-			elsif ((counter_4 = 0) and (not INTZ4))
-					or (int_set(3) = '1') then
+			elsif ((counter_4 = 0) and (not INTZ4)) then
 				int_bits(3) <= '1';
 			end if;
 			
-			-- The command ready interrupt is set if and onl if we have CMDRDY. It
-			-- cannot be cleared with the interrupt reset bits. We must use CMDRST.
-			int_bits(4) <= to_std_logic(CMDRDY);
-			
-			-- The CPU dedicated inputs INT3..INT6 the CPU sets and resets
-			-- through the int_rst and int_set control registers.
-			for i in 5 to 7 loop
-				if (int_rst(i) = '1') then
-					int_bits(i) <= '0';
-				elsif (int_set(i) = '1') then
-					int_bits(i) <= '1';
-				end if;
+			-- We disable the remaining interrupt lines.
+			for i in 4 to 7 loop
+				int_bits(i) <= '0';
 			end loop;			
 		end if;
 
@@ -619,9 +609,12 @@ begin
 	end process;
 
 	-- The Sensor Controller reads out the eight-bit battery monitoring ADC when it
-	-- sees Sensor Access Initiate (SAI). When it is done, it asserts Sensor Access 
-	-- Done (SAD). It runs off the Transmit Clock (TCK), which starts up with the 
-	-- assertion of SAI and continues until both SAI and SAD are un-asserted.
+	-- sees Sensor Access Initiate (SAI). While running, it asserts Sensor Acces Active
+	-- (SAA), which the CPU can poll until the access is complete. It runs off the 
+	-- Transmit Clock (TCK), so the CPU must enable TCK with ENTCK in order for the 
+	-- process to start. The SAI signal will be asserted for one period of CK following
+	-- a CPU write to the SAI location. Further writes to the same location will have
+	-- no effect until the Sensor Controller returns to its idle state.
 	Sensor_Controller : process (TCK,RESET) is
 		variable state, next_state : integer range 0 to 31 := 0;
 		
@@ -632,7 +625,7 @@ begin
 			state := 0;
 			
 		-- The Sensor Contoller proceeds through states so as initiate a conversion,
-		-- read out two zeros, then eight data bits, and load the result into the
+		-- read out two zeros, read eight data bits, and load the result into the
 		-- sensor register. By default, the state machine increases its state variable
 		-- by one, so we state explicitly when the state should do otherwise.
 		elsif rising_edge(TCK) then
@@ -695,7 +688,6 @@ begin
 					if SAI then next_state := 21; end if;
 				when others => next_state := 0;
 			end case;
-			SAD <= (state = 21);
 			SAA <= (state /= 0) and (state /= 21);
 			state := next_state;
 		end if;
@@ -707,9 +699,13 @@ begin
 	
 -- The Sample Transmitter responds to Transmit Initiate (TXI) by turning on the 
 -- radio-frequency oscillator, reading sixteen bits from one of the sensors and
--- transmitting the bits.
+-- transmitting the bits. The process runs off TCK, so the CPU must assert ENTCK
+-- for the process to run. The TXI signal will be asserted for one period of CK
+-- following a CPU write to the TXI location. Further writes to the same location
+-- will be ignored until the Sample Transmitter returns to its idle state.
 	Sample_Transmitter : process (TCK) is
-		variable channel_num, set_num, completion_code : integer range 0 to 15; -- set number for data
+		variable channel_num, set_num, completion_code : 
+			integer range 0 to 15; -- set number for data
 		constant num_sync_bits : integer := 11; -- Num synchronizing bits at start.
 		constant num_id_bits : integer := 4; -- Number of ID bits.
 		constant num_start_bits : integer := 1; -- Num zero start bits.
@@ -738,19 +734,14 @@ begin
 		channel_bits := std_logic_vector(to_unsigned(channel_num,4));
 		cc_bits := std_logic_vector(to_unsigned(completion_code,4));
 		
-		if rising_edge(TCK) then
-			-- We reset the state when TXI is false. Otherwise, we increment the
-			-- state until it reaches st_done. At st_done, the state remains fixed 
-			-- until not TXI. When we first enable sample transmission, the state is 
-			-- zero. When TXI is asserted, the ring oscillator turns on, which starts
-			-- TCK, the 5-MHz transmit clock. On the first rising edge of TCK, the 
-			-- state becomes 1, and thereafter increments to st_done. Now TXD is true,
-			-- which keeps the ring oscillator running while TXI becomes false. Once 
-			-- false, the state switches back to zero, TXD is unasserted, and the 
-			-- ring oscillator turns off, unless it is kept running by some other
-			-- process. With no rising edges on TCK, the state remains zero. If rising
-			-- edges on TCK continue because the ring oscillator is still running,
-			-- the state will remain zero until TXI is asserted again.
+		-- Upon startup, we make sure we are in the idle state.
+		if (RESET = '1') then 
+			state := 0;
+			
+		elsif rising_edge(TCK) then
+			-- The process starts when we assert TXI. We move through all subsequen
+			-- states until we reach the final state, where we wait until TXI is
+			-- un-asserted for our return to the idle state. 
 			case state is
 				when st_idle => 
 					if TXI then
@@ -777,29 +768,26 @@ begin
 				or ((state = first_id_bit + 2) and (channel_bits(1) = '1'))
 				or ((state = first_id_bit + 3) and (channel_bits(0) = '1'))
 				or ((state = first_data_bit) and (xmit_bits(15) = '1'))
-				or ((state = first_data_bit+1) and (xmit_bits(14) = '1'))
-				or ((state = first_data_bit+2) and (xmit_bits(13) = '1'))
-				or ((state = first_data_bit+3) and (xmit_bits(12) = '1'))
-				or ((state = first_data_bit+4) and (xmit_bits(11) = '1'))
-				or ((state = first_data_bit+5) and (xmit_bits(10) = '1'))
-				or ((state = first_data_bit+6) and (xmit_bits(9) = '1'))
-				or ((state = first_data_bit+7) and (xmit_bits(8) = '1'))
-				or ((state = first_data_bit+8) and (xmit_bits(7) = '1'))
-				or ((state = first_data_bit+9) and (xmit_bits(6) = '1'))
-				or ((state = first_data_bit+10) and (xmit_bits(5) = '1'))
-				or ((state = first_data_bit+11) and (xmit_bits(4) = '1'))
-				or ((state = first_data_bit+12) and (xmit_bits(3) = '1'))
-				or ((state = first_data_bit+13) and (xmit_bits(2) = '1'))
-				or ((state = first_data_bit+14) and (xmit_bits(1) = '1'))
-				or ((state = first_data_bit+15) and (xmit_bits(0) = '1'))
+				or ((state = first_data_bit + 1) and (xmit_bits(14) = '1'))
+				or ((state = first_data_bit + 2) and (xmit_bits(13) = '1'))
+				or ((state = first_data_bit + 3) and (xmit_bits(12) = '1'))
+				or ((state = first_data_bit + 4) and (xmit_bits(11) = '1'))
+				or ((state = first_data_bit + 5) and (xmit_bits(10) = '1'))
+				or ((state = first_data_bit + 6) and (xmit_bits(9) = '1'))
+				or ((state = first_data_bit + 7) and (xmit_bits(8) = '1'))
+				or ((state = first_data_bit + 8) and (xmit_bits(7) = '1'))
+				or ((state = first_data_bit + 9) and (xmit_bits(6) = '1'))
+				or ((state = first_data_bit + 10) and (xmit_bits(5) = '1'))
+				or ((state = first_data_bit + 11) and (xmit_bits(4) = '1'))
+				or ((state = first_data_bit + 12) and (xmit_bits(3) = '1'))
+				or ((state = first_data_bit + 13) and (xmit_bits(2) = '1'))
+				or ((state = first_data_bit + 14) and (xmit_bits(1) = '1'))
+				or ((state = first_data_bit + 15) and (xmit_bits(0) = '1'))
 				or ((state = first_cc_bit + 0) and (cc_bits(3) = '1'))
 				or ((state = first_cc_bit + 1) and (cc_bits(2) = '1'))
 				or ((state = first_cc_bit + 2) and (cc_bits(1) = '1'))
 				or ((state = first_cc_bit + 3) and (cc_bits(0) = '1'));
 				
-			-- TXD indicates to other processes that the transmission is complete, while
-			TXD <= (state = st_done);
-
 			-- TXA indicates that a transmission is on-going.
 			TXA <= (state /= st_idle) and (state /= st_done);
 			
@@ -852,7 +840,7 @@ begin
 	end process;
 	
 -- We detect a long enough burst of command power to initiate
--- command reception, and set the IC signal.
+-- command reception, and set the ICMD signal.
 	Initiate_Command: process is 
 		constant endcount : integer := 65;
 		variable counter : integer range 0 to endcount := 0;
@@ -861,19 +849,19 @@ begin
 		if RPS then 
 			if (counter = endcount) then 
 				counter := endcount;
-				IC <= true;
+				ICMD <= true;
 			else 
 				counter := counter + 1;
-				IC <= false;
+				ICMD <= false;
 			end if;
 		else
 			counter := 0;
-			IC <= false;
+			ICMD <= false;
 		end if;
 	end process;
 	
 -- We detect a long enough period without command power to 
--- terminate command reception, and set the TC signal.
+-- terminate command reception, and set the TCMD signal.
 	Terminate_Command: process is 
 		constant endcount : integer := 328;
 		variable counter : integer range 0 to endcount := 0;
@@ -882,27 +870,27 @@ begin
 		if not RPS then 
 			if (counter = endcount) then 
 				counter := endcount;
-				TC <= true;
+				TCMD <= true;
 			else 
 				counter := counter + 1;
-				TC <= false;
+				TCMD <= false;
 			end if;
 		else
 			counter := 0;
-			TC <=  false;
+			TCMD <=  false;
 		end if;
 	end process;
 	
--- The Receive Command (RC) signal indicates that a command is being 
--- received. We set RC when Initiate Command (IC) occurs, and we clear
--- RC when Terminate Command (TC) occurs.
+-- The Receive Command (RCMD) signal indicates that a command is being 
+-- received. We set RCMD when Initiate Command (ICMD) occurs, and we clear
+-- RCMD when Terminate Command (TCMD) occurs.
 	Receive_Command: process is
 	begin
 		wait until (RCK = '1');
-		if not RC then
-			RC <= IC;
+		if not RCMD then
+			RCMD <= ICMD;
 		else 
-			RC <= not TC;
+			RCMD <= not TCMD;
 		end if;
 	end process;
 
@@ -928,7 +916,7 @@ begin
 		-- We clear no stop bit variable, which clears the global BYTERR 
 		-- signal.
 		if (state = 1) then
-			if TC then 
+			if TCMD then 
 				next_state := 63; 
 			else 
 				if RPS then 
@@ -991,7 +979,7 @@ begin
 				next_state := 63; 
 			end if;
 		end if;
-		RBD <= (state = 63) and (not TC);
+		RBD <= (state = 63) and (not TCMD);
 				
 		-- The eight bits of the command are set every four states during
 		-- the command reception.
@@ -1037,7 +1025,7 @@ begin
 	begin
 		wait until (RCK = '1');
 		
-		if IC then
+		if ICMD then
 			-- When a new command transmission starts, we preload the cyclic redundancy
 			-- check register to all ones.
 			crc := (others => '1');
@@ -1079,16 +1067,13 @@ begin
 		RdClockEn => to_std_logic(not CPA),
 		Q => cmd_out);
 	
--- This Command Processor detects Inititiate Command (IC) and activates the Byte Receiver. 
--- It stores command bytes in the Command Memory until it detects Terminate Command (TC). If
--- the Error Check reports no error, the Command Processor generates a command interrupt and
--- sets its command byte counter to the number of bytes received. The CPU can then read all
--- bytes out of the Command Memory. The Command Processor runs on the reference clock, which
--- is 32.768 kHz, and proceeds to a new state every clock cycle. The Command Processor will-- be disabled until the CPU releases it by asserting CPRST. The CPA signal is asserted by
--- by the Command Processor as soon as a command is initiated, and CPA instructs the Power-- Controller to keep power applied to the logic chip. At the end of command processing, 
--- CPA is remains asserted until the CPU resets the Command Processor with CPRST. The CPU can
--- detect Command Ready (CMDRDY) either through the CMDRY interrupt or the CMDRDY memory
--- location.
+-- This Command Processor detects Inititiate Command (ICMD) and activates the Byte Receiver. 
+-- It stores command bytes in the Command Memory until it detects Terminate Command (TCMD). If
+-- the Error Check reports no error, the Command Processor asserts Command Ready (CMDRDY) and
+-- waits until the CPU asserts Command Processor Reset (CPRST) before returning to its rest
+-- state. When the command is ready, the CPU can read all bytes out of the Command Memory. 
+-- The Command Processor runs on the reference clock, which is 32.768 kHz, and proceeds to a 
+-- new state every clock cycle. 
 	Command_Processor: process is
 		
 		-- General-purpose state names for the Command Processor
@@ -1111,7 +1096,7 @@ begin
 	
 		-- Idle State.
 		if (state = idle_s) then
-			if IC then 
+			if ICMD then 
 				next_state := receive_cmd_s; 
 			else 
 				next_state := idle_s;
@@ -1120,12 +1105,12 @@ begin
 		end if;
 		
 		-- Receive a command byte. We assert RBI and wait for RBD. If we see 
-		-- terminate command (TC), we look at the number of command bytes we have 
+		-- Terminate Command (TCMD), we look at the number of command bytes we have 
 		-- received so far. If we have less than three, we have only the checksum,
 		-- so we go back to the idle state. If we have three or more, we move on.
-		-- Note that the Byte Receiver aborts on TC also.
+		-- Note that the Byte Receiver aborts on TCMD also.
 		if (state = receive_cmd_s) then 
-			if TC then 
+			if TCMD then 
 				if (addr <= 2) then 
 					next_state := idle_s;
 				else 
