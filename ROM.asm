@@ -13,13 +13,13 @@ const tx_frequency      5  ; Transmit frequency calibration
 const device_id        55  ; Will be used as the first channel number.
 const xmit_period     255  ; Transmit period minus one, RCK periods.
 
-; Address Map Constants
+; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
 const mmu_cmem 0x0400 ; Base of Command Memory
 const mmu_ctrl 0x0800 ; Base of Control Space
-const mmu_sphi   0x00 ; Bottom of Stack, Hi Byte
-const mmu_splo   0x03 ; Bottom of Stack, Lo Byte
+const mmu_sba  0x0300 ; Stack Base Address
 
+; Address Map Locations
 const mmu_bmb  0x0800 ; Sensor Data HI Byte 
 const mmu_scr  0x0801 ; Sensor Control Register
 const mmu_irqb 0x0802 ; Interrupt Request Bits
@@ -159,14 +159,8 @@ rti
 ; Initialize the device. 
 initialize:
 
-; Initialize the stack pointer. The stack pointer starts at zero, but
-; we want to move it to the top of RAM where it can move upwards.
-ld A,mmu_sphi
-push A
-pop H
-ld A,mmu_splo
-push A
-pop L 
+; Initialize the stack pointer. 
+ld HL,mmu_sba
 ld SP,HL
 
 ; Wait for a while. The power supplies must settle after entering
@@ -205,14 +199,64 @@ ld A,(mmu_sr)       ; Fetch status register.
 and A,sr_cmdrdy     ; Check the command ready bit.
 jp z,no_cmd         ; Jump if it's clear.
 
-; Here we will later insert code to read out, interpret, and execute comands.
-; For now we just reset the command processor and ignore the commands. The 
-; device will turn off unless we have OND jumpered HI.
-ld (mmu_cpr),A      ; Write to Command Processor Clear location.
+; Read out, interpret, and execute comands.
+
+; Load HL with the command write address minus three. This will
+; be our command byte count.
+ld A,(mmu_ccl)
+sub A,3
+push A
+pop L
+ld A,(mmu_cch)
+jp p,no_dec_h
+sub A,1
+no_dec_h:
+push A
+pop H
+
+; Load IX with the base of the command memory.
+ld IX,mmu_cmem
+
+cmd_loop:
+
+ld A,(mmu_tpr)     
+or A,0x04         
+ld (mmu_tpr),A 
+
+ld A,(IX)
+inc IX
+
+ld A,(mmu_tpr)     
+and A,0xFB       
+ld (mmu_tpr),A 
+
+push L
+pop A
+and A,0xFF
+jp nz,cmd_inc_1
+push H
+pop A
+and A,0xFF
+jp nz,cmd_inc_1
+jp cmd_done
+
+cmd_inc_1:
+push L
+pop A
+and A,0xFF
+jp nz,cmd_inc_2
+dec H
+cmd_inc_2:
+dec L
+jp cmd_loop
+
+cmd_done:
+ld (mmu_cpr),A     
 
 no_cmd:
-and A,0xFD          ; Clear bit one and
-ld (mmu_tpr),A      ; write to test point register.
+ld A,(mmu_tpr)
+and A,0xFD          
+ld (mmu_tpr),A      
 
 jp main             ; Repeat the main loop.
 

@@ -21,18 +21,21 @@
 -- V1.2, 15-JUN-22: First version to run on the A3041AV1 assembly. Test points working, micro-
 -- processor running, interrupts correct, self-calibration of TCK correct, transmission correct.
 
--- V1.3, 19-JUN-22: The transmit clock turns on only when the CPU says so with ENTCK. The CPU
+-- V1.3, 20-JUN-22: The transmit clock turns on only when the CPU says so with ENTCK. The CPU
 -- must assert ENTCK for sample transmission. If the CPU asserts ENTCK for sensor access, so
 -- much the better: the access will go faster and the sensor will be awake for less time. 
 -- Remove TXD, SAD, and stack overflow interrupts. The command processor now asserts CPA until-- the CPU resets its state to idle. We will have OND asserted by CPA until the CPU asserts CPRST. 
 -- The CPU can use the CMDRDY memory location to poll for new commands. Combine readback of 
 -- CMDRDY, ENTCK, ONL, SAA, and TXA in a single status register. Eliminate stack pointer base 
--- and height locations in memory management unit.  The OSR8 will initialize SP to zero. The CPU 
--- program will set the stack pointer the first thing it does. An interrupt routine can monitor 
--- the stack if we are worried about overflow. With these simplifications, we are now able to 
--- expand from one eight-bit interrupt timer to four, each with its own interrupt line. Remove 
--- CPU software interrupts. Remove interrupt set register. If the CPU wants to generate an interrupt, 
--- it can use one of the timers.
+-- and height locations in memory management unit.  The OSR8 will initialize SP to zero. An interrupt 
+-- routine can monitor the stack if we are worried about overflow. With these simplifications, we 
+-- are now able to expand from one eight-bit interrupt timer to four, each with its own interrupt 
+-- line. Remove CPU software interrupts. Remove interrupt set register. If the CPU wants to generate 
+-- an interrupt, it can use one of the timers. Test on A3041AV1 and works perfectly.
+
+-- V1.4, 20-JUN-22: Add read-back of the command memory write address to act as a count of the
+-- command bytes stored in the command memory. The CPU needs this count to tell it when the list
+-- of commands ends.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -94,8 +97,8 @@ entity main is
 	constant mmu_bcc  : integer := 16; -- Boost CPU Clock
 	constant mmu_tpr  : integer := 17; -- Test Point Register
 	constant mmu_sr   : integer := 18; -- Status Register
-	constant mmu_cclo : integer := 19; -- Command Count HI Byte
-	constant mmu_cchi : integer := 20; -- Command Count LO Byte
+	constant mmu_cch  : integer := 19; -- Command Count HI Byte
+	constant mmu_ccl  : integer := 20; -- Command Count LO Byte
 	constant mmu_crst : integer := 21; -- Command Processor Reset
 	constant mmu_it1p : integer := 22; -- Interrupt Timer One Period
 	constant mmu_it2p : integer := 23; -- Interrupt Timer Two Period
@@ -200,7 +203,7 @@ architecture behavior of main is
 		: boolean := false; 
 	
 -- Command Memory
-	constant cmd_addr_max : integer := 1023;
+	constant cmd_addr_max : integer := (2 ** cmd_addr_len) - 1;
 	signal cmd_wr_addr : std_logic_vector(cmd_addr_len-1 downto 0); -- Command Memory Write Address
 	signal cmd_rd_addr : std_logic_vector(cmd_addr_len-1 downto 0); -- Command Memory Read Address
 	signal cmd_in : std_logic_vector(7 downto 0); -- Command Memory Data In
@@ -378,6 +381,10 @@ begin
 						cpu_data_in(4) <= to_std_logic(TXA);    -- Transmit Active Flag
 						cpu_data_in(5) <= to_std_logic(CPA);    -- Command Processor Active Flag
 						cpu_data_in(6) <= RP;                   -- Receive Power Flag
+					when mmu_cch => 
+						cpu_data_in(cmd_addr_len-9 downto 0) <= cmd_wr_addr(cmd_addr_len-1 downto 8);
+					when mmu_ccl =>
+						cpu_data_in <= cmd_wr_addr(7 downto 0);
 				end case;
 			end if;
 		end case;
@@ -397,6 +404,7 @@ begin
 			int_period_2 <= (others => '0');
 			int_period_3 <= (others => '0');
 			int_period_4 <= (others => '0');
+			tp_reg <= (others => '0');
 			int_mask <= (others => '0');
 			CPRST <= true;
 			ONL <= '0';
@@ -796,8 +804,9 @@ begin
 		end if;
 	end process;
 
--- With XEN we enable the VCO.
-	XEN <= to_std_logic(TXA);
+-- With XEN we enable the VCO. We assert XEN while the Sample Transmitter is active,
+-- provided that the Command Processor is not receiving a command.
+	XEN <= to_std_logic((TXA and CMDRDY) or (TXA and not CPA));
 			
 -- The Frequency Modulation process takes the transmit bit values provided by
 -- the Sample Transmitter, turns them into a sequence of rising and falling
@@ -1074,7 +1083,7 @@ begin
 -- state. When the command is ready, the CPU can read all bytes out of the Command Memory. 
 -- The Command Processor runs on the reference clock, which is 32.768 kHz, and proceeds to a 
 -- new state every clock cycle. 
-	Command_Processor: process is
+	Command_Processor: process (RCK, RESET, CPRST) is
 		
 		-- General-purpose state names for the Command Processor
 		constant idle_s : integer := 0;
@@ -1089,108 +1098,113 @@ begin
 		variable addr : integer range 0 to cmd_addr_max := 0;
 		
 	begin
-		wait until (RCK = '1');
-		
-		-- Default next state.
-		next_state := idle_s;
-	
-		-- Idle State.
-		if (state = idle_s) then
-			if ICMD then 
-				next_state := receive_cmd_s; 
-			else 
-				next_state := idle_s;
-			end if;
+		-- We reset to the idle state on global RESET or the Command Processor
+		-- Reset (CPRST).
+		if (RESET = '1') or CPRST then
+			state := idle_s;
 			addr := 0;
-		end if;
+			
+		-- The Command Processor state machine runs off RCK, which allows it to
+		-- work with the Byte Receiver.
+		elsif rising_edge(RCK) then
+			-- Default next state.
+			next_state := idle_s;
 		
-		-- Receive a command byte. We assert RBI and wait for RBD. If we see 
-		-- Terminate Command (TCMD), we look at the number of command bytes we have 
-		-- received so far. If we have less than three, we have only the checksum,
-		-- so we go back to the idle state. If we have three or more, we move on.
-		-- Note that the Byte Receiver aborts on TCMD also.
-		if (state = receive_cmd_s) then 
-			if TCMD then 
-				if (addr <= 2) then 
+			-- Idle State.
+			if (state = idle_s) then
+				if ICMD then 
+					next_state := receive_cmd_s; 
+				else 
 					next_state := idle_s;
-				else 
-					next_state := check_cmd_s;
 				end if;
-			else 
-				if RBD then 
-					next_state := store_cmd_s;
+				addr := 0;
+			end if;
+			
+			-- Receive a command byte. We assert RBI and wait for RBD. If we see 
+			-- Terminate Command (TCMD), we look at the number of command bytes we have 
+			-- received so far. If we have less than three, we have only the checksum,
+			-- so we go back to the idle state. If we have three or more, we move on.
+			-- Note that the Byte Receiver aborts on TCMD also.
+			if (state = receive_cmd_s) then 
+				if TCMD then 
+					if (addr <= 2) then 
+						next_state := idle_s;
+					else 
+						next_state := check_cmd_s;
+					end if;
 				else 
+					if RBD then 
+						next_state := store_cmd_s;
+					else 
+						next_state := receive_cmd_s;
+					end if;
+				end if;
+			end if;
+			RBI <= (state = receive_cmd_s);
+			
+			-- Store the new command byte in the command memory. We assert CMWR.
+			if (state = store_cmd_s) then 
+				if not RBD then 
+					next_state := inc_addr_s;
+				else 
+					next_state := store_cmd_s;
+				end if;
+			end if;
+			CMWR <= to_std_logic(state = store_cmd_s);
+			
+			-- Increment the command address. If we have run out of space in the
+			-- Command Memory, we abort our attempt to process the command, and wait
+			-- for the next command.
+			if (state = inc_addr_s) then
+				addr := addr + 1;
+				if (addr = cmd_addr_max) then
+					next_state := idle_s;
+				else
 					next_state := receive_cmd_s;
 				end if;
+			end if;		
+			
+			-- There are two possible sources of error: a failure in the cyclic redundancy
+			-- check (CRCERR) or an error in the structure of a command byte (BYTERR). If either
+			-- is asserted, we go back to idle.
+			if (state = check_cmd_s) then
+				if CRCERR or BYTERR then 
+					next_state := idle_s;
+				else 
+					next_state := complete_s;
+				end if;
 			end if;
-		end if;
-		RBI <= (state = receive_cmd_s);
-		
-		-- Store the new command byte in the command memory. We assert CMWR.
-		if (state = store_cmd_s) then 
-			if not RBD then 
-				next_state := inc_addr_s;
-			else 
-				next_state := store_cmd_s;
-			end if;
-		end if;
-		CMWR <= to_std_logic(state = store_cmd_s);
-		
-		-- Increment the command address. If we have run out of space in the
-		-- Command Memory, we abort our attempt to process the command, and wait
-		-- for the next command.
-		if (state = inc_addr_s) then
-			addr := addr + 1;
-			if (addr = cmd_addr_max) then
-				next_state := idle_s;
-			else
-				next_state := receive_cmd_s;
-			end if;
-		end if;		
-		
-		-- There are two possible sources of error: a failure in the cyclic redundancy
-		-- check (CRCERR) or an error in the structure of a command byte (BYTERR). If either
-		-- is asserted, we go back to idle.
-		if (state = check_cmd_s) then
-			if CRCERR or BYTERR then 
-				next_state := idle_s;
-			else 
+
+			-- We have a completed command in memory, waiting for the CPU to read it out.
+			-- We assert CMDRDY and wait until the CPU asserts CPRST. The command processor
+			-- will ignore any further command transmission.
+			if (state = complete_s) then
 				next_state := complete_s;
 			end if;
-		end if;
-
-		-- We have a completed command in memory, waiting for the CPU to read it out.
-		-- We assert CMDRDY and wait until the CPU asserts CPRST. The command processor
-		-- will ignore any further command transmission.
-		if (state = complete_s) then
-			next_state := complete_s;
+			
+			-- Advance the state variable.
+			state := next_state;
 		end if;
 		
 		-- Command Ready tells the CPU that a command is available.
 		CMDRDY <= (state = complete_s);
-		
-		-- Reset response.
-		if CPRST then next_state := idle_s; end if;
-
-		-- Advance the state variable.
-		state := next_state;
-		
+			
 		-- Command Processor Active is true whenever the state is not idle.
 		CPA <= (state /= idle_s);
-		
+			
 		-- The Command Memory Write Address is always equal to the Command Processor's
 		-- addr variable.
 		cmd_wr_addr <= std_logic_vector(to_unsigned(addr,cmd_addr_len));
 	end process;
 
 -- Test Point One appears on P4-1.
-	TP1 <= tp_reg(0);
+	TP1 <= tp_reg(1);
 	
 -- Test Point Two appears on P4-2.
-	TP2 <= tp_reg(1);
+	TP2 <= tp_reg(2);
 
 -- Test Point Three appears on P4-3 after the programming connector is removed.
-	TP3 <= RCK;
+	TP3 <= to_std_logic(CMDRDY);
 
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
