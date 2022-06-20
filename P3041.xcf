@@ -19,19 +19,19 @@
 				<BScanLen>1</BScanLen>
 				<BScanVal>0</BScanVal>
 			</Bypass>
-			<File>C:/Kevan/A3041/P3041A/impl1/P3041_impl1.jed</File>
-			<FileTime>06/13/22 11:45:49</FileTime>
-			<JedecChecksum>0xE537</JedecChecksum>
+			<File>C:/Kevan/A3041/P3041/impl1/P3041_impl1.jed</File>
+			<FileTime>06/19/22 22:13:48</FileTime>
+			<JedecChecksum>0x5F68</JedecChecksum>
 			<Operation>FLASH Erase,Program,Verify</Operation>
 			<Option>
 				<SVFVendor>JTAG STANDARD</SVFVendor>
 				<IOState>HighZ</IOState>
 				<PreloadLength>208</PreloadLength>
 				<IOVectorData>0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF</IOVectorData>
+				<OverideUES value="TRUE"/>
 				<TCKFrequency>1.000000 MHz</TCKFrequency>
-				<SVFProcessor>SVF Processor</SVFProcessor>
+				<SVFProcessor>ispVM</SVFProcessor>
 				<Usercode>0x00000000</Usercode>
-				<AccessMode>FLASH</AccessMode>
 			</Option>
 		</Device>
 	</Chain>
@@ -48,13 +48,5 @@
 		<CableName>USB</CableName>
 		<PortAdd>EzUSB-0</PortAdd>
 		<USBID>\\?\usb#vid_1134&amp;amp;pid_8001#5&amp;amp;2527471&amp;amp;0&amp;amp;1#</USBID>
-		<JTAGPinSetting>
-			TMS	LOW;
-			TCK	LOW;
-			TDI	LOW;
-			TDO	LOW;
-			TRST	HIGH;
-		</JTAGPinSetting>
-		<TRSTConnect value="TRUE"/>
 	</CableOptions>
 </ispXCF>
