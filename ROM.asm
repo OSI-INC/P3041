@@ -26,7 +26,7 @@ const mmu_irqb 0x0802 ; Interrupt Request Bits
 const mmu_imsk 0x0803 ; Interrupt Mask Bits
 const mmu_irst 0x0804 ; Interrupt Reset Bits
 const mmu_dva  0x0805 ; Device Active 
-const mmu_onl  0x0806 ; On Lamp
+const mmu_stc  0x0806 ; Stimulus Current
 const mmu_rst  0x0807 ; System Reset
 const mmu_xhb  0x0808 ; Transmit HI Byte
 const mmu_xlb  0x0809 ; Transmit LO Byte

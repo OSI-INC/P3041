@@ -9,7 +9,7 @@
 -- Adjust Stack Pointer location in OSR8V1, so now have OSR8V1R2 for this minor revision. When we
 -- compile, we use 1235 of 1280 LUTs.
 
--- V1.1, 12-APR-22: We switch to OSR8V3, which hasTX generic constants by which we configure
+-- V1.1, 12-APR-22: We switch to OSR8V3, which has generic constants by which we configure
 -- its memory space. Many edits on default values and arrangement of constants. Correct bug in 
 -- sensor readout that expands the code. Reduce the cpu memory to 4 KB. The first 1 KB is for
 -- Random Access Memory. The first 768 Bytes are for variables, the final 256 Bytes for the stack. 
@@ -35,7 +35,10 @@
 
 -- V1.4, 20-JUN-22: Add read-back of the command memory write address to act as a count of the
 -- command bytes stored in the command memory. The CPU needs this count to tell it when the list
--- of commands ends.
+-- of commands ends. Add modulation of ONL with four-bit counter that runs all the time off RCK.
+-- The CPU sets duty cycle with stimulus current location, writing a value 0-15. Disable two of 
+-- the four interrupt timers.
+
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -84,7 +87,7 @@ entity main is
 	constant mmu_imsk : integer := 3;  -- Interrupt Mask Bits
 	constant mmu_irst : integer := 4;  -- Interrupt Reset Bits
 	constant mmu_dact : integer := 5;  -- Device Active
-	constant mmu_onl  : integer := 6;  -- On Lamp
+	constant mmu_stc  : integer := 6;  -- Stimulus Current
 	constant mmu_rst  : integer := 7;  -- System Reset
 	constant mmu_xhb  : integer := 8;  -- Transmit HI Byte
 	constant mmu_xlb  : integer := 9;  -- Transmit LO Byte
@@ -112,7 +115,7 @@ architecture behavior of main is
 	attribute syn_keep : boolean;
 	attribute nomerge : string;
 
--- Calibration Constants.
+-- Default Parameter Values.
 	constant tx_low_default : integer := 4;
 	constant tx_channel_default : integer := 1;
 
@@ -128,9 +131,6 @@ architecture behavior of main is
 	attribute syn_keep of TCK, FCK, CK : signal is true;
 	attribute nomerge of TCK, FCK, CK : signal is "";  
 
--- Sensor Readout
-	signal CS : boolean; -- Chip Select for DAC
-	
 -- Message Transmission.
 	signal TXI, -- Transmit Initiate
 		TXA, -- Transmit Active
@@ -145,6 +145,7 @@ architecture behavior of main is
 	constant tx_step : integer := 1; 
 		
 -- Sensor Controller
+	signal CS : boolean; -- Chip Select for DAC
 	signal SAI, -- Sensor Access Initiate 
 		SAA -- Sensor Access Active
 		: boolean := false;
@@ -161,14 +162,14 @@ architecture behavior of main is
 -- Boost Controller
 	signal BOOST : boolean;
 	
--- CPU-Writeable Test Points
+-- Writeable Test Points
 	signal tp_reg : std_logic_vector(7 downto 0) := (others => '0');
 
 -- Program Memory Signals
 	signal prog_data : std_logic_vector(7 downto 0); -- ROM Data
 	signal prog_addr : std_logic_vector(prog_addr_len-1 downto 0); -- ROM Address
 	
--- Random Access Memory Signals
+-- Process Memory Signals
 	signal ram_addr : std_logic_vector(ram_addr_len-1 downto 0); -- RAM Address
 	signal ram_out, ram_in : std_logic_vector(7 downto 0); -- RAM Data In and Out
 	signal RAMWR : std_logic; -- Command Memory Write
@@ -217,6 +218,9 @@ architecture behavior of main is
 		CMDRDY, -- Command Ready
 		CPRST -- Command Processor Reset
 		: boolean := false;
+		
+-- Stimulus Current Controller
+	signal stimulus_current : integer range 0 to 15;
 
 -- Functions and Procedures	
 	function to_std_logic (v: boolean) return std_ulogic is
@@ -404,10 +408,10 @@ begin
 			int_period_2 <= (others => '0');
 			int_period_3 <= (others => '0');
 			int_period_4 <= (others => '0');
+			stimulus_current <= 0;
 			tp_reg <= (others => '0');
 			int_mask <= (others => '0');
 			CPRST <= true;
-			ONL <= '0';
 			DACTIVE <= false;
 		-- We use the falling edge of RCK to write to registers and to initiate sensor 
 		-- and transmit activity. Some signals we assert only for one CK period, and 
@@ -430,17 +434,19 @@ begin
 						when mmu_imsk => int_mask <= cpu_data_out;
 						when mmu_irst => int_rst <= cpu_data_out;
 						when mmu_dact => DACTIVE <= (cpu_data_out(0) = '1');
-						when mmu_onl => ONL <= cpu_data_out(0);
+						when mmu_stc => stimulus_current <= to_integer(unsigned(cpu_data_out));
 						when mmu_rst => SWRST <= (cpu_data_out(0) = '1');
 						when mmu_etc => ENTCK <= (cpu_data_out(0) = '1');
 						when mmu_tcd => tck_divisor <= to_integer(unsigned(cpu_data_out));
 						when mmu_bcc => BOOST <= (cpu_data_out(0) = '1');
 						when mmu_tpr => tp_reg <= cpu_data_out;
 						when mmu_crst => CPRST <= true;
+						-- Disable one or more of the eight-bit interrupt timers, and have
+						-- their resources freed by commenting out lines below.
 						when mmu_it1p => int_period_1 <= cpu_data_out;
 						when mmu_it2p => int_period_2 <= cpu_data_out;
-						when mmu_it3p => int_period_3 <= cpu_data_out;
-						when mmu_it4p => int_period_4 <= cpu_data_out;
+--						when mmu_it3p => int_period_3 <= cpu_data_out;
+--						when mmu_it4p => int_period_4 <= cpu_data_out;
 					end case;
 				end if;
 			end if;
@@ -839,6 +845,43 @@ begin
 			xdac <= std_logic_vector(to_unsigned(tx_low,5));
 			FHI <= false;
 		end if;
+	end process;
+
+-- The Stimulus Controller takes the stimulus current value and modulates
+-- the On Lamp (ONL) output from 0% to 100% for values 0 to 15.
+	Stimulus_Controller: process is 
+	variable c : integer range 0 to 15;
+	begin
+		wait until (RCK = '0');
+		case stimulus_current is
+			when 0 => ONL <= '0';
+			when 1 => ONL <= to_std_logic((c=0));
+			when 2 => ONL <= to_std_logic((c=0) or (c=8));
+			when 3 => ONL <= to_std_logic((c=0) or (c=5) or (c=10));
+			when 4 => ONL <= to_std_logic((c=0) or (c=4) or (c=8) or (c=12));
+			when 5 => ONL <= to_std_logic((c=0) or (c=3) or (c=6) or (c=10) or (c=13));
+			when 6 => ONL <= to_std_logic(
+				(c=0) or (c=3) or (c=6) or (c=9) or (c=12) or (c=14));
+			when 7 => ONL <= to_std_logic(
+				(c=0) or (c=2) or (c=4) or (c=6) or (c=8) or (c=10) or (c=12));
+			when 8 => ONL <= to_std_logic(
+				(c=0) or (c=2) or (c=4) or (c=6) or (c=8) or (c=10) or (c=12) 
+				or (c=14));
+			when 9 => ONL <= to_std_logic(
+				(c/=0) and (c/=3) and (c/=9) and (c/=9) and (c/=12) and (c/=14));
+			when 10 => ONL <= to_std_logic(
+				(c/=0) and (c/=4) and (c/=7) and (c/=10) and (c/=13));
+			when 11 => ONL <= to_std_logic(
+				(c/=0) and (c/=4) and (c/=8) and (c/=12));
+			when 12 => ONL <= to_std_logic(
+				(c/=0) and (c/=5) and (c/=10));
+			when 13 => ONL <= to_std_logic(
+				(c/=0) and (c/=8));
+			when 14 => ONL <= to_std_logic(
+				(c/=0));
+			when 15 => ONL <= '1';
+		end case;
+		c := c + 1;
 	end process;
 	
 -- The Receive Power signal must be synchronized with the RCK clock.
