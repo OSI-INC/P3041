@@ -65,6 +65,7 @@ const initial_tcd   15  ; Max possible value of TCK divisor.
 
 ; Variable Locations
 const ramp_ctr   0x0000 ; A counter to generate a ramp.
+const stc        0x0001 ; Stimulus Current Shadow
 
 ; ------------------------------------------------------------
 
@@ -185,6 +186,10 @@ ld (mmu_it1p),A      ; and write to timer one period.
 ld A,0x01            ; Set bit zero of A to one and use
 ld (mmu_imsk),A      ; to enable timer one interrupt.
 
+ld A,0x00
+ld (stc),A
+ld (mmu_stc),A
+
 ; ------------------------------------------------------------
 
 ; The main program loops. The interrupt will be running 
@@ -216,6 +221,11 @@ pop H
 
 ; Load IX with the base of the command memory.
 ld IX,mmu_cmem
+
+ld A,(stc)
+inc A
+ld (stc),A
+ld (mmu_stc),A
 
 cmd_loop:
 
