@@ -200,14 +200,24 @@ ld A,(mmu_tpr)      ; Load the test point register.
 or A,0x02           ; Set bit one and
 ld (mmu_tpr),A      ; write to test point register.
 
+ld A,(mmu_tpr)      ; Load the test point register.
+and A,0xFD          ; Clear bit one and
+ld (mmu_tpr),A      ; write to test point register.
+
 ld A,(mmu_sr)       ; Fetch status register.
 and A,sr_cmdrdy     ; Check the command ready bit.
 jp z,no_cmd         ; Jump if it's clear.
 
 ; Read out, interpret, and execute comands.
 
-; Load HL with the command write address minus three. This will
-; be our command byte count.
+; Temporary Ccode to increment the stimulus current upon reception
+; of command.
+ld A,(stc)
+inc A
+ld (stc),A
+
+; Load HL with the cmd_wr_addr minus three, which is the number of 
+; command bytes we must read and execute.
 ld A,(mmu_ccl)
 sub A,3
 push A
@@ -219,13 +229,8 @@ no_dec_h:
 push A
 pop H
 
-; Load IX with the base of the command memory.
+; Load IX with the base of the command memory to start reading bytes.
 ld IX,mmu_cmem
-
-ld A,(stc)
-inc A
-ld (stc),A
-ld (mmu_stc),A
 
 cmd_loop:
 
@@ -264,9 +269,16 @@ cmd_done:
 ld (mmu_cpr),A     
 
 no_cmd:
-ld A,(mmu_tpr)
-and A,0xFD          
-ld (mmu_tpr),A      
+
+; Temporary code flashes the stimulus.
+ld A,(stc)
+ld (mmu_stc),A
+ld A,255
+dly A
+ld A,0
+ld (mmu_stc),A
+ld A,255
+dly A
 
 jp main             ; Repeat the main loop.
 
