@@ -75,22 +75,24 @@ const Slength_l   0x0007 ; Stimulus Length, LO
 const Srandomize  0x0008 ; Randomise
 const Srun        0x0009 ; Run stimulus
 const Sack_key    0x000A ; Acknowledgement key
+const cmd_cnt_h   0x000B ; Command Count, HI
+const cmd_cnt_l   0x000C ; Command Count, LO
 
 ; Operation Codes
-const op_stop_stim   0;
-const op_start_stim  1;
-const op_config      2;
-const op_current     3;
-const op_pulse_h     4;
-const op_pulse_l     5;
-const op_interval_h  6;
-const op_interval_l  7;
-const op_length_h    8;
-const op_length_l    9;
-const op_randomize  10;
-const op_select     11;
-const op_ack        12;
-const op_battery    13;
+const op_stop_stim   0 ; 0 operands
+const op_start_stim  1 ; 0 operands
+const op_config      2 ; 1 operand
+const op_current     3 ; 1 operand
+const op_pulse_h     4 ; 1 operand
+const op_pulse_l     5 ; 1 operand
+const op_interval_h  6 ; 1 operand
+const op_interval_l  7 ; 1 operand
+const op_length_h    8 ; 1 operand
+const op_length_l    9 ; 1 operand
+const op_randomize  10 ; 1 operand
+const op_select     11 ; 1 operand
+const op_ack        12 ; 1 operand
+const op_battery    13 ; 0 operands
 
 
 ; ------------------------------------------------------------
@@ -198,9 +200,21 @@ dly A            ; and wait this number of RCK periods.
 ; Calibrate the transmit clock.
 call calibrate_tck
 
-; Set the ramp counter to zero.
-ld A,0x00
-ld (ramp_ctr),A
+; Initialize variable locations to zero.
+ld IX,mmu_vmem
+ld A,100
+push A
+pop B
+ld A,0
+vmem_clr:
+ld (IX),A
+inc IX
+dec B
+jp nz,vmem_clr
+
+; Set the stimulus current.
+ld A,(Scurrent)
+ld (mmu_stc),A
 
 ; Set interrupt timer interval and enable the timer interrupt to implement
 ; the sample period. The value we want to load into the interrup timer period 
@@ -219,32 +233,52 @@ ld (mmu_imsk),A      ; to enable timer one interrupt.
 ; in the background. The main loop checks for commands.
 main:
 
+; Start a pulse on test point one.
 ld A,(mmu_tpr)      ; Load the test point register.
 or A,0x02           ; Set bit one and
 ld (mmu_tpr),A      ; write to test point register.
 
+; Main loop activities.
+ld A,(Scurrent)
+ld (mmu_stc),A
+
+; Stop the pulse on test point one.
 ld A,(mmu_tpr)      ; Load the test point register.
 and A,0xFD          ; Clear bit one and
 ld (mmu_tpr),A      ; write to test point register.
 
+; Deal with any pending commands.
 ld A,(mmu_sr)       ; Fetch status register.
 and A,sr_cmdrdy     ; Check the command ready bit.
-jp z,no_cmd         ; Jump if it's clear.
+jp z,no_cmd         ; Jump if it's clear,
+call cmd_execute    ; execute command if it's set.
+no_cmd:
 
-; Read out, interpret, and execute comands.
+jp main             ; Repeat the main loop.
 
-; Load HL with the cmd_wr_addr minus three, which is the command 
-; address at which we know we have completed the read.
+
+; ------------------------------------------------------------
+; Read out, interpret, and execute comands. Uses the global command
+; count variable, stimulus and configuration locations, and starts
+; and stops stimuli, transmission, battery measurement and
+; acknowledgements.
+cmd_execute:
+
+; We use only F, A, and IX. We will leave them untouched.
+push F
+push A
+push IX
+
+; Calculate and store the command count in memory. We read the wr_cmd_addr and subtract
+; three. We will use the dec_cmd_cnt routine to decrement as we increment through the
+; command memory. If the command count is less than zero, we abort.
 ld A,(mmu_ccl)
 sub A,3
-push A
-pop L
+ld (cmd_cnt_l),A
 ld A,(mmu_cch)
-jp p,no_dec_h
-sub A,1
-no_dec_h:
-push A
-pop H
+sbc A,0
+ld (cmd_cnt_h),A
+jp c,cmd_done
 
 ; Load IX with the base of the command memory to start reading bytes.
 ld IX,mmu_cmem
@@ -253,11 +287,9 @@ ld IX,mmu_cmem
 ; command byte we want to process.
 cmd_loop_start:
 
-; Make a pulse on test point two.
+; Start a pulse on test point two.
 ld A,(mmu_tpr)     
 or A,0x04         
-ld (mmu_tpr),A 
-and A,0xFB       
 ld (mmu_tpr),A 
 
 ; Identify and execute operation codes.
@@ -265,16 +297,18 @@ check_stop_stim:
 ld A,(IX)
 sub A,op_stop_stim
 jp nz,check_start_stim
-; waiting to put code here.
+; Stop stimulus code goes here.
 inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
 check_start_stim:
 ld A,(IX)
 sub A,op_start_stim
 jp nz,check_config
-; waiting to put code here.
+; Start stimulus code goes here.
 inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
 check_config:
@@ -282,9 +316,11 @@ ld A,(IX)
 sub A,op_config
 jp nz,check_current
 inc IX
+call dec_cmd_cnt
 ld A,(IX)
-; we now have the configuration byte
+; A contains the configuration byte
 inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
 check_current:
@@ -292,9 +328,11 @@ ld A,(IX)
 sub A,op_current
 jp nz,check_pulse_h
 inc IX
+call dec_cmd_cnt
 ld A,(IX)
 ld (Scurrent),A
 inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
 check_pulse_h:
@@ -302,9 +340,11 @@ ld A,(IX)
 sub A,op_pulse_h
 jp nz,check_pulse_l
 inc IX
+call dec_cmd_cnt
 ld A,(IX)
 ld (Spulse_h),A
 inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
 check_pulse_l:
@@ -312,9 +352,11 @@ ld A,(IX)
 sub A,op_pulse_l
 jp nz,check_interval_h
 inc IX
+call dec_cmd_cnt
 ld A,(IX)
 ld (Spulse_l),A
 inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
 check_interval_h:
@@ -322,9 +364,11 @@ ld A,(IX)
 sub A,op_interval_h
 jp nz,check_interval_l
 inc IX
+call dec_cmd_cnt
 ld A,(IX)
 ld (Sinterval_h),A
 inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
 check_interval_l:
@@ -332,9 +376,11 @@ ld A,(IX)
 sub A,op_interval_l
 jp nz,check_length_h
 inc IX
+call dec_cmd_cnt
 ld A,(IX)
 ld (Sinterval_l),A
 inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
 check_length_h:
@@ -342,9 +388,11 @@ ld A,(IX)
 sub A,op_length_h
 jp nz,check_length_l
 inc IX
+call dec_cmd_cnt
 ld A,(IX)
 ld (Slength_h),A
 inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
 check_length_l:
@@ -352,9 +400,11 @@ ld A,(IX)
 sub A,op_length_l
 jp nz,check_randomize
 inc IX
+call dec_cmd_cnt
 ld A,(IX)
 ld (Slength_l),A
 inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
 check_randomize:
@@ -362,19 +412,25 @@ ld A,(IX)
 sub A,op_randomize
 jp nz,check_select
 inc IX
+call dec_cmd_cnt
 ld A,(IX)
 ld (Srandomize),A
 inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
+; If the device selection is to work, it must be placed at the
+; start of a string of commands.
 check_select:
 ld A,(IX)
 sub A,op_select
 jp nz,check_ack
 inc IX
+call dec_cmd_cnt
 ld A,(IX)
 and A,0xFF
 inc IX
+call dec_cmd_cnt
 jp z,cmd_loop_end
 sub A,device_id
 jp z,cmd_loop_end
@@ -385,47 +441,67 @@ ld A,(IX)
 sub A,op_ack
 jp nz,check_battery
 inc IX
+call dec_cmd_cnt
 ld A,(IX)
 ld (Sack_key),A
 inc IX
+call dec_cmd_cnt
+; Transmit acknowledgement.
 jp cmd_loop_end
 
 check_battery:
 ld A,(IX)
 sub A,op_battery
 jp nz,cmd_done
-; To be written
+; Transmit battery measurement.
 inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
 cmd_loop_end:
-; Check the index register.
-push IX
-pop C
-pop B
-push H
-pop A
-sub A,B
-jp np,cmd_done
+
+; End pulse on test point 2.
+ld A,(mmu_tpr)
+and A,0xFB       
+ld (mmu_tpr),A 
+
+; Check the number of bytes remaining to be read.
+ld A,(cmd_cnt_h)
+and A,0xFF
 jp nz,cmd_loop_start
-push L
-pop A
-push C
-pop B
-sub A,B
+ld A,(cmd_cnt_l)
+and A,0xFF
 jp nz,cmd_loop_start
 
 ; Reset the command processor.
 cmd_done:
 ld (mmu_cpr),A     
 
-; And continue.
-no_cmd:
+; Restore registers and return.
+pop IX
+pop A
+pop F
+ret
 
-ld A,(Scurrent)
-ld (mmu_stc),A
+; -----------------------------------------------------------
+; Decrement the command count. The decrement does not allow
+; the count to drop below zero. The routine leaves all registers
+; intact.
+dec_cmd_cnt:
+push F
+push A
+ld A,(cmd_cnt_l)
+sub A,1
+ld (cmd_cnt_l),A
+ld A,(cmd_cnt_h)
+sbc A,0
+ld (cmd_cnt_h),A
+jp nc,dec_cmd_cnt_nz
+ld A,0
+ld (cmd_cnt_h),A
+ld (cmd_cnt_l),A
+dec_cmd_cnt_nz:
+pop A
+pop F
+ret
 
-jp main             ; Repeat the main loop.
-
-
-; ------------------------------------------------------------
