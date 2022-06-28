@@ -895,7 +895,7 @@ begin
 -- We detect a long enough burst of command power to initiate
 -- command reception, and set the ICMD signal.
 	Initiate_Command: process is 
-		constant endcount : integer := 65;
+		constant endcount : integer := 63;
 		variable counter : integer range 0 to endcount := 0;
 	begin
 		wait until (RCK = '1');
@@ -916,7 +916,7 @@ begin
 -- We detect a long enough period without command power to 
 -- terminate command reception, and set the TCMD signal.
 	Terminate_Command: process is 
-		constant endcount : integer := 328;
+		constant endcount : integer := 255;
 		variable counter : integer range 0 to endcount := 0;
 	begin
 		wait until (RCK = '1');
@@ -1109,15 +1109,15 @@ begin
 
 -- Command Memory
 	Command_Memory : entity CMD_RAM port map (
-		WrClock => not RCK,
-		WrClockEn => to_std_logic(CPA),
 		Reset => '0', 
+		WrClock => not RCK,
+		WrClockEn => '1',
 		WE => CMWR,
 		WrAddress => cmd_wr_addr, 
 		Data => cmd_in,
 		RdAddress => cmd_rd_addr,
 		RdClock => not CK,
-		RdClockEn => to_std_logic(not CPA),
+		RdClockEn => '1',
 		Q => cmd_out);
 	
 -- This Command Processor detects Inititiate Command (ICMD) and activates the Byte Receiver. 

@@ -60,7 +60,7 @@ const sr_rp      0x40 ; Receive Power
 const min_tcf       75  ; Minimum TCK periods per half RCK period.
 const tx_delay      50  ; Wait time for sample transmission, TCK periods.
 const sa_delay      70  ; Wait time for sensor access, TCK periods.
-const boot_delay   255  ; Boot delay, RCK periods.
+const num_vars     255  ; Number of vars to clear at start.
 const initial_tcd   15  ; Max possible value of TCK divisor.
 
 ; Variable Locations
@@ -77,6 +77,8 @@ const Srun        0x0009 ; Run stimulus
 const Sack_key    0x000A ; Acknowledgement key
 const cmd_cnt_h   0x000B ; Command Count, HI
 const cmd_cnt_l   0x000C ; Command Count, LO
+const Xon         0x000D ; Transmit On
+const temp_imask  0x000E ; Temporary Interrupt Mask
 
 ; Operation Codes
 const op_stop_stim   0 ; 0 operands
@@ -96,14 +98,12 @@ const op_battery    13 ; 0 operands
 
 
 ; ------------------------------------------------------------
-
 ; The CPU reserves two locations 0x0000 for the start of program
 ; execution, and 0x0003 for interrupt execution. We put jumps at
 ; both locations. A jump takes exactly three bytes.
 start: 
-jp initialize
+jp main
 jp interrupt
-
 
 ; ------------------------------------------------------------
 ; Calibrate the transmit clock frequency. We take the CPU out
@@ -184,78 +184,27 @@ pop A               ; Restore A
 pop F               ; Restore the flags.
 rti
 
-; ------------------------------------------------------------
-; Initialize the device. 
-initialize:
-
-; Initialize the stack pointer. 
-ld HL,mmu_sba
-ld SP,HL
-
-; Wait for a while. The power supplies must settle after entering
-; standby mode.
-ld A,boot_delay  ; Load A with boot delay
-dly A            ; and wait this number of RCK periods.
-
-; Calibrate the transmit clock.
-call calibrate_tck
-
-; Initialize variable locations to zero.
-ld IX,mmu_vmem
-ld A,100
+; -----------------------------------------------------------
+; Decrement the command count. The decrement does not allow
+; the count to drop below zero. The routine leaves all registers
+; intact.
+dec_cmd_cnt:
+push F
 push A
-pop B
+ld A,(cmd_cnt_l)
+sub A,1
+ld (cmd_cnt_l),A
+ld A,(cmd_cnt_h)
+sbc A,0
+ld (cmd_cnt_h),A
+jp nc,dec_cmd_cnt_nz
 ld A,0
-vmem_clr:
-ld (IX),A
-inc IX
-dec B
-jp nz,vmem_clr
-
-; Set the stimulus current.
-ld A,(Scurrent)
-ld (mmu_stc),A
-
-; Set interrupt timer interval and enable the timer interrupt to implement
-; the sample period. The value we want to load into the interrup timer period 
-; register is the sample period minus one.
-ld A,0xFF            ; Load A with ones
-ld (mmu_irst),A      ; and reset all interrupts.
-ld A,xmit_period     ; Load A with transmit period minus one
-ld (mmu_it1p),A      ; and write to timer one period.
-ld A,0x01            ; Set bit zero of A to one and use
-ld (mmu_imsk),A      ; to enable timer one interrupt.
-
-
-; ------------------------------------------------------------
-
-; The main program loops. The interrupt will be running 
-; in the background. The main loop checks for commands.
-main:
-
-; Start a pulse on test point one.
-ld A,(mmu_tpr)      ; Load the test point register.
-or A,0x02           ; Set bit one and
-ld (mmu_tpr),A      ; write to test point register.
-
-; Main loop activities.
-ld A,(Scurrent)
-ld (mmu_stc),A
-
-; Stop the pulse on test point one.
-ld A,(mmu_tpr)      ; Load the test point register.
-and A,0xFD          ; Clear bit one and
-ld (mmu_tpr),A      ; write to test point register.
-
-; Deal with any pending commands.
-ld A,(mmu_sr)       ; Fetch status register.
-and A,sr_cmdrdy     ; Check the command ready bit.
-jp z,no_cmd         ; Jump if it's clear,
-call cmd_execute    ; execute command if it's set.
-no_cmd:
-
-jp main             ; Repeat the main loop.
-
+ld (cmd_cnt_h),A
+ld (cmd_cnt_l),A
+dec_cmd_cnt_nz:
+pop A
+pop F
+ret
 
 ; ------------------------------------------------------------
 ; Read out, interpret, and execute comands. Uses the global command
@@ -269,11 +218,21 @@ push F
 push A
 push IX
 
+; Disable interrupts.
+ld A,0x00
+ld (mmu_imsk),A
+ld (temp_imask),A
+
+; Boost the CPU
+ld A,0x01           ; Set bit zero to one.
+ld (mmu_etc),A      ; Enable the transmit clock, TCK.
+ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
+
 ; Calculate and store the command count in memory. We read the wr_cmd_addr and subtract
-; three. We will use the dec_cmd_cnt routine to decrement as we increment through the
-; command memory. If the command count is less than zero, we abort.
+; two. We will use the dec_cmd_cnt routine to decrement as we increment through the command 
+; memory. If the command count is less than zero, we abort.
 ld A,(mmu_ccl)
-sub A,3
+sub A,2
 ld (cmd_cnt_l),A
 ld A,(mmu_cch)
 sbc A,0
@@ -292,12 +251,18 @@ ld A,(mmu_tpr)
 or A,0x04         
 ld (mmu_tpr),A 
 
+; End pulse on test point 2.
+ld A,(mmu_tpr)
+and A,0xFB       
+ld (mmu_tpr),A 
+
 ; Identify and execute operation codes.
 check_stop_stim:
 ld A,(IX)
 sub A,op_stop_stim
 jp nz,check_start_stim
-; Stop stimulus code goes here.
+ld A,0x00
+ld (Srun),A
 inc IX
 call dec_cmd_cnt
 jp cmd_loop_end
@@ -306,7 +271,8 @@ check_start_stim:
 ld A,(IX)
 sub A,op_start_stim
 jp nz,check_config
-; Start stimulus code goes here.
+ld A,0xFF
+ld (Srun),A
 inc IX
 call dec_cmd_cnt
 jp cmd_loop_end
@@ -318,7 +284,13 @@ jp nz,check_current
 inc IX
 call dec_cmd_cnt
 ld A,(IX)
-; A contains the configuration byte
+ld (Xon),A
+and A,0x01
+push A
+pop B
+ld A,(temp_imask)
+or A,B
+ld (temp_imask),A
 inc IX
 call dec_cmd_cnt
 jp cmd_loop_end
@@ -419,8 +391,6 @@ inc IX
 call dec_cmd_cnt
 jp cmd_loop_end
 
-; If the device selection is to work, it must be placed at the
-; start of a string of commands.
 check_select:
 ld A,(IX)
 sub A,op_select
@@ -460,11 +430,6 @@ jp cmd_loop_end
 
 cmd_loop_end:
 
-; End pulse on test point 2.
-ld A,(mmu_tpr)
-and A,0xFB       
-ld (mmu_tpr),A 
-
 ; Check the number of bytes remaining to be read.
 ld A,(cmd_cnt_h)
 and A,0xFF
@@ -473,9 +438,41 @@ ld A,(cmd_cnt_l)
 and A,0xFF
 jp nz,cmd_loop_start
 
-; Reset the command processor.
 cmd_done:
-ld (mmu_cpr),A     
+
+; See if we keep the board active or not.
+ld A,(Srun)
+and A,0xFF
+jp nz,main_on
+ld A,(Xon)
+and A,0xFF
+jp nz,main_on
+ld A,0x00
+jp main_set
+main_on:
+ld A,0xFF
+main_set:
+ld (mmu_dva),A
+
+; Reset the command processor.
+cmd_rst_cp:
+ld (mmu_cpr),A   
+
+ld A,(Srun)
+push A
+pop B
+ld A,(Scurrent)
+and A,B
+ld (mmu_stc),A
+
+; Un-boost the CPU.
+ld A,0x00           ; Clear bit zero to zero.
+ld (mmu_bcc),A      ; Move CPU back to slow RCK.
+ld (mmu_etc),A      ; Stop the transmit clock.
+  
+; Set the interrupt mask.
+ld A,(temp_imask)
+ld (mmu_imsk),A
 
 ; Restore registers and return.
 pop IX
@@ -483,25 +480,67 @@ pop A
 pop F
 ret
 
-; -----------------------------------------------------------
-; Decrement the command count. The decrement does not allow
-; the count to drop below zero. The routine leaves all registers
-; intact.
-dec_cmd_cnt:
-push F
-push A
-ld A,(cmd_cnt_l)
-sub A,1
-ld (cmd_cnt_l),A
-ld A,(cmd_cnt_h)
-sbc A,0
-ld (cmd_cnt_h),A
-jp nc,dec_cmd_cnt_nz
-ld A,0
-ld (cmd_cnt_h),A
-ld (cmd_cnt_l),A
-dec_cmd_cnt_nz:
-pop A
-pop F
-ret
 
+; ------------------------------------------------------------
+; The main program. We begin by initializing the device, which
+; includes initializing the stack pointer, variables, and interrupts.
+main:
+
+; Initialize the stack pointer. 
+ld HL,mmu_sba
+ld SP,HL
+
+; Initialize variable locations to zero. This activity also serves
+; as a boot-up delay to let the power supply settle before we 
+; calibrate the transmit clock.
+ld IX,mmu_vmem
+ld A,num_vars
+push A
+pop B
+ld A,0
+vmem_clr:
+ld (IX),A
+inc IX
+dec B
+jp nz,vmem_clr
+
+; Calibrate the transmit clock.
+call calibrate_tck
+
+; Set the stimulus current.
+ld A,(Scurrent)
+ld (mmu_stc),A
+
+; Set interrupt timer interval and enable the timer interrupt to implement
+; the sample period. The value we want to load into the interrup timer period 
+; register is the sample period minus one.
+ld A,0xFF            ; Load A with ones
+ld (mmu_irst),A      ; and reset all interrupts.
+ld A,xmit_period     ; Load A with transmit period minus one
+ld (mmu_it1p),A      ; and write to timer one period.
+ld A,0x01            ; Set bit zero of A to one and use
+ld (mmu_imsk),A      ; to enable timer one interrupt.
+
+; The main event loop.
+main_loop:
+
+; Start a pulse on test point one.
+ld A,(mmu_tpr)      ; Load the test point register.
+or A,0x02           ; Set bit one and
+ld (mmu_tpr),A      ; write to test point register.
+
+; Stop the pulse on test point one.
+ld A,(mmu_tpr)      ; Load the test point register.
+and A,0xFD          ; Clear bit one and
+ld (mmu_tpr),A      ; write to test point register.
+
+; Deal with any pending commands.
+ld A,(mmu_sr)       ; Fetch status register.
+and A,sr_cmdrdy     ; Check the command ready bit.
+jp z,no_cmd         ; Jump if it's clear,
+call cmd_execute    ; execute command if it's set.
+no_cmd:
+
+jp main_loop        ; Repeat the main loop.
+
+; --------------------------------------------------------------------
