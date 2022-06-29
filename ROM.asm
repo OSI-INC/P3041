@@ -10,8 +10,9 @@
 
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration
-const device_id        55  ; Will be used as the first channel number.
+const device_id    0xA123  ; Will be used as the first channel number.
 const xmit_period     255  ; Transmit period minus one, RCK periods.
+const xmit_channel   0x23  ; Transmit channel.
 
 ; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
@@ -78,7 +79,7 @@ const Sack_key    0x000A ; Acknowledgement key
 const cmd_cnt_h   0x000B ; Command Count, HI
 const cmd_cnt_l   0x000C ; Command Count, LO
 const Xon         0x000D ; Transmit On
-const temp_imask  0x000E ; Temporary Interrupt Mask
+const new_imask   0x000E ; Temporary Interrupt Mask
 
 ; Operation Codes
 const op_stop_stim   0 ; 0 operands
@@ -154,7 +155,7 @@ ld (mmu_tpr),A      ; write to test point register.
 ld A,tx_frequency   ; Set the low radio frequency
 ld (mmu_xfc),A      ; for sample transmission
 
-ld A,device_id      ; Load A with channel number.
+ld A,xmit_channel   ; Load A with channel number.
 ld (mmu_xcn),A      ; Write the channel number.
 
 ld A,(ramp_ctr)     ; Load A with ramp counter.
@@ -213,20 +214,27 @@ ret
 ; acknowledgements.
 cmd_execute:
 
-; We use only F, A, and IX. We will leave them untouched.
+; Push the first registers we use.
 push F
 push A
-push IX
 
 ; Disable interrupts.
+ld A,(mmu_imsk)
+ld (new_imask),A
 ld A,0x00
 ld (mmu_imsk),A
-ld (temp_imask),A
 
 ; Boost the CPU
 ld A,0x01           ; Set bit zero to one.
 ld (mmu_etc),A      ; Enable the transmit clock, TCK.
 ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
+
+; Push more registers.
+push IX
+push H
+push L
+push D
+push E
 
 ; Calculate and store the command count in memory. We read the wr_cmd_addr and subtract
 ; two. We will use the dec_cmd_cnt routine to decrement as we increment through the command 
@@ -241,6 +249,46 @@ jp c,cmd_done
 
 ; Load IX with the base of the command memory to start reading bytes.
 ld IX,mmu_cmem
+
+; Check the command id. First, load the command identifier in DE and the
+; device's own identifier in HL.
+ld HL,device_id
+ld A,(IX)
+push A
+pop D
+inc IX
+call dec_cmd_cnt
+ld A,(IX)
+push A
+pop E
+inc IX
+call dec_cmd_cnt
+
+; Check to see if HL = CD.
+push L
+pop B
+push E
+pop A
+sub A,B
+jp nz,cmd_no_match
+push H
+pop B
+push D
+pop A
+sub A,B
+jp nz,cmd_no_match
+jp cmd_loop_start
+
+; If HL is the wildcard identifier 0xFFFF, we'll process this command.
+cmd_no_match:
+push E
+pop A
+sub A,0xFF
+jp nz,cmd_done
+push D
+pop A
+sub A,0xFF
+jp nz,cmd_done
 
 ; Every time we execute this loop, IX should be pointed to the next 
 ; command byte we want to process.
@@ -271,7 +319,7 @@ check_start_stim:
 ld A,(IX)
 sub A,op_start_stim
 jp nz,check_config
-ld A,0xFF
+ld A,0x01
 ld (Srun),A
 inc IX
 call dec_cmd_cnt
@@ -285,12 +333,6 @@ inc IX
 call dec_cmd_cnt
 ld A,(IX)
 ld (Xon),A
-and A,0x01
-push A
-pop B
-ld A,(temp_imask)
-or A,B
-ld (temp_imask),A
 inc IX
 call dec_cmd_cnt
 jp cmd_loop_end
@@ -382,7 +424,7 @@ jp cmd_loop_end
 check_randomize:
 ld A,(IX)
 sub A,op_randomize
-jp nz,check_select
+jp nz,check_ack
 inc IX
 call dec_cmd_cnt
 ld A,(IX)
@@ -390,21 +432,6 @@ ld (Srandomize),A
 inc IX
 call dec_cmd_cnt
 jp cmd_loop_end
-
-check_select:
-ld A,(IX)
-sub A,op_select
-jp nz,check_ack
-inc IX
-call dec_cmd_cnt
-ld A,(IX)
-and A,0xFF
-inc IX
-call dec_cmd_cnt
-jp z,cmd_loop_end
-sub A,device_id
-jp z,cmd_loop_end
-jp cmd_done
 
 check_ack:
 ld A,(IX)
@@ -440,30 +467,52 @@ jp nz,cmd_loop_start
 
 cmd_done:
 
-; See if we keep the board active or not.
-ld A,(Srun)
-and A,0xFF
-jp nz,main_on
-ld A,(Xon)
-and A,0xFF
-jp nz,main_on
+; Set device active false by default.
 ld A,0x00
-jp main_set
-main_on:
-ld A,0xFF
-main_set:
 ld (mmu_dva),A
+
+; Check Srun.
+cmd_check_srun:
+ld A,(Srun)
+and A,0x01
+jp z,cmd_soff
+ld A,(Scurrent)
+ld (mmu_stc),A
+ld A,0x01
+ld (mmu_dva),A
+jp cmd_check_xon
+cmd_soff:
+ld A,0
+ld (mmu_stc),A
+jp cmd_check_xon
+
+; Check Xon
+cmd_check_xon:
+ld A,(Xon)
+and A,0x01
+jp z,cmd_xoff
+ld A,(new_imask)
+or A,0x01
+ld (new_imask),A
+ld A,0x01
+ld (mmu_dva),A
+jp cmd_rst_cp
+cmd_xoff:
+ld A,(new_imask)
+and A,0xFE
+ld (new_imask),A
+jp cmd_rst_cp
 
 ; Reset the command processor.
 cmd_rst_cp:
 ld (mmu_cpr),A   
 
-ld A,(Srun)
-push A
-pop B
-ld A,(Scurrent)
-and A,B
-ld (mmu_stc),A
+; Restore some registers.
+pop E
+pop D
+pop L
+pop H
+pop IX
 
 ; Un-boost the CPU.
 ld A,0x00           ; Clear bit zero to zero.
@@ -471,11 +520,10 @@ ld (mmu_bcc),A      ; Move CPU back to slow RCK.
 ld (mmu_etc),A      ; Stop the transmit clock.
   
 ; Set the interrupt mask.
-ld A,(temp_imask)
+ld A,(new_imask)
 ld (mmu_imsk),A
 
 ; Restore registers and return.
-pop IX
 pop A
 pop F
 ret
