@@ -37,7 +37,8 @@
 -- command bytes stored in the command memory. The CPU needs this count to tell it when the list
 -- of commands ends. Add modulation of ONL with four-bit counter that runs all the time off RCK.
 -- The CPU sets duty cycle with stimulus current location, writing a value 0-15. Disable two of 
--- the four interrupt timers.
+-- the four interrupt timers. Change "test point register" to "diagnostic flag register" and restore
+-- readback that we have inadvertently removed.
 
 
 library ieee;  
@@ -98,7 +99,7 @@ entity main is
 	constant mmu_tcf  : integer := 14; -- Transmit Clock Frequency
 	constant mmu_tcd  : integer := 15; -- Transmit Clock Divider
 	constant mmu_bcc  : integer := 16; -- Boost CPU Clock
-	constant mmu_tpr  : integer := 17; -- Test Point Register
+	constant mmu_dfr  : integer := 17; -- Diagnostic Flag Register
 	constant mmu_sr   : integer := 18; -- Status Register
 	constant mmu_cch  : integer := 19; -- Command Count HI Byte
 	constant mmu_ccl  : integer := 20; -- Command Count LO Byte
@@ -162,8 +163,8 @@ architecture behavior of main is
 -- Boost Controller
 	signal BOOST : boolean;
 	
--- Writeable Test Points
-	signal tp_reg : std_logic_vector(7 downto 0) := (others => '0');
+-- Diagnostic Flag Register
+	signal df_reg : std_logic_vector(3 downto 0) := (others => '0');
 
 -- Program Memory Signals
 	signal prog_data : std_logic_vector(7 downto 0); -- ROM Data
@@ -376,6 +377,7 @@ begin
 					when mmu_sdb => cpu_data_in <= sensor_bits_in;
 					when mmu_irqb => cpu_data_in <= int_bits;
 					when mmu_imsk => cpu_data_in <= int_mask;
+					when mmu_dfr => cpu_data_in(3 downto 0) <= df_reg;
 					when mmu_tcf => cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
 					when mmu_sr => 
 						cpu_data_in(0) <= to_std_logic(CMDRDY); -- Command Ready Flag
@@ -409,7 +411,7 @@ begin
 			int_period_3 <= (others => '0');
 			int_period_4 <= (others => '0');
 			stimulus_current <= 0;
-			tp_reg <= (others => '0');
+			df_reg <= (others => '0');
 			int_mask <= (others => '0');
 			CPRST <= true;
 			DACTIVE <= false;
@@ -439,7 +441,7 @@ begin
 						when mmu_etc => ENTCK <= (cpu_data_out(0) = '1');
 						when mmu_tcd => tck_divisor <= to_integer(unsigned(cpu_data_out));
 						when mmu_bcc => BOOST <= (cpu_data_out(0) = '1');
-						when mmu_tpr => tp_reg <= cpu_data_out;
+						when mmu_dfr => df_reg <= cpu_data_out(3 downto 0);
 						when mmu_crst => CPRST <= true;
 						-- Disable one or more of the eight-bit interrupt timers, and have
 						-- their resources freed by commenting out lines below.
@@ -1242,18 +1244,19 @@ begin
 	end process;
 
 -- Test Point One appears on P4-1.
-	TP1 <= tp_reg(1);
+	TP1 <= df_reg(0);
 	
 -- Test Point Two appears on P4-2.
-	TP2 <= tp_reg(2);
+	TP2 <= df_reg(1);
 
 -- Test Point Three appears on P4-3 after the programming connector is removed.
-	TP3 <= to_std_logic(CMDRDY);
+--	TP3 <= to_std_logic(CMDRDY);
+TP3 <= df_reg(2);
 
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
 -- this output is almost always HI, and the programming extension is still 
 -- attached, quiescent current increases by 250 uA.
-	TP4 <= to_std_logic(FHI);
-	
+--	TP4 <= to_std_logic(FHI);
+TP4 <= df_reg(3);
 end behavior;

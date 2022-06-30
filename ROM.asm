@@ -36,7 +36,7 @@ const mmu_etc  0x080D ; Enable Transmit Clock
 const mmu_tcf  0x080E ; Transmit Clock Frequency
 const mmu_tcd  0x080F ; Transmit Clock Divider
 const mmu_bcc  0x0810 ; Boost CPU Clock
-const mmu_tpr  0x0811 ; Test Point Register
+const mmu_dfr  0x0811 ; Diagnostic Flag Register
 const mmu_sr   0x0812 ; Status Register
 const mmu_cch  0x0813 ; Command Count HI
 const mmu_ccl  0x0814 ; Command Count LO
@@ -55,13 +55,19 @@ const sr_txa     0x10 ; Transmit Active Flag
 const sr_cpa     0x20 ; Command Processor Active
 const sr_rp      0x40 ; Receive Power
 
+; Bit Masks
+const bit0_mask  0x01 ; Bit Zero Mask
+const bit1_mask  0x02 ; Bit One Mask
+const bit2_mask  0x04 ; Bit  Two Mask
+const bit3_mask  0x08 ; Bit Three Mask
+
 ; Timing Constants.
 const min_tcf       75  ; Minimum TCK periods per half RCK period.
 const tx_delay      50  ; Wait time for sample transmission, TCK periods.
 const sa_delay      70  ; Wait time for sensor access, TCK periods.
 const num_vars     255  ; Number of vars to clear at start.
 const initial_tcd   15  ; Max possible value of TCK divisor.
-const clock_inc     33  ; Number of RCK periods between clock increments.
+const clock_period  33  ; Clock interrupt period.
 
 ; Variable Locations
 const ramp_ctr    0x0000 ; A counter to generate a ramp.
@@ -77,18 +83,20 @@ const Srun        0x0009 ; Run stimulus
 const Sack_key    0x000A ; Acknowledgement key
 const cmd_cnt_h   0x000B ; Command Count, HI
 const cmd_cnt_l   0x000C ; Command Count, LO
-const xmit_period 0x000D ; Transmit Period
-const clock0      0x000E ; Byte Zero of Clock
-const clock1      0x000F ; Byte One of Clock
-const clock2      0x0010 ; Byte Two of Clock
-const clock0c     0x0011 ; Byte Zero of Clock Copy
-const clock1c     0x0012 ; Byte One of Clock Copy
-const clock2c     0x0013 ; Byte Two of Clock Copy
+const xmit_T      0x000D ; Transmit Period
+const Spcnt1      0x000E ; Stimulus Pulse Counter Byte One
+const Spcnt0      0x000F ; Stimulus Pulse Counter Byte Zero
+const Sicnt2      0x0010 ; Stimulus Interval Counter Byte Two
+const Sicnt1      0x0011 ; Stimulus Interval Counter Byte One
+const Sicnt0      0x0012 ; Stimulus Interval Counter Byte Zero
+const Sistart     0x0013 ; Stimulus Interval Start
+const Sprun       0x0014 ; Stimulus Pulse Run
+const xmit_ch     0x0015 ; Transmit Channel
 
 ; Operation Codes
 const op_stop_stim   0 ; 0 operands
 const op_start_stim  1 ; 0 operands
-const op_config      2 ; 1 operand
+const op_xmit        2 ; 2 operand
 const op_current     3 ; 1 operand
 const op_pulse_h     4 ; 1 operand
 const op_pulse_l     5 ; 1 operand
@@ -155,37 +163,62 @@ ld A,0x01           ; Set bit zero to one.
 ld (mmu_etc),A      ; Enable the transmit clock, TCK.
 ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
 push F              ; Save the flags onto the stack.
-ld A,(mmu_tpr)      ; Load the test point register.
-or A,0x01           ; Set bit zero and
-ld (mmu_tpr),A      ; write to test point register.
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+or A,bit0_mask      ; set bit zero and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
 
-; Deal with clock interrupt, if it exists. We increment the
-; clock by the clock period.
+; Handle the stimulus interrupt, if it exists. We decrement the stimulus
+; interval and pulse counters and set the stimulus flags for the main 
+; program to use.
 ld A,(mmu_irqb)     ; Read the interrupt request bits     
-and A,0x02          ; and test bit one,
+and A,bit1_mask     ; and test bit one,
 jp z,int_xmit       ; skip increment if not set.
-ld A,(clock0)       ; Read clock0
-add A,clock_inc     ; add the clock period.
-ld (clock0),A       ; and save.
-ld A,(clock1)       ; Read clock1,
-adc A,0             ; increment if necessary,
-ld (clock1),A       ; and save.
-ld A,(clock2)       ; read clock2
-adc A,0             ; increment
-ld (clock2),A       ; and save.
 
-; Deal with transmit interrupt, if it exists. We will transmit a synchronizing
+ld A,bit1_mask      ; Reset this interrupt
+ld (mmu_irst),A     ; with the bit one mask.
+
+ld A,(Sicnt0)
+sub A,clock_period
+ld (Sicnt0),A
+ld A,(Sicnt1)
+sbc A,0
+ld (Sicnt1),A
+ld A,(Sicnt2)
+sbc A,0
+ld (Sicnt2),A
+jp nc,int_Si_not_done
+ld A,1
+ld (Sistart),A
+
+int_Si_not_done:
+ld A,(Sprun)
+add A,0
+jp z,int_xmit
+ld A,(Spcnt0)
+sub A,clock_period
+ld (Spcnt0),A
+ld A,(Spcnt1)
+sbc A,0
+ld (Spcnt1),A
+jp nc,int_xmit
+ld A,0
+ld (Sprun),A
+
+; Handle the transmit interrupt, if it exists. We will transmit a synchronizing
 ; message. We won't wait for the transmission to complete because we are certain
 ; to follow our transmission with at least one RCK period when we move out of
 ; boost at the end of the interrupt routine, and not other transmissions will
 ; take place in the interrupt.
 int_xmit:
+ld A,bit0_mask      ; Reset this interrupt
+ld (mmu_irst),A     ; with the bit zero mask.
+
 ld A,(mmu_irqb)     ; Read the interrupt request bits
-and A,0x01          ; and test bit zero, 
+and A,bit0_mask     ; and test bit zero, 
 jp z,int_done       ; skip transmit if not set.
 ld A,rf_lo          ; Set the low radio frequency
 ld (mmu_xfc),A      ; for sample transmission
-ld A,(xmit_period)  ; Load A with channel number.
+ld A,(xmit_ch)      ; Load A with channel number.
 ld (mmu_xcn),A      ; Write the channel number.
 ld A,(ramp_ctr)     ; Load A with ramp counter.
 ld (mmu_xhb),A      ; Write counter to transmit HI byte.
@@ -198,35 +231,15 @@ ld (mmu_xcr),A      ; Provokes transmission
 ; We clear our flag, reset all interrupts, move out of boost, restore
 ; registers and return from interrupt.
 int_done:
-ld A,(mmu_tpr)      ; Load the test point register.
-and A,0xFE          ; Clear bit zero and
-ld (mmu_tpr),A      ; write to test point register.
-ld A,0xFF           ; Set all bits to one and use to
-ld (mmu_irst),A     ; reset all interrupts.
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+xor A,bit0_mask     ; Clear bit zero and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
 ld A,0x00           ; Clear bit zero to zero.
 ld (mmu_bcc),A      ; Move CPU back to slow RCK.
 ld (mmu_etc),A      ; Stop the transmit clock.
 pop F               ; Restore the flags.
 pop A               ; Restore A.
 rti                 ; Return from interrupt.
-
-
-; -----------------------------------------------------------
-; Transfer the clock to clock copy. We disable interrupts while 
-; we fetch the value so it won't be incremented while we read it.
-get_ms_timer:
-seti                ; Disable interrupts.
-push A              ; Push A to preserve.
-ld A,(clock0)      
-ld (clock0c),A
-ld A,(clock1) 
-ld (clock1c),A     
-ld A,(clock2) 
-ld (clock2c),A     
-pop A               ; Restore A.
-clri                ; Ensble interrupts.
-ret                 ; Return.
-
 
 ; -----------------------------------------------------------
 ; Decrement the command count. The decrement does not allow
@@ -250,6 +263,15 @@ pop A
 pop F
 ret
 
+; ------------------------------------------------------------
+; Transmit an acknowledgement.
+xmit_ack:
+ret
+
+; ------------------------------------------------------------
+; Transmit a battery measurement.
+xmit_batt:
+ret
 
 ; ------------------------------------------------------------
 ; Read out, interpret, and execute comands. Uses the global command
@@ -286,8 +308,7 @@ jp c,cmd_done
 ; Load IX with the base of the command memory to start reading bytes.
 ld IX,mmu_cmem
 
-; Check the command id. First, load the command identifier in DE and the
-; device's own identifier in HL.
+; Load the device id into HL and the command's device id into DE.
 ld HL,device_id
 ld A,(IX)
 push A
@@ -300,7 +321,7 @@ pop E
 inc IX
 call dec_cmd_cnt
 
-; Check to see if HL = CD.
+; Check to see if HL = DE. If so, we'll process this command.
 push L
 pop B
 push E
@@ -330,23 +351,29 @@ jp nz,cmd_done
 ; command byte we want to process.
 cmd_loop_start:
 
-; Start a pulse on test point two.
-ld A,(mmu_tpr)     
-or A,0x04         
-ld (mmu_tpr),A 
+; Start a pulse on diagnostic flag two.
+ld A,(mmu_dfr)     
+or A,bit2_mask         
+ld (mmu_dfr),A 
 
-; End pulse on test point 2.
-ld A,(mmu_tpr)
-and A,0xFB       
-ld (mmu_tpr),A 
+; End pulse on diagnostic flag two.
+ld A,(mmu_dfr)
+xor A,bit2_mask     
+ld (mmu_dfr),A 
 
 ; Identify and execute operation codes.
+
+
 check_stop_stim:
 ld A,(IX)
 sub A,op_stop_stim
 jp nz,check_start_stim
-ld A,0x00
+ld A,0
 ld (Srun),A
+ld (mmu_stc),A
+ld A,(mmu_imsk)
+xor A,bit1_mask
+ld (mmu_imsk),A
 inc IX
 call dec_cmd_cnt
 jp cmd_loop_end
@@ -354,25 +381,39 @@ jp cmd_loop_end
 check_start_stim:
 ld A,(IX)
 sub A,op_start_stim
-jp nz,check_config
+jp nz,check_xmit
 ld A,0x01
 ld (Srun),A
+ld (Sistart),A
+ld A,0
+ld (Sicnt0),A
+ld (Sicnt1),A
+ld (Sicnt2),A
+ld A,clock_period
+ld (mmu_it2p),A
+ld A,(mmu_imsk)
+or A,bit1_mask
+ld (mmu_imsk),A
 inc IX
 call dec_cmd_cnt
 jp cmd_loop_end
 
-check_config:
+check_xmit:
 ld A,(IX)
-sub A,op_config
+sub A,op_xmit
 jp nz,check_current
 inc IX
 call dec_cmd_cnt
 ld A,(IX)
-ld (xmit_period),A
+ld (xmit_ch),A
 inc IX
 call dec_cmd_cnt
 ld A,(IX)
-ld (xmit_period),A
+ld (xmit_T),A
+ld (mmu_it1p),A
+ld A,(mmu_imsk)
+or A,bit0_mask
+ld (mmu_imsk),A
 inc IX
 call dec_cmd_cnt
 jp cmd_loop_end
@@ -483,14 +524,14 @@ ld A,(IX)
 ld (Sack_key),A
 inc IX
 call dec_cmd_cnt
-; Transmit acknowledgement.
+call xmit_ack
 jp cmd_loop_end
 
 check_battery:
 ld A,(IX)
 sub A,op_battery
 jp nz,cmd_done
-; Transmit battery measurement.
+call xmit_batt
 inc IX
 call dec_cmd_cnt
 jp cmd_loop_end
@@ -499,59 +540,36 @@ cmd_loop_end:
 
 ; Check the number of bytes remaining to be read.
 ld A,(cmd_cnt_h)
-and A,0xFF
+add A,0
 jp nz,cmd_loop_start
 ld A,(cmd_cnt_l)
-and A,0xFF
+add A,0
 jp nz,cmd_loop_start
 
 cmd_done:
 
-; Set device active false by default.
+; By default, we are going to let the device turn off after we
+; finish with this command.
 ld A,0x00
 ld (mmu_dva),A
 
-; Set the new interrupt mask to enable the millisecond timer only.
-ld A,0x02
-ld (mmu_imsk),A
-
-; Check Srun. If it's true, this could be because it was true before. We
-; ensure the device will remain active, but we don't change the stimulus
-; current, because we don't want to interrupt a pre-existing stimulus. If
-; Srun is false, we set the current to zero.
+; Check Srun. If it's true, we keep the device active.
 cmd_check_srun:
 ld A,(Srun)
 and A,0x01
+jp z,cmd_check_srun_done
 ld A,0x01
 ld (mmu_dva),A
-jp cmd_check_xon
-cmd_soff:
-ld A,0
-ld (mmu_stc),A
-jp cmd_check_xon
+cmd_check_srun_done:
 
-; Check Xmit period. If it's non-zero, we keep the device active, set the
-; transmit period and enable the transmit interrupt. If tranmission was 
-; running previously, it will continue, but the period and channel number
-; might change. We don't set the channel number here because we allow for
-; several types of transmission, each with its own channel number.
+; Check Xmit period. If it's non-zero, we keep the device active.
 cmd_check_xon:
-ld A,(xmit_period)
-and A,0xFF
-jp z,cmd_xoff
-ld A,(mmu_imsk)
-or A,0x01
-ld (mmu_imsk),A
+ld A,(xmit_T)
+add A,0
+jp z,cmd_check_xon_done
 ld A,0x01
 ld (mmu_dva),A
-ld A,(xmit_period)
-ld (mmu_it1p),A
-jp cmd_rst_cp
-cmd_xoff:
-ld A,(mmu_imsk)
-and A,0xFE
-ld (mmu_imsk),A
-jp cmd_rst_cp
+cmd_check_xon_done:
 
 ; Reset the command processor.
 cmd_rst_cp:
@@ -597,36 +615,31 @@ inc IX
 dec B
 jp nz,vmem_clr
 
+; Zero some registers.
+ld A,0
+ld (mmu_stc),A
+
 ; Calibrate the transmit clock.
 call calibrate_tck
 
-; Set the stimulus current.
-ld A,(Scurrent)
-ld (mmu_stc),A
-
-; Set interrupt timer interval and enable the timer interrupt to implement
-; the sample period. The value we want to load into the interrup timer period 
-; register is the sample period minus one.
+; Reset and disable all interrupts.
 ld A,0xFF            ; Load A with ones
 ld (mmu_irst),A      ; and reset all interrupts.
-ld A,clock_inc       ; Load A with the clock period,
-dec A                ; decrement,
-ld (mmu_it2p),A      ; and assign to the first interrupt timer.
-ld A,0x02            ; Load a one into bit one
-ld (mmu_imsk),A      ; and enable the millisecond second timer.
+ld A,0x00            ; Load zeros
+ld (mmu_imsk),A      ; and disable all interrupts.
 
 ; The main event loop.
 main_loop:
 
-; Start a pulse on test point one.
-ld A,(mmu_tpr)      ; Load the test point register.
-or A,0x02           ; Set bit one and
-ld (mmu_tpr),A      ; write to test point register.
+; Set diagnostif flag one.
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+or A,bit1_mask      ; Set bit one and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
 
-; Stop the pulse on test point one.
-ld A,(mmu_tpr)      ; Load the test point register.
-and A,0xFD          ; Clear bit one and
-ld (mmu_tpr),A      ; write to test point register.
+; Clear diagnostic flag one.
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+xor A,bit1_mask     ; Clear bit one and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
 
 ; Deal with any pending commands.
 ld A,(mmu_sr)       ; Fetch status register.
@@ -635,12 +648,74 @@ jp z,no_cmd         ; Jump if it's clear,
 call cmd_execute    ; execute command if it's set.
 no_cmd:
 
-; Keep track of stimulus here. For now we are just turning the lamp on.
+; Keep track of stimulus here. 
 ld A,(Srun)
 and A,0x01
 jp z,no_stim
+
+ld A,(Sistart)
+add A,0
+jp z,no_stim
+
+; Disable interrupts so we can boost the CPU and read the
+; interval counter without risking the interrupt routine 
+; changing its value while we are reading.
+seti                ; Disable interrupts.
+ld A,0x01           ; Set bit zero to one.
+ld (mmu_etc),A      ; Enable the transmit clock, TCK.
+ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
+
+; Add the stimulus interval to the stimulus interval counter.
+; The stimulus interval consists of two bytes, which we add to
+; the top two bytes of the counter.
+ld A,(Sinterval_l)
+push A
+pop B
+ld A,(Sicnt1)
+add A,B
+ld (Sicnt1),A
+ld A,(Sinterval_h)
+push A
+pop B
+ld A,(Sicnt2)
+adc A,B
+ld (Sicnt2),A
+
+; Clear our diagnostic flag, go back to slow clock and clear
+; the Sistart flag, enable interrupts.
+ld (Sistart),A      ; Clear interval start flag.
+ld A,0x00           ; Clear bit zero to zero.
+ld (mmu_bcc),A      ; Move CPU back to slow RCK.
+ld (mmu_etc),A      ; Stop the transmit clock.
+clri
+
+; Turn on the lamp and wait for the pulse length to pass, then
+; turn the lamp off again.
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+or A,bit3_mask      ; set bit two mask and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
+
 ld A,(Scurrent)     
 ld (mmu_stc),A
+
+ld A,(Spulse_l)
+ld (Spcnt0),A
+ld A,(Spulse_h)
+ld (Spcnt1),A
+ld A,1
+ld (Sprun),A
+await_pulse:
+ld A,(Sprun)
+add A,0
+jp nz,await_pulse
+
+ld A,0
+ld (mmu_stc),A
+
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+xor A,bit3_mask     ; clear bit two mask and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
+
 no_stim:
 
 jp main_loop        ; Repeat the main loop.
