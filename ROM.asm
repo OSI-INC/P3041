@@ -9,10 +9,8 @@
 ; TCK pin is connected to FHI.
 
 ; Calibration Constants
-const tx_frequency      5  ; Transmit frequency calibration
+const rf_lo             5  ; Transmit frequency calibration
 const device_id    0xA123  ; Will be used as the first channel number.
-const xmit_period     255  ; Transmit period minus one, RCK periods.
-const xmit_channel   0x23  ; Transmit channel.
 
 ; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
@@ -80,6 +78,7 @@ const cmd_cnt_h   0x000B ; Command Count, HI
 const cmd_cnt_l   0x000C ; Command Count, LO
 const Xon         0x000D ; Transmit On
 const new_imask   0x000E ; Temporary Interrupt Mask
+const xmit_period 0x000F ; Transmit period minus one, RCK periods.
 
 ; Operation Codes
 const op_stop_stim   0 ; 0 operands
@@ -152,10 +151,10 @@ ld A,(mmu_tpr)      ; Load the test point register.
 or A,0x01           ; Set bit zero and
 ld (mmu_tpr),A      ; write to test point register.
 
-ld A,tx_frequency   ; Set the low radio frequency
+ld A,rf_lo          ; Set the low radio frequency
 ld (mmu_xfc),A      ; for sample transmission
 
-ld A,xmit_channel   ; Load A with channel number.
+ld A,(Xon)          ; Load A with channel number.
 ld (mmu_xcn),A      ; Write the channel number.
 
 ld A,(ramp_ctr)     ; Load A with ramp counter.
@@ -335,6 +334,10 @@ ld A,(IX)
 ld (Xon),A
 inc IX
 call dec_cmd_cnt
+ld A,(IX)
+ld (xmit_period),A
+inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
 check_current:
@@ -489,13 +492,15 @@ jp cmd_check_xon
 ; Check Xon
 cmd_check_xon:
 ld A,(Xon)
-and A,0x01
+and A,0xFF
 jp z,cmd_xoff
 ld A,(new_imask)
 or A,0x01
 ld (new_imask),A
 ld A,0x01
 ld (mmu_dva),A
+ld A,(xmit_period)
+ld (mmu_it1p),A
 jp cmd_rst_cp
 cmd_xoff:
 ld A,(new_imask)
@@ -564,10 +569,8 @@ ld (mmu_stc),A
 ; register is the sample period minus one.
 ld A,0xFF            ; Load A with ones
 ld (mmu_irst),A      ; and reset all interrupts.
-ld A,xmit_period     ; Load A with transmit period minus one
-ld (mmu_it1p),A      ; and write to timer one period.
-ld A,0x01            ; Set bit zero of A to one and use
-ld (mmu_imsk),A      ; to enable timer one interrupt.
+ld A,0x00            ; Load A with zeros
+ld (mmu_imsk),A      ; and disable all interrupts.
 
 ; The main event loop.
 main_loop:
