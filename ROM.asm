@@ -61,7 +61,7 @@ const tx_delay      50  ; Wait time for sample transmission, TCK periods.
 const sa_delay      70  ; Wait time for sensor access, TCK periods.
 const num_vars     255  ; Number of vars to clear at start.
 const initial_tcd   15  ; Max possible value of TCK divisor.
-const ms_period     33  ; Close to 1 ms for RCK period.
+const clock_inc     33  ; Number of RCK periods between clock increments.
 
 ; Variable Locations
 const ramp_ctr    0x0000 ; A counter to generate a ramp.
@@ -78,9 +78,12 @@ const Sack_key    0x000A ; Acknowledgement key
 const cmd_cnt_h   0x000B ; Command Count, HI
 const cmd_cnt_l   0x000C ; Command Count, LO
 const xmit_period 0x000D ; Transmit Period
-const ms0         0x000E ; Byte Zero of Millisecond Timer
-const ms1         0x000F ; Byte One of Millisecond Timer
-const ms2         0x0010 ; Byte Two of Millisecond Timer
+const clock0      0x000E ; Byte Zero of Clock
+const clock1      0x000F ; Byte One of Clock
+const clock2      0x0010 ; Byte Two of Clock
+const clock0c     0x0011 ; Byte Zero of Clock Copy
+const clock1c     0x0012 ; Byte One of Clock Copy
+const clock2c     0x0013 ; Byte Two of Clock Copy
 
 ; Operation Codes
 const op_stop_stim   0 ; 0 operands
@@ -106,6 +109,7 @@ const op_battery    13 ; 0 operands
 start: 
 jp main
 jp interrupt
+
 
 ; ------------------------------------------------------------
 ; Calibrate the transmit clock frequency. We take the CPU out
@@ -139,9 +143,10 @@ pop B            ; Restore B
 pop A            ; Restore A
 ret              ; Return from subroutine
 
+
 ; ------------------------------------------------------------
-; The interrupt routine. Handles data transmission and millisecond timer
-; increment. Runs with CPU in boost to save time.
+; The interrupt routine. Handles data transmission and clock.
+; Runs with CPU in boost to save time.
 interrupt:
 
 ; Push A onto the stack, boost CPU, push F, and generate a flag.
@@ -154,22 +159,20 @@ ld A,(mmu_tpr)      ; Load the test point register.
 or A,0x01           ; Set bit zero and
 ld (mmu_tpr),A      ; write to test point register.
 
-; Deal with millisecond timer interrupt, if it exists. We will increment
-; the millisecond timer.
+; Deal with clock interrupt, if it exists. We increment the
+; clock by the clock period.
 ld A,(mmu_irqb)     ; Read the interrupt request bits     
 and A,0x02          ; and test bit one,
 jp z,int_xmit       ; skip increment if not set.
-ld A,(ms0)          ; Read ms0
-inc A               ; increment
-ld (ms0),A          ; and save.
-jp nz,int_xmit      ; Skip forward if not zero.
-ld A,(ms1)          ; Read ms1
-inc A               ; increment
-ld (ms1),A          ; and save.
-jp nz,int_xmit      ; Skip forward if not zero.
-ld A,(ms2)          ; read ms2
-inc A               ; increment
-ld (ms2),A          ; and save.
+ld A,(clock0)       ; Read clock0
+add A,clock_inc     ; add the clock period.
+ld (clock0),A       ; and save.
+ld A,(clock1)       ; Read clock1,
+adc A,0             ; increment if necessary,
+ld (clock1),A       ; and save.
+ld A,(clock2)       ; read clock2
+adc A,0             ; increment
+ld (clock2),A       ; and save.
 
 ; Deal with transmit interrupt, if it exists. We will transmit a synchronizing
 ; message. We won't wait for the transmission to complete because we are certain
@@ -209,24 +212,21 @@ rti                 ; Return from interrupt.
 
 
 ; -----------------------------------------------------------
-; Transfer the millisecond timer into HLE. We have to disable
-; interrupts while we fetch the value so it won't be incremented
-; while we read it.
+; Transfer the clock to clock copy. We disable interrupts while 
+; we fetch the value so it won't be incremented while we read it.
 get_ms_timer:
 seti                ; Disable interrupts.
 push A              ; Push A to preserve.
-ld A,(ms0)          ; Put ms0 in E
-push A
-pop E
-ld A,(ms1)          ; Put ms1 in L.
-push A
-pop L
-ld A,(ms2)          ; Put ms2 in H.
-push A
-pop H
+ld A,(clock0)      
+ld (clock0c),A
+ld A,(clock1) 
+ld (clock1c),A     
+ld A,(clock2) 
+ld (clock2c),A     
 pop A               ; Restore A.
 clri                ; Ensble interrupts.
 ret                 ; Return.
+
 
 ; -----------------------------------------------------------
 ; Decrement the command count. The decrement does not allow
@@ -249,6 +249,7 @@ dec_cmd_cnt_nz:
 pop A
 pop F
 ret
+
 
 ; ------------------------------------------------------------
 ; Read out, interpret, and execute comands. Uses the global command
@@ -522,11 +523,11 @@ cmd_check_srun:
 ld A,(Srun)
 and A,0x01
 ld A,0x01
-ld (mmu_dva),A        ; Keep device active if stimulus running.
+ld (mmu_dva),A
 jp cmd_check_xon
 cmd_soff:
 ld A,0
-ld (mmu_stc),A        ; Set stimulus current to zero if stimulus stopped.
+ld (mmu_stc),A
 jp cmd_check_xon
 
 ; Check Xmit period. If it's non-zero, we keep the device active, set the
@@ -564,12 +565,10 @@ pop H
 pop IX
 pop F
 
-; Un-boost the CPU.
+; Un-boost the CPU and exit.
 ld A,0x00           ; Clear bit zero to zero.
 ld (mmu_bcc),A      ; Move CPU back to slow RCK.
 ld (mmu_etc),A      ; Stop the transmit clock.
-
-; Exit.
 pop A               ; Restore A.
 clri                ; Ensble interrupts  
 ret                 ; Return
@@ -610,9 +609,10 @@ ld (mmu_stc),A
 ; register is the sample period minus one.
 ld A,0xFF            ; Load A with ones
 ld (mmu_irst),A      ; and reset all interrupts.
-ld A,ms_period       ; Load A with the millisecond period
-ld (mmu_it2p),A      ; and assign to the second interrupt timer.
-ld A,0x02            ; Load A a one in bit one
+ld A,clock_inc       ; Load A with the clock period,
+dec A                ; decrement,
+ld (mmu_it2p),A      ; and assign to the first interrupt timer.
+ld A,0x02            ; Load a one into bit one
 ld (mmu_imsk),A      ; and enable the millisecond second timer.
 
 ; The main event loop.
@@ -635,14 +635,14 @@ jp z,no_cmd         ; Jump if it's clear,
 call cmd_execute    ; execute command if it's set.
 no_cmd:
 
-; Keep track of stimulus here.
+; Keep track of stimulus here. For now we are just turning the lamp on.
 ld A,(Srun)
 and A,0x01
 jp z,no_stim
-ld A,(Scurrent)      ; For now we are just turning the lamp on.
+ld A,(Scurrent)     
 ld (mmu_stc),A
 no_stim:
 
 jp main_loop        ; Repeat the main loop.
 
-; --------------------------------------------------------------------
+; ---------------------------------------------------------------
