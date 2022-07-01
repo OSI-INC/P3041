@@ -1252,7 +1252,6 @@ begin
 -- Test Point Three appears on P4-3 after the programming connector is removed.
 --	TP3 <= to_std_logic(CMDRDY);
 TP3 <= df_reg(2);
-
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
 -- this output is almost always HI, and the programming extension is still 

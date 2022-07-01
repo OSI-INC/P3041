@@ -9,8 +9,9 @@
 ; TCK pin is connected to FHI.
 
 ; Calibration Constants
-const rf_lo             5  ; Transmit frequency calibration
-const device_id    0xA123  ; Will be used as the first channel number.
+const rf_lo             5 ; Transmit frequency calibration
+const device_id    0xA123 ; Will be used as the first channel number.
+const def_xmit_ch      23 ; Default transmit channel.
 
 ; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
@@ -70,13 +71,14 @@ const initial_tcd   15  ; Max possible value of TCK divisor.
 const stim_tick     33  ; Stimulus interrupt period.
 
 ; Variable Locations
-const Scurrent    0x0001 ; Stimulus Current
-const Spulse_h    0x0002 ; Pulse Length, HI
-const Spulse_l    0x0003 ; Pulse Length, LO
-const Sinterval_h 0x0004 ; Interval Length, HI
-const Sinterval_l 0x0005 ; Interval Length, LO
-const Slength_h   0x0006 ; Stimulus Length, HI
-const Slength_l   0x0007 ; Stimulus Length, LO
+const Scurrent    0x0000 ; Stimulus Current
+const Spulse_1    0x0001 ; Pulse Length, HI
+const Spulse_0    0x0002 ; Pulse Length, LO
+const Sinterval_2 0x0003 ; Interval Length, HI
+const Sinterval_1 0x0004 ; Interval Length, HI
+const Sinterval_0 0x0005 ; Interval Length, LO
+const Slength_1   0x0006 ; Stimulus Length, HI
+const Slength_0   0x0007 ; Stimulus Length, LO
 const Srandomize  0x0008 ; Randomise
 const Srun        0x0009 ; Run stimulus
 const Sack_key    0x000A ; Acknowledgement key
@@ -89,29 +91,21 @@ const Sicnt2      0x0010 ; Stimulus Interval Counter Byte Two
 const Sicnt1      0x0011 ; Stimulus Interval Counter Byte One
 const Sicnt0      0x0012 ; Stimulus Interval Counter Byte Zero
 const Sistart     0x0013 ; Stimulus Interval Start
-const Sprun       0x0014 ; Stimulus Pulse Run
-const xmit_ch     0x0015 ; Transmit Channel
-const Rcnt1       0x0016 ; Ramp Counter Byte One
-const Rcnt0       0x0017 ; Ramp Counter Byte Zero
+const xmit_ch     0x0014 ; Transmit Channel
+const Rcnt1       0x0015 ; Ramp Counter Byte One
+const Rcnt0       0x0016 ; Ramp Counter Byte Zero
+const Sprun       0x0017 ; Stimulus Pulse Run Flag
 
 ; Operation Codes
 const op_stop_stim   0 ; 0 operands
-const op_start_stim  1 ; 0 operands
+const op_start_stim  1 ; 7 operands
 const op_xmit        2 ; 2 operands
-const op_current     3 ; 1 operand
-const op_pulse_h     4 ; 1 operand
-const op_pulse_l     5 ; 1 operand
-const op_interval_h  6 ; 1 operand
-const op_interval_l  7 ; 1 operand
-const op_length_h    8 ; 1 operand
-const op_length_l    9 ; 1 operand
-const op_randomize  10 ; 1 operand
-const op_select     11 ; 1 operand
-const op_ack        12 ; 1 operand
-const op_battery    13 ; 0 operands
+const op_ack         3 ; 1 operand
+const op_battery     4 ; 1 operand
+const op_randomize   5 ; 1 operand
 
 ; Diagnostic constants.
-const ramp_slope   133 ; Change per sample.
+const ramp_slope     7 ; Change per sample.
 
 ; ------------------------------------------------------------
 ; The CPU reserves two locations 0x0000 for the start of program
@@ -160,13 +154,13 @@ ret              ; Return from subroutine.
 ; Runs with CPU in boost to save time.
 interrupt:
 
-; Push A onto the stack, boost CPU, push F, and generate a diagnosit 
-; flag to mark the interrupt.
+; Push A onto the stack, boost CPU, push F.
 push A              ; Save A on stack
 ld A,0x01           ; Set bit zero to one.
 ld (mmu_etc),A      ; Enable the transmit clock, TCK.
 ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
 push F              ; Save the flags onto the stack.
+
 ld A,(mmu_dfr)      ; Load the diagnostic flag register.
 or A,bit0_mask      ; set bit zero and
 ld (mmu_dfr),A      ; write to diagnostic flag register.
@@ -194,20 +188,27 @@ ld (Sicnt2),A       ; and write to memory.
 jp nc,int_Spulse    ; If the result is >=0, jump,
 ld A,1              ; but if <0,
 ld (Sistart),A      ; set Sistart flag.
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+or A,bit1_mask      ; Set bit one and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
 
 int_Spulse:
-ld A,(Sprun)        ; Check Stimulus Pulse Run flag
-add A,0             ; and if it is set,
+ld A,(Sprun)        ; Check the stimulus pulse flag
+add A,0             ; and if it is zero,
 jp z,int_xmit       ; jump forwards.
-ld A,(Spcnt0)       ; Load Stimulus Pulse Counter Byte Zero,
+ld A,(Spcnt0)       ; Load stimulus pulse counter byte zero,
 sub A,stim_tick     ; subtract the stimulus tick,
-ld (Spcnt0),A       ; and write to memory.
-ld A,(Spcnt1)       ; Load byte one,
+ld (Spcnt0),A       ; and write the result to memory.
+ld A,(Spcnt1)       ; Load counter byte one,
 sbc A,0             ; continue subtraction with carry,
 ld (Spcnt1),A       ; and write to memory.
-jp nc,int_xmit      ; If the result is >=0, jump,
+jp nc,int_xmit      ; If the result is >=0, we're done,
 ld A,0              ; but if <0,
-ld (Sprun),A        ; clear the Sprun flag.
+ld (mmu_stc),A      ; turn off the lamp
+ld (Sprun),A        ; and clear the pulse flag.
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+xor A,bit3_mask     ; clear bit three mask and
+ld (mmu_dfr),A      ; write to diagnostic flag register.=
 
 ; Handle the transmit interrupt, if it exists. We won't wait for the transmission
 ; to complete because we are certain to follow our transmission with at least one
@@ -234,12 +235,14 @@ ld (mmu_xhb),A      ; and write to transmit HI register.
 ld (Rcnt1),A        ; Write new value to memory.
 ld (mmu_xcr),A      ; Initiate transmission
 
-; We clear our diagnostic flag, turn off the transmit clock, move out of boost, 
-; restore registers and return from interrupt.
+; Turn off the transmit clock, move out of boost, restore registers and return 
+; from interrupt.
 int_done:
+
 ld A,(mmu_dfr)      ; Load the diagnostic flag register.
 xor A,bit0_mask     ; Clear bit zero and
 ld (mmu_dfr),A      ; write to diagnostic flag register.
+
 ld A,0x00           ; Clear bit zero and use it to
 ld (mmu_bcc),A      ; move CPU back to slow RCK
 ld (mmu_etc),A      ; and stop the transmit clock.
@@ -367,47 +370,87 @@ ld A,(mmu_dfr)
 xor A,bit2_mask
 ld (mmu_dfr),A
 
-; Identify and execute operation codes.
-
 check_stop_stim:
 ld A,(IX)
 sub A,op_stop_stim
 jp nz,check_start_stim
+inc IX
+call dec_cmd_cnt
 ld A,0
 ld (Srun),A
 ld (mmu_stc),A
 ld A,(mmu_imsk)
 xor A,bit1_mask
 ld (mmu_imsk),A
-inc IX
-call dec_cmd_cnt
 jp cmd_loop_end
 
 check_start_stim:
 ld A,(IX)
 sub A,op_start_stim
 jp nz,check_xmit
+inc IX
+call dec_cmd_cnt
+
+ld A,(IX)
+ld (Scurrent),A
+inc IX
+call dec_cmd_cnt
+
+ld A,(IX)
+ld (Spulse_1),A
+inc IX
+call dec_cmd_cnt
+
+ld A,(IX)
+ld (Spulse_0),A
+inc IX
+call dec_cmd_cnt
+
+ld A,(IX)
+ld (Sinterval_2),A
+inc IX
+call dec_cmd_cnt
+
+ld A,(IX)
+ld (Sinterval_1),A
+inc IX
+call dec_cmd_cnt
+
+ld A,(IX)
+ld (Sinterval_0),A
+inc IX
+call dec_cmd_cnt
+
+ld A,(IX)
+ld (Slength_1),A
+inc IX
+call dec_cmd_cnt
+
+ld A,(IX)
+ld (Slength_0),A
+inc IX
+call dec_cmd_cnt
+
 ld A,0x01                ; Set the
-ld (Srun),A              ; stimulus ran and
+ld (Srun),A              ; stimulus run and
 ld (Sistart),A           ; stimulus start flags.
 ld A,0                   ; Load zero so we can
 ld (Sicnt0),A            ; set the stimulus interval
 ld (Sicnt1),A            ; counter to
 ld (Sicnt2),A            ; zero.
+ld (Sprun),A             ; Clear the pulse run flag.
 ld A,stim_tick           ; Set stimulus interrupt period by loading
 dec A                    ; the period, subtracting one, and writing
 ld (mmu_it2p),A          ; to the timer register.
 ld A,(mmu_imsk)          ; Load the interrupt mask and
 or A,bit1_mask           ; set bit one to enable the
 ld (mmu_imsk),A          ; stimulus interrupt.
-inc IX
-call dec_cmd_cnt
 jp cmd_loop_end
 
 check_xmit:
 ld A,(IX)
 sub A,op_xmit
-jp nz,check_current
+jp nz,check_ack
 inc IX
 call dec_cmd_cnt
 ld A,(IX)
@@ -417,107 +460,18 @@ call dec_cmd_cnt
 ld A,(IX)
 ld (xmit_T),A
 ld (mmu_it1p),A
+inc IX
+call dec_cmd_cnt
+add A,0
+jp z,check_xmit_disable
 ld A,(mmu_imsk)
 or A,bit0_mask
 ld (mmu_imsk),A
-inc IX
-call dec_cmd_cnt
 jp cmd_loop_end
-
-check_current:
-ld A,(IX)
-sub A,op_current
-jp nz,check_pulse_h
-inc IX
-call dec_cmd_cnt
-ld A,(IX)
-ld (Scurrent),A
-inc IX
-call dec_cmd_cnt
-jp cmd_loop_end
-
-check_pulse_h:
-ld A,(IX)
-sub A,op_pulse_h
-jp nz,check_pulse_l
-inc IX
-call dec_cmd_cnt
-ld A,(IX)
-ld (Spulse_h),A
-inc IX
-call dec_cmd_cnt
-jp cmd_loop_end
-
-check_pulse_l:
-ld A,(IX)
-sub A,op_pulse_l
-jp nz,check_interval_h
-inc IX
-call dec_cmd_cnt
-ld A,(IX)
-ld (Spulse_l),A
-inc IX
-call dec_cmd_cnt
-jp cmd_loop_end
-
-check_interval_h:
-ld A,(IX)
-sub A,op_interval_h
-jp nz,check_interval_l
-inc IX
-call dec_cmd_cnt
-ld A,(IX)
-ld (Sinterval_h),A
-inc IX
-call dec_cmd_cnt
-jp cmd_loop_end
-
-check_interval_l:
-ld A,(IX)
-sub A,op_interval_l
-jp nz,check_length_h
-inc IX
-call dec_cmd_cnt
-ld A,(IX)
-ld (Sinterval_l),A
-inc IX
-call dec_cmd_cnt
-jp cmd_loop_end
-
-check_length_h:
-ld A,(IX)
-sub A,op_length_h
-jp nz,check_length_l
-inc IX
-call dec_cmd_cnt
-ld A,(IX)
-ld (Slength_h),A
-inc IX
-call dec_cmd_cnt
-jp cmd_loop_end
-
-check_length_l:
-ld A,(IX)
-sub A,op_length_l
-jp nz,check_randomize
-inc IX
-call dec_cmd_cnt
-ld A,(IX)
-ld (Slength_l),A
-inc IX
-call dec_cmd_cnt
-jp cmd_loop_end
-
-check_randomize:
-ld A,(IX)
-sub A,op_randomize
-jp nz,check_ack
-inc IX
-call dec_cmd_cnt
-ld A,(IX)
-ld (Srandomize),A
-inc IX
-call dec_cmd_cnt
+check_xmit_disable:
+ld A,(mmu_imsk)
+xor A,bit0_mask
+ld (mmu_imsk),A
 jp cmd_loop_end
 
 check_ack:
@@ -536,8 +490,20 @@ jp cmd_loop_end
 check_battery:
 ld A,(IX)
 sub A,op_battery
-jp nz,cmd_done
+jp nz,check_randomize
 call xmit_batt
+inc IX
+call dec_cmd_cnt
+jp cmd_loop_end
+
+check_randomize:
+ld A,(IX)
+sub A,op_randomize
+jp nz,cmd_done
+inc IX
+call dec_cmd_cnt
+ld A,(IX)
+ld (Srandomize),A
 inc IX
 call dec_cmd_cnt
 jp cmd_loop_end
@@ -597,6 +563,68 @@ pop A               ; Restore A.
 clri                ; Ensble interrupts
 ret                 ; Return
 
+; ------------------------------------------------------------
+; Initiate a pulse, leaving the termination of the pulse to the
+; interrupt routine.
+start_pulse:
+
+; Disable interrupts so we can boost the CPU and read the
+; interval counter without risking the interrupt routine
+; changing its value while we are reading.
+
+seti                ; Disable interrupts.
+
+ld A,0x01           ; Set bit zero to one.
+ld (mmu_etc),A      ; Enable the transmit clock, TCK.
+ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
+
+ld A,(Sinterval_0)  ; Add the stimulus interval
+push A              ; to the stimulus counter.
+pop B               ; Start with byte zero.
+ld A,(Sicnt0)       
+add A,B             
+ld (Sicnt0),A      
+ 
+ld A,(Sinterval_1)  ; Then byte one. We add with carry
+push A              ; to account for overflow from the
+pop B               ; first byte.
+ld A,(Sicnt1)
+adc A,B
+ld (Sicnt1),A
+
+ld A,(Sinterval_2)  ; And byte two. If this addition 
+push A              ; overflows, that's because we are
+pop B               ; adding to a negative number and
+ld A,(Sicnt2)       ; restoring a positive number.
+adc A,B
+ld (Sicnt2),A
+
+ld A,0x00           ; Clear the stimulus start
+ld (Sistart),A      ; flag.
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+xor A,bit1_mask     ; Clear bit one and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
+
+ld A,(Spulse_0)     ; Refresh the pulse counter by reading
+ld (Spcnt0),A       ; both bytes from memory
+ld A,(Spulse_1)     ; and writing to the pulse
+ld (Spcnt1),A       ; counter bytes.
+
+ld A,(Scurrent)     ; Load the pulse stimulus current and 
+ld (mmu_stc),A      ; start the pulse.
+ld A,0x01           ; Load a one
+ld (Sprun),A        ; and set the pulse run flag.
+
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+or A,bit3_mask      ; set bit three mask and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
+
+ld A,0x00           ; Load a zero and use it to
+ld (mmu_bcc),A      ; move CPU out of boost and
+ld (mmu_etc),A      ; stop the transmit clock.
+
+clri
+ret
 
 ; ------------------------------------------------------------
 ; The main program. We begin by initializing the device, which
@@ -621,9 +649,11 @@ inc IX
 dec B
 jp nz,main_vclr
 
-; Zero some registers.
+; Configure some registers.
 ld A,0
 ld (mmu_stc),A
+ld A,def_xmit_ch
+ld (xmit_ch),A
 
 ; Calibrate the transmit clock.
 call calibrate_tck
@@ -636,16 +666,6 @@ ld (mmu_imsk),A      ; and disable all interrupts.
 
 ; The main event loop.
 main_loop:
-
-; Set diagnostif flag one.
-ld A,(mmu_dfr)      ; Load the diagnostic flag register.
-or A,bit1_mask      ; Set bit one and
-ld (mmu_dfr),A      ; write to diagnostic flag register.
-
-; Clear diagnostic flag one.
-ld A,(mmu_dfr)      ; Load the diagnostic flag register.
-xor A,bit1_mask     ; Clear bit one and
-ld (mmu_dfr),A      ; write to diagnostic flag register.
 
 ; Deal with any pending commands.
 ld A,(mmu_sr)       ; Fetch status register.
@@ -660,72 +680,11 @@ ld A,(Srun)
 and A,0x01
 jp z,main_nostim
 ld A,(Sistart)
-add A,0
+and A,0x01
 jp z,main_nostim
-
-; Disable interrupts so we can boost the CPU and read the
-; interval counter without risking the interrupt routine
-; changing its value while we are reading.
-seti                ; Disable interrupts.
-ld A,0x01           ; Set bit zero to one.
-ld (mmu_etc),A      ; Enable the transmit clock, TCK.
-ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
-
-; Add the stimulus interval to the stimulus interval counter.
-; The stimulus interval consists of two bytes, which we add to
-; the top two bytes of the counter. Clear the stimulus start
-; flag.
-ld A,(Sinterval_l)
-push A
-pop B
-ld A,(Sicnt1)
-add A,B
-ld (Sicnt1),A
-ld A,(Sinterval_h)
-push A
-pop B
-ld A,(Sicnt2)
-adc A,B
-ld (Sicnt2),A
-ld A,0x00
-ld (Sistart),A
-
-; Clear our diagnostic flag, go back to slow clock and enable 
-; interrupts.
-ld A,0x00           ; Load a zero and use it to
-ld (mmu_bcc),A      ; move CPU out of boost and
-ld (mmu_etc),A      ; stop the transmit clock.
-clri
-
-; Turn on the lamp and wait for the pulse length to pass, then
-; turn the lamp off again.
-ld A,(mmu_dfr)      ; Load the diagnostic flag register.
-or A,bit3_mask      ; set bit two mask and
-ld (mmu_dfr),A      ; write to diagnostic flag register.
-
-ld A,(Scurrent)
-ld (mmu_stc),A
-
-ld A,(Spulse_l)
-ld (Spcnt0),A
-ld A,(Spulse_h)
-ld (Spcnt1),A
-ld A,1
-ld (Sprun),A
-await_pulse:
-ld A,(Sprun)
-add A,0
-jp nz,await_pulse
-
-ld A,0
-ld (mmu_stc),A
-
-ld A,(mmu_dfr)      ; Load the diagnostic flag register.
-xor A,bit3_mask     ; clear bit two mask and
-ld (mmu_dfr),A      ; write to diagnostic flag register.
+call start_pulse
 
 main_nostim:
-
 jp main_loop        ; Repeat the main loop.
 
 ; ---------------------------------------------------------------
