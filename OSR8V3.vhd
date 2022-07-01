@@ -794,7 +794,7 @@ begin
 					next_state := read_opcode;
 					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
 
-				-- Clear interrupt flag, so as to enable interrupts.
+				-- Set interrupt flag, so as to disable interrupts.
 				when set_iflg =>
 					next_flag_I := true;
 					next_state := read_opcode;
@@ -1195,7 +1195,7 @@ begin
 				alu_cin <= false;
 				alu_ctrl <= alu_cmd_sub;
 			
-			-- Operations with A and B.
+			-- Mathematical operations with A and B.
 			when add_A_B | sub_A_B | adc_A_B | sbc_A_B =>
 				alu_in_x <= reg_A;
 				alu_in_y <= reg_B;
