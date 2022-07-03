@@ -103,6 +103,7 @@ const op_xmit        2 ; 2 operands
 const op_ack         3 ; 1 operand
 const op_battery     4 ; 1 operand
 const op_randomize   5 ; 1 operand
+const op_identify    6 ; 0 operands
 
 ; Diagnostic constants.
 const ramp_slope     7 ; Change per sample.
@@ -263,11 +264,11 @@ ld (cmd_cnt_l),A
 ld A,(cmd_cnt_h)
 sbc A,0
 ld (cmd_cnt_h),A
-jp nc,dec_cmd_cnt_nz
+jp nc,dec_cmd_cnt_p
 ld A,0
 ld (cmd_cnt_h),A
 ld (cmd_cnt_l),A
-dec_cmd_cnt_nz:
+dec_cmd_cnt_p:
 pop A
 pop F
 ret
@@ -280,6 +281,11 @@ ret
 ; ------------------------------------------------------------
 ; Transmit a battery measurement.
 xmit_batt:
+ret
+
+; ------------------------------------------------------------
+; Transmit a identification.
+xmit_identify:
 ret
 
 ; ------------------------------------------------------------
@@ -370,6 +376,7 @@ ld A,(mmu_dfr)
 xor A,bit2_mask
 ld (mmu_dfr),A
 
+; The stimulus stop instruction.
 check_stop_stim:
 ld A,(IX)
 sub A,op_stop_stim
@@ -384,133 +391,139 @@ xor A,bit1_mask
 ld (mmu_imsk),A
 jp cmd_loop_end
 
+; The stimulus start instruction.
 check_start_stim:
 ld A,(IX)
 sub A,op_start_stim
 jp nz,check_xmit
 inc IX
 call dec_cmd_cnt
-
-ld A,(IX)
+ld A,(IX)           ; Read stimulus current.
 ld (Scurrent),A
 inc IX
 call dec_cmd_cnt
-
-ld A,(IX)
+ld A,(IX)           ; Read pulse length byte one.
 ld (Spulse_1),A
 inc IX
 call dec_cmd_cnt
-
-ld A,(IX)
+ld A,(IX)           ; Read pulse length byte zero.
 ld (Spulse_0),A
 inc IX
 call dec_cmd_cnt
-
-ld A,(IX)
+ld A,(IX)           ; Read interval length byte two.
 ld (Sinterval_2),A
 inc IX
 call dec_cmd_cnt
-
-ld A,(IX)
+ld A,(IX)           ; Read interval length byte one.
 ld (Sinterval_1),A
 inc IX
 call dec_cmd_cnt
-
-ld A,(IX)
+ld A,(IX)           ; Read interval length byte zero.
 ld (Sinterval_0),A
 inc IX
 call dec_cmd_cnt
-
-ld A,(IX)
+ld A,(IX)            ; Read stimulus length byte one.
 ld (Slength_1),A
 inc IX
 call dec_cmd_cnt
-
-ld A,(IX)
+ld A,(IX)            ; Read stimulus length byte zero.
 ld (Slength_0),A
 inc IX
 call dec_cmd_cnt
-
-ld A,0x01                ; Set the
-ld (Srun),A              ; stimulus run and
-ld (Sistart),A           ; stimulus start flags.
-ld A,0                   ; Load zero so we can
-ld (Sicnt0),A            ; set the stimulus interval
-ld (Sicnt1),A            ; counter to
-ld (Sicnt2),A            ; zero.
-ld (Sprun),A             ; Clear the pulse run flag.
-ld A,stim_tick           ; Set stimulus interrupt period by loading
-dec A                    ; the period, subtracting one, and writing
-ld (mmu_it2p),A          ; to the timer register.
-ld A,(mmu_imsk)          ; Load the interrupt mask and
-or A,bit1_mask           ; set bit one to enable the
-ld (mmu_imsk),A          ; stimulus interrupt.
+ld A,0x01            ; Set the
+ld (Srun),A          ; stimulus run and
+ld (Sistart),A       ; stimulus start flags.
+ld A,0               ; Load zero so we can
+ld (Sicnt0),A        ; set the stimulus interval
+ld (Sicnt1),A        ; counter to
+ld (Sicnt2),A        ; zero.
+ld (Sprun),A         ; Clear the pulse run flag.
+ld A,stim_tick       ; Set stimulus interrupt period by loading
+dec A                ; the period, subtracting one, and writing
+ld (mmu_it2p),A      ; to the timer register.
+ld A,(mmu_imsk)      ; Load the interrupt mask and
+or A,bit1_mask       ; set bit one to enable the
+ld (mmu_imsk),A      ; stimulus interrupt.
 jp cmd_loop_end
 
+; Start data transmission.
 check_xmit:
 ld A,(IX)
 sub A,op_xmit
 jp nz,check_ack
 inc IX
 call dec_cmd_cnt
-ld A,(IX)
+ld A,(IX)            ; Read data channel number.
 ld (xmit_ch),A
 inc IX
 call dec_cmd_cnt
-ld A,(IX)
-ld (xmit_T),A
-ld (mmu_it1p),A
+ld A,(IX)            ; Read transmit period minus one. 
+ld (xmit_T),A        ; Save to memory and
+ld (mmu_it1p),A      ; write to interrupt timer period.
 inc IX
 call dec_cmd_cnt
-add A,0
-jp z,check_xmit_disable
-ld A,(mmu_imsk)
-or A,bit0_mask
-ld (mmu_imsk),A
-jp cmd_loop_end
-check_xmit_disable:
-ld A,(mmu_imsk)
-xor A,bit0_mask
-ld (mmu_imsk),A
+add A,0              ; If period = 0 jump forwards
+jp z,xmit_disable    ; to disable.
+ld A,(mmu_imsk)      ; If period > 0 enable xmit
+or A,bit0_mask       ; interrupt
+ld (mmu_imsk),A      ; with mask
+jp cmd_loop_end      
+xmit_disable:      
+ld A,(mmu_imsk)      ; When period = 0 we disable
+xor A,bit0_mask      ; the xmit interrupt
+ld (mmu_imsk),A      ; with mask.
 jp cmd_loop_end
 
+; Acknowledgement request instruction.
 check_ack:
 ld A,(IX)
 sub A,op_ack
 jp nz,check_battery
 inc IX
 call dec_cmd_cnt
-ld A,(IX)
+ld A,(IX)            ; Read the key to send back.
 ld (Sack_key),A
 inc IX
 call dec_cmd_cnt
-call xmit_ack
+call xmit_ack        ; Call the acknowledge routine.
 jp cmd_loop_end
 
+; Battery voltage measurement request instruction.
 check_battery:
 ld A,(IX)
 sub A,op_battery
 jp nz,check_randomize
-call xmit_batt
+call xmit_batt       ; Call the battery transmit routine.
 inc IX
 call dec_cmd_cnt
 jp cmd_loop_end
 
+; Set or unset randomization of pulses.
 check_randomize:
 ld A,(IX)
 sub A,op_randomize
-jp nz,cmd_done
+jp nz,check_identify
 inc IX
 call dec_cmd_cnt
-ld A,(IX)
-ld (Srandomize),A
+ld A,(IX)            ; Read randomization state
+ld (Srandomize),A    ; and write to memory.
 inc IX
 call dec_cmd_cnt
 jp cmd_loop_end
 
-cmd_loop_end:
+; Self identification request instruction.
+check_identify:
+ld A,(IX)
+sub A,op_identify
+jp nz,cmd_done
+call xmit_identify    ; Call the identification transmit routine.
+inc IX
+call dec_cmd_cnt
+jp cmd_loop_end
 
-; Check the number of bytes remaining to be read.
+; Check the number of bytes remaining to be read. If greater
+; than zero, jump back to start of loop, otherwise we are done.
+cmd_loop_end:
 ld A,(cmd_cnt_h)
 add A,0
 jp nz,cmd_loop_start
@@ -518,10 +531,10 @@ ld A,(cmd_cnt_l)
 add A,0
 jp nz,cmd_loop_start
 
+; Now that we are done with command processing, By default, 
+; we are going to let the device turn off after we finish 
+; with this command.
 cmd_done:
-
-; By default, we are going to let the device turn off after we
-; finish with this command.
 ld A,0x00
 ld (mmu_dva),A
 
