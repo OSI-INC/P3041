@@ -116,6 +116,75 @@ start:
 jp main
 jp interrupt
 
+; ---------------------------------------------------------------
+; An eight-bit multiplier, load two eight-bit operands into B and C
+; and the sixteen-bit result will be returned in B and C, HI byte
+; in B. Takes between 200 and 300 clock cycles depending upon the
+; operand C, an average of 250. That's 50 us at 5 MHz or 7.6 ms at
+; 32.768 kHz
+
+multiply:
+push F
+push A
+push D
+push H
+push L
+
+ld A,8
+push A
+pop D
+
+ld A,0
+push A
+pop H
+push A
+pop L
+
+mult_start:
+push C
+pop A
+sla A
+push A
+pop C
+jp nc,mult_sHL
+
+push L
+pop A
+add A,B
+push A
+pop L
+push H
+pop A
+adc A,0
+push A
+pop H
+
+mult_sHL:
+push L
+pop A
+sla A
+push A
+pop L
+push H
+pop A
+rl A
+push A
+pop H
+
+dec D
+jp nz,mult_start
+
+push H
+pop B
+push L
+pop C
+
+pop L
+pop H
+pop D
+pop A
+pop F
+ret
 
 ; ------------------------------------------------------------
 ; Calibrate the transmit clock frequency. We take the CPU out
