@@ -134,6 +134,7 @@ architecture behavior of main is
 
 -- Message Transmission.
 	signal TXI, -- Transmit Initiate
+		TXWP, -- Transmit Warmup
 		TXA, -- Transmit Active
 		TXB, -- Transmit Bit
 		FHI -- Frequency High
@@ -402,6 +403,7 @@ begin
 		if (RESET = '1') then
 			SAI <= false;
 			TXI <= false;
+			TXWP <= false;
 			ENTCK <= false;
 			BOOST <= false;
 			tck_divisor <= default_tck_divisor;
@@ -431,7 +433,9 @@ begin
 						when mmu_xlb => xmit_bits(7 downto 0) <= cpu_data_out;
 						when mmu_xhb => xmit_bits(15 downto 8) <= cpu_data_out;
 						when mmu_xcn => tx_channel <= to_integer(unsigned(cpu_data_out));
-						when mmu_xcr => TXI <= true;
+						when mmu_xcr => 
+							TXI <= (cpu_data_out(0) = '1');
+							TXWP <= (cpu_data_out(1) = '1');
 						when mmu_xfc => tx_low <= to_integer(unsigned(cpu_data_out));
 						when mmu_imsk => int_mask <= cpu_data_out;
 						when mmu_irst => int_rst <= cpu_data_out;
@@ -444,11 +448,11 @@ begin
 						when mmu_dfr => df_reg <= cpu_data_out(3 downto 0);
 						when mmu_crst => CPRST <= true;
 						-- Disable one or more of the eight-bit interrupt timers, and have
-						-- their resources freed by commenting out lines below.
+						-- their resources freed, by commenting out lines below.
 						when mmu_it1p => int_period_1 <= cpu_data_out;
 						when mmu_it2p => int_period_2 <= cpu_data_out;
---						when mmu_it3p => int_period_3 <= cpu_data_out;
---						when mmu_it4p => int_period_4 <= cpu_data_out;
+						when mmu_it3p => int_period_3 <= cpu_data_out;
+						when mmu_it4p => int_period_4 <= cpu_data_out;
 					end case;
 				end if;
 			end if;
@@ -813,8 +817,9 @@ begin
 	end process;
 
 -- With XEN we enable the VCO. We assert XEN while the Sample Transmitter is active,
--- provided that the Command Processor is not receiving a command.
-	XEN <= to_std_logic((TXA and CMDRDY) or (TXA and not CPA));
+-- provided that the Command Processor is not receiving a command. We also turn on
+-- the VCO when the CPU asserts Transmit Warmup (TXWP).
+	XEN <= to_std_logic((TXA and CMDRDY) or (TXA and not CPA) or TXWP);
 			
 -- The Frequency Modulation process takes the transmit bit values provided by
 -- the Sample Transmitter, turns them into a sequence of rising and falling
@@ -1256,6 +1261,6 @@ TP3 <= df_reg(2);
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
 -- this output is almost always HI, and the programming extension is still 
 -- attached, quiescent current increases by 250 uA.
---	TP4 <= to_std_logic(FHI);
-TP4 <= df_reg(3);
+	TP4 <= to_std_logic(FHI);
+--TP4 <= df_reg(3);
 end behavior;

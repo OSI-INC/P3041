@@ -11,7 +11,6 @@
 ; Calibration Constants
 const rf_lo             5 ; Transmit frequency calibration
 const device_id    0xA123 ; Will be used as the first channel number.
-const def_xmit_ch      23 ; Default transmit channel.
 
 ; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
@@ -56,6 +55,10 @@ const sr_txa     0x10 ; Transmit Active Flag
 const sr_cpa     0x20 ; Command Processor Active
 const sr_rp      0x40 ; Receive Power
 
+; Transmit Control Masks, for use with tansmit control register.
+const tx_txi     0x01 ; Assert transmit initiate.
+const tx_txwp    0x02 ; Assert transmit warm-up.
+
 ; Bit Masks
 const bit0_mask  0x01 ; Bit Zero Mask
 const bit1_mask  0x02 ; Bit One Mask
@@ -63,10 +66,10 @@ const bit2_mask  0x04 ; Bit  Two Mask
 const bit3_mask  0x08 ; Bit Three Mask
 
 ; Timing Constants.
-const min_tcf       75  ; Minimum TCK periods per half RCK period.
+const min_tcf       70  ; Minimum TCK periods per half RCK period.
 const tx_delay      50  ; Wait time for sample transmission, TCK periods.
 const sa_delay      70  ; Wait time for sensor access, TCK periods.
-const num_vars     255  ; Number of vars to clear at start.
+const num_vars      40  ; Number of vars to clear at start.
 const initial_tcd   15  ; Max possible value of TCK divisor.
 const stim_tick     33  ; Stimulus interrupt period.
 
@@ -92,9 +95,8 @@ const Sicnt1      0x0011 ; Stimulus Interval Counter Byte One
 const Sicnt0      0x0012 ; Stimulus Interval Counter Byte Zero
 const Sistart     0x0013 ; Stimulus Interval Start
 const xmit_ch     0x0014 ; Transmit Channel
-const Rcnt1       0x0015 ; Ramp Counter Byte One
-const Rcnt0       0x0016 ; Ramp Counter Byte Zero
-const Sprun       0x0017 ; Stimulus Pulse Run Flag
+const Rcnt        0x0015 ; Ramp Counter
+const Sprun       0x0016 ; Stimulus Pulse Run Flag
 
 ; Operation Codes
 const op_stop_stim   0 ; 0 operands
@@ -105,8 +107,6 @@ const op_battery     4 ; 1 operand
 const op_randomize   5 ; 1 operand
 const op_identify    6 ; 0 operands
 
-; Diagnostic constants.
-const ramp_slope     7 ; Change per sample.
 
 ; ------------------------------------------------------------
 ; The CPU reserves two locations 0x0000 for the start of program
@@ -160,6 +160,8 @@ push A
 pop H
 
 mult_sHL:
+dec D
+jp z,mult_done
 push L
 pop A
 sla A
@@ -170,10 +172,9 @@ pop A
 rl A
 push A
 pop H
+jp mult_start
 
-dec D
-jp nz,mult_start
-
+mult_done:
 push H
 pop B
 push L
@@ -295,15 +296,22 @@ ld A,rf_lo          ; Set the low radio frequency
 ld (mmu_xfc),A      ; for sample transmission
 ld A,(xmit_ch)      ; Load A with channel number
 ld (mmu_xcn),A      ; and write the transmit channel register.
-ld A,(Rcnt0)        ; Load A with ramp counter byte zero.
-sub A,ramp_slope    ; Subtract a slope value
-ld (mmu_xlb),A      ; and write result to transmit LO register.
-ld (Rcnt0),A        ; Write new value to memory.
-ld A,(Rcnt1)        ; Load A with ramp counter byte one.
-sbc A,0             ; Continue subtraction with carry
-ld (mmu_xhb),A      ; and write to transmit HI register.
-ld (Rcnt1),A        ; Write new value to memory.
-ld (mmu_xcr),A      ; Initiate transmission
+ld A,(Rcnt)         ; Load A with ramp counter.
+inc A               ; Increment A and
+ld (Rcnt),A         ; write new value to counter.
+push A              ; Set up 
+pop B               ; Rcnt in 
+push A              ; both B and C
+pop C               ; to prepare for multiplication.
+call multiply       ; and obtain the sixteen-bit square.
+push C              ; Load bottom byte of square into 
+pop A               ; A and 
+ld (mmu_xlb),A      ; write to transmit LO register.
+push B              ; Load top byte into 
+pop A               ; A and
+ld (mmu_xhb),A      ; write to transmit HI register.
+ld A,tx_txi         ; Load transmit initiate bit
+ld (mmu_xcr),A      ; and write to transmit control register.
 
 ; Turn off the transmit clock, move out of boost, restore registers and return 
 ; from interrupt.
@@ -345,6 +353,31 @@ ret
 ; ------------------------------------------------------------
 ; Transmit an acknowledgement.
 xmit_ack:
+
+ld A,tx_txwp
+ld (mmu_xcr),A
+ld A,255
+dly A
+ld A,0
+ld (mmu_xcr),A
+
+ld A,rf_lo          ; Set the low radio frequency
+ld (mmu_xfc),A      ; for sample transmission
+ld A,(xmit_ch)      ; Load A with channel number
+or A,0x0F           ; set lower four bits to one
+ld (mmu_xcn),A      ; and write the transmit channel register.
+ld A,(Sack_key)     ; Load the acknowledgement key
+ld (mmu_xlb),A      ; and write to transmit LO register.
+ld A,(xmit_ch)      ; Load A with channel number again
+sla A
+sla A
+sla A
+sla A
+or A,0x01
+ld (mmu_xhb),A      ; write to transmit HI register.
+ld A,tx_txi         ; Load transmit initiate bit
+ld (mmu_xcr),A      ; and write to transmit control register.
+
 ret
 
 ; ------------------------------------------------------------
@@ -732,9 +765,11 @@ dec B
 jp nz,main_vclr
 
 ; Configure some registers.
-ld A,0
+ld A,0             ; Make sure the stimulus current is zero.
 ld (mmu_stc),A
-ld A,def_xmit_ch
+ld HL,device_id    ; Set the transmit channel
+push L             ; equal to the low byte
+pop A              ; of the device identifier.
 ld (xmit_ch),A
 
 ; Calibrate the transmit clock.
@@ -764,6 +799,24 @@ jp z,main_nostim
 ld A,(Sistart)
 and A,0x01
 jp z,main_nostim
+
+ld A,(Slength_0)
+sub A,1
+ld (Slength_0),A
+ld A,(Slength_1)
+sbc A,0
+ld (Slength_1),A
+jp nc,main_pulse
+
+ld A,(mmu_imsk)      
+xor A,bit1_mask      
+ld (mmu_imsk),A      
+ld A,0
+ld (mmu_it2p),A   
+ld (Srun),A
+jp main_nostim
+
+main_pulse:
 call start_pulse
 
 main_nostim:
