@@ -33,12 +33,20 @@
 -- line. Remove CPU software interrupts. Remove interrupt set register. If the CPU wants to generate 
 -- an interrupt, it can use one of the timers. Test on A3041AV1 and works perfectly.
 
--- V1.4, 20-JUN-22: Add read-back of the command memory write address to act as a count of the
+-- V1.4, 05-JUL-22: Add read-back of the command memory write address to act as a count of the
 -- command bytes stored in the command memory. The CPU needs this count to tell it when the list
 -- of commands ends. Add modulation of ONL with four-bit counter that runs all the time off RCK.
 -- The CPU sets duty cycle with stimulus current location, writing a value 0-15. Disable two of 
 -- the four interrupt timers. Change "test point register" to "diagnostic flag register" and restore
--- readback that we have inadvertently removed.
+-- readback that we have inadvertently removed. Add the Transmit Warm-Up (TXWP) flag that we can 
+-- set and clear with memory writes. This flag turns on the VCO to warm it up before auxiliary 
+-- message transmission. The Transmit Initiate (TXI) flag we now set by writing to bit zero of the 
+-- transmit control register, not just any write to the control register. But TXI still clears itself
+-- on the next CK cycle, while TXWP must be cleared deliberately. 
+
+-- V1.5. 06-JUL-22 Status register now contains CMDRDY, ENTCK, SAA, TXA, CPA, and BOOST. We have all
+-- four interrupt timers implemented, hoping to use the second and third for transmission scatter
+-- and pulse randomization.
 
 
 library ieee;  
@@ -163,6 +171,8 @@ architecture behavior of main is
 	
 -- Boost Controller
 	signal BOOST : boolean;
+	attribute syn_keep of BOOST : signal is true;
+	attribute nomerge of BOOST : signal is "";
 	
 -- Diagnostic Flag Register
 	signal df_reg : std_logic_vector(3 downto 0) := (others => '0');
@@ -382,12 +392,11 @@ begin
 					when mmu_tcf => cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
 					when mmu_sr => 
 						cpu_data_in(0) <= to_std_logic(CMDRDY); -- Command Ready Flag
-						cpu_data_in(1) <= to_std_logic(ENTCK);  -- Transmit Clock Status
-						cpu_data_in(2) <= ONL;                  -- Lamp Status
-						cpu_data_in(3) <= to_std_logic(SAA);    -- Sensor Access Active Flag
-						cpu_data_in(4) <= to_std_logic(TXA);    -- Transmit Active Flag
-						cpu_data_in(5) <= to_std_logic(CPA);    -- Command Processor Active Flag
-						cpu_data_in(6) <= RP;                   -- Receive Power Flag
+						cpu_data_in(1) <= to_std_logic(ENTCK);  -- Transmit Clock Enabled
+						cpu_data_in(2) <= to_std_logic(SAA);    -- Sensor Access Active Flag
+						cpu_data_in(3) <= to_std_logic(TXA);    -- Transmit Active Flag
+						cpu_data_in(4) <= to_std_logic(CPA);    -- Command Processor Active Flag
+						cpu_data_in(5) <= to_std_logic(BOOST);  -- Boost CPU Flag
 					when mmu_cch => 
 						cpu_data_in(cmd_addr_len-9 downto 0) <= cmd_wr_addr(cmd_addr_len-1 downto 8);
 					when mmu_ccl =>
@@ -818,8 +827,8 @@ begin
 
 -- With XEN we enable the VCO. We assert XEN while the Sample Transmitter is active,
 -- provided that the Command Processor is not receiving a command. We also turn on
--- the VCO when the CPU asserts Transmit Warmup (TXWP).
-	XEN <= to_std_logic((TXA and CMDRDY) or (TXA and not CPA) or TXWP);
+-- the VCO when the CPU asserts Transmit Warmup (TXWP). 
+	XEN <= to_std_logic((TXA or TXWP) and (CMDRDY or (not CPA)));
 			
 -- The Frequency Modulation process takes the transmit bit values provided by
 -- the Sample Transmitter, turns them into a sequence of rising and falling

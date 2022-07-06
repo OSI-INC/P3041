@@ -48,16 +48,17 @@ const mmu_it4p 0x0819 ; Interrupt Timer Four Period
 
 ; Status Bit Masks, for use with status register.
 const sr_cmdrdy  0x01 ; Command Ready Flag
-const sr_entck   0x02 ; Enable Transmit Status
-const sr_onl     0x04 ; On Lamp Status
-const sr_saa     0x08 ; Sensor Access Active Flag
-const sr_txa     0x10 ; Transmit Active Flag
-const sr_cpa     0x20 ; Command Processor Active
-const sr_rp      0x40 ; Receive Power
+const sr_entck   0x02 ; Transmit Clock Enabled
+const sr_saa     0x04 ; Sensor Access Active Flag
+const sr_txa     0x08 ; Transmit Active Flag
+const sr_cpa     0x10 ; Command Processor Active
+const sr_boost   0x20 ; Boost Flag
 
 ; Transmit Control Masks, for use with tansmit control register.
 const tx_txi     0x01 ; Assert transmit initiate.
 const tx_txwp    0x02 ; Assert transmit warm-up.
+const ack_fa        1 ; Field address for acknowledgements.
+const batt_fa       2 ; Field address for battery measurement.
 
 ; Bit Masks
 const bit0_mask  0x01 ; Bit Zero Mask
@@ -69,6 +70,7 @@ const bit3_mask  0x08 ; Bit Three Mask
 const min_tcf       70  ; Minimum TCK periods per half RCK period.
 const tx_delay      50  ; Wait time for sample transmission, TCK periods.
 const sa_delay      70  ; Wait time for sensor access, TCK periods.
+const wp_delay     255  ; Warm-up delay for auxiliary messages.
 const num_vars      40  ; Number of vars to clear at start.
 const initial_tcd   15  ; Max possible value of TCK divisor.
 const stim_tick     33  ; Stimulus interrupt period.
@@ -219,7 +221,6 @@ pop B            ; Restore B
 pop A            ; and A.
 ret              ; Return from subroutine.
 
-
 ; ------------------------------------------------------------
 ; The interrupt routine. Handles data transmission and clock.
 ; Runs with CPU in boost to save time.
@@ -351,15 +352,18 @@ pop F
 ret
 
 ; ------------------------------------------------------------
-; Transmit an acknowledgement.
+; Transmit an acknowledgement. We have to warm up the VCO before
+; the transmit, or its frequency will be wrong. The routine assumes
+; we are running in boost with the interrupts disabled.
 xmit_ack:
 
-ld A,tx_txwp
-ld (mmu_xcr),A
-ld A,255
-dly A
-ld A,0
-ld (mmu_xcr),A
+push A
+push F
+
+ld A,tx_txwp        ; Turn on the VCO by writing the 
+ld (mmu_xcr),A      ; warm-up bit to the transmit control register.
+ld A,wp_delay       ; Wait for a number of TCK periods while 
+dly A               ; the VCO warms up.
 
 ld A,rf_lo          ; Set the low radio frequency
 ld (mmu_xfc),A      ; for sample transmission
@@ -369,14 +373,20 @@ ld (mmu_xcn),A      ; and write the transmit channel register.
 ld A,(Sack_key)     ; Load the acknowledgement key
 ld (mmu_xlb),A      ; and write to transmit LO register.
 ld A,(xmit_ch)      ; Load A with channel number again
-sla A
-sla A
-sla A
-sla A
-or A,0x01
-ld (mmu_xhb),A      ; write to transmit HI register.
-ld A,tx_txi         ; Load transmit initiate bit
-ld (mmu_xcr),A      ; and write to transmit control register.
+sla A               ; Shift A 
+sla A               ; left
+sla A               ; four
+sla A               ; times.
+or A,ack_fa         ; Set the field address acknowledge.
+ld (mmu_xhb),A      ; Write to transmit HI register.
+ld A,tx_txi         ; Initiate transmission and disable warmup 
+ld (mmu_xcr),A      ; with another write to control register.
+
+ld A,tx_delay       ; Wait for a number of TCK periods while 
+dly A               ; the transmit completes.
+
+pop F
+pop A
 
 ret
 
