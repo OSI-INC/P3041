@@ -119,37 +119,43 @@ jp main
 jp interrupt
 
 ; ---------------------------------------------------------------
-; An eight-bit multiplier, load two eight-bit operands into B and C
-; and the sixteen-bit result will be returned in B and C, HI byte
-; in B. Takes between 200 and 300 clock cycles depending upon the
-; operand C, an average of 250. That's 50 us at 5 MHz or 7.6 ms at
-; 32.768 kHz
+; Eight-bit multiplier. Load two eight-bit operands into B and C
+; and the sixteen-bit result will be returned in B (HI) and C (LO). 
+; Takes 200 to 300 clock cycles depending upon the operand C, an 
+; average of 250 (50 us at 5 MHz or 7.6 ms at 32.768 kHz).
 
 multiply:
+
+; Save registers and flags on the stack.
 push F
 push A
 push D
 push H
 push L
 
+; We use D to count down from eight to zero.
 ld A,8
 push A
 pop D
 
+; Clear HL.
 ld A,0
 push A
 pop H
 push A
 pop L
 
+; Shift C left and check the bit that comes out the top end, now in our
+; carry bit. If carry is not set, jump forward to shift HL.
 mult_start:
 push C
 pop A
 sla A
 push A
 pop C
-jp nc,mult_sHL
+jp nc,mult_check_done
 
+; Carry bit set means we add B to HL.
 push L
 pop A
 add A,B
@@ -161,9 +167,14 @@ adc A,0
 push A
 pop H
 
-mult_sHL:
+; Decrement D. If zero, we have added eight times and
+; there is no need to shift HL again, we are done.
+mult_check_done:
 dec D
 jp z,mult_done
+
+; Shift HL to the left, filling in bit zero with a zero. We are
+; going repeat our addition loop.
 push L
 pop A
 sla A
@@ -176,12 +187,15 @@ push A
 pop H
 jp mult_start
 
+; Multiplication is complete and the result is in HL. Move the 
+; result to BC so that this routine affects only BC.
 mult_done:
 push H
 pop B
 push L
 pop C
 
+; Recover registers and flags.
 pop L
 pop H
 pop D
@@ -196,6 +210,7 @@ ret
 ; clock to measure its frequency. Eventually we get a diviso
 ; that provides a transmit period in the range 195-215 ns. We
 ; leave the transmit clock off at the end.
+
 calibrate_tck:
 push A           ; Push A and
 push B           ; Push B onto stack to save them.
@@ -260,9 +275,6 @@ ld (Sicnt2),A       ; and write to memory.
 jp nc,int_Spulse    ; If the result is >=0, jump,
 ld A,1              ; but if <0,
 ld (Sistart),A      ; set Sistart flag.
-ld A,(mmu_dfr)      ; Load the diagnostic flag register.
-or A,bit1_mask      ; Set bit one and
-ld (mmu_dfr),A      ; write to diagnostic flag register.
 
 int_Spulse:
 ld A,(Sprun)        ; Check the stimulus pulse flag
@@ -278,9 +290,6 @@ jp nc,int_xmit      ; If the result is >=0, we're done,
 ld A,0              ; but if <0,
 ld (mmu_stc),A      ; turn off the lamp
 ld (Sprun),A        ; and clear the pulse flag.
-ld A,(mmu_dfr)      ; Load the diagnostic flag register.
-xor A,bit3_mask     ; clear bit three mask and
-ld (mmu_dfr),A      ; write to diagnostic flag register.=
 
 ; Handle the transmit interrupt, if it exists. We won't wait for the transmission
 ; to complete because we are certain to follow our transmission with at least one
@@ -360,10 +369,18 @@ xmit_ack:
 push A
 push F
 
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+or A,bit1_mask      ; Set bit one and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
+
 ld A,tx_txwp        ; Turn on the VCO by writing the 
 ld (mmu_xcr),A      ; warm-up bit to the transmit control register.
 ld A,wp_delay       ; Wait for a number of TCK periods while 
 dly A               ; the VCO warms up.
+ld A,0              ; Turn off the VCO and
+ld (mmu_xcr),A      ; let the battery recover
+ld A,wp_delay       ; before we 
+dly A               ; transmit.
 
 ld A,rf_lo          ; Set the low radio frequency
 ld (mmu_xfc),A      ; for sample transmission
@@ -379,11 +396,15 @@ sla A               ; four
 sla A               ; times.
 or A,ack_fa         ; Set the field address acknowledge.
 ld (mmu_xhb),A      ; Write to transmit HI register.
-ld A,tx_txi         ; Initiate transmission and disable warmup 
+ld A,tx_txi         ; Initiate transmission 
 ld (mmu_xcr),A      ; with another write to control register.
 
 ld A,tx_delay       ; Wait for a number of TCK periods while 
 dly A               ; the transmit completes.
+
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+xor A,bit1_mask     ; Clear bit one and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
 
 pop F
 pop A
@@ -391,13 +412,29 @@ pop A
 ret
 
 ; ------------------------------------------------------------
-; Transmit a battery measurement.
+; Transmit a battery measurement. We assume interrupts are disabled
+; and the CPU is boosted.
 xmit_batt:
+
+push A
+push F
+
+pop F
+pop A
+
 ret
 
 ; ------------------------------------------------------------
-; Transmit a identification.
+; Transmit a identification. We assume interrupts are disabled and
+; the CPU is boosted.
 xmit_identify:
+
+push A
+push F
+
+pop F
+pop A
+
 ret
 
 ; ------------------------------------------------------------
@@ -477,16 +514,6 @@ jp nz,cmd_done
 ; Every time we execute this loop, IX should be pointed to the next
 ; command byte we want to process.
 cmd_loop_start:
-
-; Start a pulse on diagnostic flag two.
-ld A,(mmu_dfr)
-or A,bit2_mask
-ld (mmu_dfr),A
-
-; End pulse on diagnostic flag two.
-ld A,(mmu_dfr)
-xor A,bit2_mask
-ld (mmu_dfr),A
 
 ; The stimulus stop instruction.
 check_stop_stim:
@@ -605,9 +632,9 @@ check_battery:
 ld A,(IX)
 sub A,op_battery
 jp nz,check_randomize
-call xmit_batt       ; Call the battery transmit routine.
 inc IX
 call dec_cmd_cnt
+call xmit_batt       ; Call the battery transmit routine.
 jp cmd_loop_end
 
 ; Set or unset randomization of pulses.
@@ -628,9 +655,9 @@ check_identify:
 ld A,(IX)
 sub A,op_identify
 jp nz,cmd_done
-call xmit_identify    ; Call the identification transmit routine.
 inc IX
 call dec_cmd_cnt
+call xmit_identify    ; Call the identification transmit routine.
 jp cmd_loop_end
 
 ; Check the number of bytes remaining to be read. If greater
@@ -696,8 +723,7 @@ start_pulse:
 ; Disable interrupts so we can boost the CPU and read the
 ; interval counter without risking the interrupt routine
 ; changing its value while we are reading.
-
-seti                ; Disable interrupts.
+seti
 
 ld A,0x01           ; Set bit zero to one.
 ld (mmu_etc),A      ; Enable the transmit clock, TCK.
@@ -726,9 +752,6 @@ ld (Sicnt2),A
 
 ld A,0x00           ; Clear the stimulus start
 ld (Sistart),A      ; flag.
-ld A,(mmu_dfr)      ; Load the diagnostic flag register.
-xor A,bit1_mask     ; Clear bit one and
-ld (mmu_dfr),A      ; write to diagnostic flag register.
 
 ld A,(Spulse_0)     ; Refresh the pulse counter by reading
 ld (Spcnt0),A       ; both bytes from memory
@@ -740,16 +763,12 @@ ld (mmu_stc),A      ; start the pulse.
 ld A,0x01           ; Load a one
 ld (Sprun),A        ; and set the pulse run flag.
 
-ld A,(mmu_dfr)      ; Load the diagnostic flag register.
-or A,bit3_mask      ; set bit three mask and
-ld (mmu_dfr),A      ; write to diagnostic flag register.
-
 ld A,0x00           ; Load a zero and use it to
 ld (mmu_bcc),A      ; move CPU out of boost and
 ld (mmu_etc),A      ; stop the transmit clock.
 
-clri
-ret
+clri                ; Enable interrupts and
+ret                 ; return.
 
 ; ------------------------------------------------------------
 ; The main program. We begin by initializing the device, which
@@ -775,12 +794,12 @@ dec B
 jp nz,main_vclr
 
 ; Configure some registers.
-ld A,0             ; Make sure the stimulus current is zero.
-ld (mmu_stc),A
+ld A,0             ; Make sure the stimulus
+ld (mmu_stc),A     ; current is zero.
 ld HL,device_id    ; Set the transmit channel
 push L             ; equal to the low byte
-pop A              ; of the device identifier.
-ld (xmit_ch),A
+pop A              ; of the
+ld (xmit_ch),A     ; device identifier.
 
 ; Calibrate the transmit clock.
 call calibrate_tck
@@ -818,13 +837,19 @@ sbc A,0
 ld (Slength_1),A
 jp nc,main_pulse
 
+; The stimulus is complete. We disable the stimulus clock interrupt,
+; we set Srun to zero. If the transmit interrupt is not running, we
+; turn off the device.
 ld A,(mmu_imsk)      
 xor A,bit1_mask      
 ld (mmu_imsk),A      
 ld A,0
 ld (mmu_it2p),A   
 ld (Srun),A
-jp main_nostim
+ld A,(xmit_T)
+add A,0
+jp nz,main_nostim
+ld (mmu_dva),A
 
 main_pulse:
 call start_pulse
