@@ -75,6 +75,7 @@ const wp_delay     255  ; Warm-up delay for auxiliary messages.
 const num_vars      40  ; Number of vars to clear at start.
 const initial_tcd   15  ; Max possible value of TCK divisor.
 const stim_tick     33  ; Stimulus interrupt period.
+const xx_delay   32767  ; Transmit Extinguish Delay
 
 ; Variable Locations
 const Scurrent    0x0000 ; Stimulus Current
@@ -100,6 +101,8 @@ const Sistart     0x0013 ; Stimulus Interval Start
 const xmit_pcn    0x0014 ; Primary Channel Number
 const Rcnt        0x0015 ; Ramp Counter
 const Sprun       0x0016 ; Stimulus Pulse Run Flag
+const xxcnt1      0x0017 ; Transmit Extinguish Counter Byte One
+const xxcnt0      0x0018 ; Transmit Extinguish Counter Byte Zero
 
 ; Operation Codes
 const op_stop_stim   0 ; 0 operands
@@ -325,6 +328,29 @@ ld (mmu_xhb),A      ; write to transmit HI register.
 ld A,tx_txi         ; Load transmit initiate bit
 ld (mmu_xcr),A      ; and write to transmit control register.
 
+ld A,(Srun)         ; If Srun is set, we set the xmit
+add A,0             ; extinguish counter at its maximum
+jp z,int_xmit_xx    ; value.
+ld HL,xx_delay      ; Load the transmit exitinguish
+push H              ; delay into HL
+pop A               ; and store
+ld (xxcnt1),A       ; in the
+push L              ; transmit extinguish
+pop A               ; counter locations
+ld (xxcnt0), A      ; ready for when Srun is cleared.
+jp int_done
+
+int_xmit_xx:        ; If Srun is cleared, we decrement
+ld A,(xxcnt0)       ; the 
+sub A,1             ; extinguish
+ld (xxcnt0),A       ; counter.
+ld A,(xxcnt1)       ; When it gets below zero,
+sbc A,0             ; we set the transmit period to
+ld (xxcnt1),A       ; zero in memory, which will
+jp nc,int_done      ; allow the main loop to turn
+ld A,0              ; off power to the
+ld (xmit_T),A       ; device, preserving our battery.
+
 ; Turn off the transmit clock, move out of boost, restore registers and return 
 ; from interrupt.
 int_done:
@@ -486,6 +512,8 @@ xmit_identify:
 
 push A
 push F
+
+; Work in progress.
 
 pop F
 pop A
@@ -661,7 +689,14 @@ add A,0              ; If period = 0 jump forwards
 jp z,xmit_disable    ; to disable.
 ld A,(mmu_imsk)      ; If period > 0 enable xmit
 or A,bit0_mask       ; interrupt
-ld (mmu_imsk),A      ; with mask
+ld (mmu_imsk),A      ; with mask.
+ld HL,xx_delay       ; Load the transmit exitinguish
+push H               ; delay into HL
+pop A                ; and store
+ld (xxcnt1),A        ; in the
+push L               ; transmit extinguish
+pop A                ; counter locations
+ld (xxcnt0), A       ; so we can count them down.
 jp cmd_loop_end      
 xmit_disable:      
 ld A,(mmu_imsk)      ; When period = 0 we disable
@@ -727,33 +762,12 @@ ld A,(cmd_cnt_l)
 add A,0
 jp nz,cmd_loop_start
 
-; Now that we are done with command processing, By default, 
-; we are going to let the device turn off after we finish 
-; with this command.
+; Now that we are done with command processing, we turn
+; on device power. It's up to the main loop to turn
+; the device off. We reset the command processor too.
 cmd_done:
-ld A,0x00
-ld (mmu_dva),A
-
-; Check Srun. If it's true, we keep the device active.
-cmd_check_srun:
-ld A,(Srun)
-and A,0x01
-jp z,cmd_check_srun_done
 ld A,0x01
 ld (mmu_dva),A
-cmd_check_srun_done:
-
-; Check Xmit period. If it's non-zero, we keep the device active.
-cmd_check_xon:
-ld A,(xmit_T)
-add A,0
-jp z,cmd_check_xon_done
-ld A,0x01
-ld (mmu_dva),A
-cmd_check_xon_done:
-
-; Reset the command processor.
-cmd_rst_cp:
 ld (mmu_cpr),A
 
 ; Restore most registers, but not A, which we still need.
@@ -890,6 +904,8 @@ ld A,(Sistart)
 and A,0x01
 jp z,main_nostim
 
+; Decrement the stimulus length counter. Jump forwards if it
+; is still positive.
 ld A,(Slength_0)
 sub A,1
 ld (Slength_0),A
@@ -899,23 +915,34 @@ ld (Slength_1),A
 jp nc,main_pulse
 
 ; The stimulus is complete. We disable the stimulus clock interrupt,
-; we set Srun to zero. If the transmit interrupt is not running, we
-; turn off the device.
+; we set Srun to zero.
 ld A,(mmu_imsk)      
 xor A,bit1_mask      
 ld (mmu_imsk),A      
 ld A,0
 ld (mmu_it2p),A   
 ld (Srun),A
-ld A,(xmit_T)
-add A,0
-jp nz,main_nostim
-ld (mmu_dva),A
+jp main_nostim
 
+; Start a new stimulus pulse.
 main_pulse:
 call start_pulse
 
+; Check to see if we should still be running. If so, repeat the
+; main loop. 
 main_nostim:
-jp main_loop        ; Repeat the main loop.
+ld A,(xmit_T)
+add A,0
+jp nz,main_loop
+ld A,(Srun)
+add A,0
+jp nz,main_loop
+
+; Switch off. We could wait here, but jumping back to the start
+; of the loop makes the code more robust: if something goes wrong
+; with the turn-off, the device is still watching for commands.
+ld A,0
+ld (mmu_dva),A
+jp main_loop
 
 ; ---------------------------------------------------------------

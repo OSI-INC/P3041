@@ -1258,20 +1258,18 @@ begin
 	end process;
 
 -- Test Point One appears on P4-1.
-	TP1 <= NCS;
+	TP1 <= df_reg(0);
 	
 -- Test Point Two appears on P4-2.
 	TP2 <= XEN;
 
 -- Test Point Three appears on P4-3 after the programming connector is removed.
---	TP3 <= to_std_logic(CMDRDY);
-   TP3 <= SCK;
+	TP3 <= to_std_logic(CMDRDY);
 
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
 -- this output is almost always HI, and the programming extension is still 
 -- attached, quiescent current increases by 250 uA.
---	TP4 <= to_std_logic(FHI);
-	TP4 <= SDO;
+	TP4 <= to_std_logic(FHI);
 
 end behavior;
