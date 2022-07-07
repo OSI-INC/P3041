@@ -9,8 +9,8 @@
 ; TCK pin is connected to FHI.
 
 ; Calibration Constants
-const rf_lo             5 ; Transmit frequency calibration
 const device_id    0xA123 ; Will be used as the first channel number.
+const tx_calib          5 ; Transmit frequency calibration
 
 ; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
@@ -19,7 +19,7 @@ const mmu_ctrl 0x0800 ; Base of Control Space
 const mmu_sba  0x0300 ; Stack Base Address
 
 ; Address Map Locations
-const mmu_bmb  0x0800 ; Sensor Data HI Byte
+const mmu_sdb  0x0800 ; Sensor Data Byte
 const mmu_scr  0x0801 ; Sensor Control Register
 const mmu_irqb 0x0802 ; Interrupt Request Bits
 const mmu_imsk 0x0803 ; Interrupt Mask Bits
@@ -57,8 +57,9 @@ const sr_boost   0x20 ; Boost Flag
 ; Transmit Control Masks, for use with tansmit control register.
 const tx_txi     0x01 ; Assert transmit initiate.
 const tx_txwp    0x02 ; Assert transmit warm-up.
-const ack_fa        1 ; Field address for acknowledgements.
-const batt_fa       2 ; Field address for battery measurement.
+const id_at         0 ; Auxiliary type for identification.
+const ack_at        1 ; Auxiliary type for acknowledgements.
+const batt_at       2 ; Auxiliary type for battery measurement.
 
 ; Bit Masks
 const bit0_mask  0x01 ; Bit Zero Mask
@@ -69,7 +70,7 @@ const bit3_mask  0x08 ; Bit Three Mask
 ; Timing Constants.
 const min_tcf       70  ; Minimum TCK periods per half RCK period.
 const tx_delay      50  ; Wait time for sample transmission, TCK periods.
-const sa_delay      70  ; Wait time for sensor access, TCK periods.
+const sa_delay      40  ; Wait time for sensor access, TCK periods.
 const wp_delay     255  ; Warm-up delay for auxiliary messages.
 const num_vars      40  ; Number of vars to clear at start.
 const initial_tcd   15  ; Max possible value of TCK divisor.
@@ -109,12 +110,13 @@ const op_battery     4 ; 1 operand
 const op_randomize   5 ; 1 operand
 const op_identify    6 ; 0 operands
 
-
 ; ------------------------------------------------------------
 ; The CPU reserves two locations 0x0000 for the start of program
 ; execution, and 0x0003 for interrupt execution. We put jumps at
 ; both locations. A jump takes exactly three bytes.
+
 start:
+
 jp main
 jp interrupt
 
@@ -212,6 +214,7 @@ ret
 ; leave the transmit clock off at the end.
 
 calibrate_tck:
+
 push A           ; Push A and
 push B           ; Push B onto stack to save them.
 ld A,0x00        ; Clear bit zero of A
@@ -239,6 +242,7 @@ ret              ; Return from subroutine.
 ; ------------------------------------------------------------
 ; The interrupt routine. Handles data transmission and clock.
 ; Runs with CPU in boost to save time.
+
 interrupt:
 
 ; Push A onto the stack, boost CPU, push F.
@@ -302,8 +306,6 @@ jp z,int_done       ; skip transmit if not set.
 ld A,bit0_mask      ; Reset this interrupt
 ld (mmu_irst),A     ; with the bit zero mask.
 
-ld A,rf_lo          ; Set the low radio frequency
-ld (mmu_xfc),A      ; for sample transmission
 ld A,(xmit_ch)      ; Load A with channel number
 ld (mmu_xcn),A      ; and write the transmit channel register.
 ld A,(Rcnt)         ; Load A with ramp counter.
@@ -364,6 +366,7 @@ ret
 ; Transmit an acknowledgement. We have to warm up the VCO before
 ; the transmit, or its frequency will be wrong. The routine assumes
 ; we are running in boost with the interrupts disabled.
+
 xmit_ack:
 
 push A
@@ -373,6 +376,7 @@ ld A,(mmu_dfr)      ; Load the diagnostic flag register.
 or A,bit1_mask      ; Set bit one and
 ld (mmu_dfr),A      ; write to diagnostic flag register.
 
+; Prepare the VCO for message transmission.
 ld A,tx_txwp        ; Turn on the VCO by writing the 
 ld (mmu_xcr),A      ; warm-up bit to the transmit control register.
 ld A,wp_delay       ; Wait for a number of TCK periods while 
@@ -382,8 +386,8 @@ ld (mmu_xcr),A      ; let the battery recover
 ld A,wp_delay       ; before we 
 dly A               ; transmit.
 
-ld A,rf_lo          ; Set the low radio frequency
-ld (mmu_xfc),A      ; for sample transmission
+; Prepare the auxiliary message: auxiliary channel number, top four bits of
+; primary channel number, auxiliary type, and acknowledgement key.
 ld A,(xmit_ch)      ; Load A with channel number
 or A,0x0F           ; set lower four bits to one
 ld (mmu_xcn),A      ; and write the transmit channel register.
@@ -394,11 +398,12 @@ sla A               ; Shift A
 sla A               ; left
 sla A               ; four
 sla A               ; times.
-or A,ack_fa         ; Set the field address acknowledge.
+or A,ack_at         ; Set the auxiliary type to acknowledgement.
 ld (mmu_xhb),A      ; Write to transmit HI register.
+
+; Transmit the message.
 ld A,tx_txi         ; Initiate transmission 
 ld (mmu_xcr),A      ; with another write to control register.
-
 ld A,tx_delay       ; Wait for a number of TCK periods while 
 dly A               ; the transmit completes.
 
@@ -414,10 +419,55 @@ ret
 ; ------------------------------------------------------------
 ; Transmit a battery measurement. We assume interrupts are disabled
 ; and the CPU is boosted.
+
 xmit_batt:
 
 push A
 push F
+
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+or A,bit1_mask      ; Set bit one and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
+
+; Prepare the VCO for a transmission.
+ld A,tx_txwp        ; Turn on the VCO by writing the 
+ld (mmu_xcr),A      ; warm-up bit to the transmit control register.
+ld A,wp_delay       ; Wait for a number of TCK periods while 
+dly A               ; the VCO warms up.
+ld A,0              ; Turn off the VCO and
+ld (mmu_xcr),A      ; let the battery recover
+ld A,wp_delay       ; before we 
+dly A               ; transmit.
+
+; Get the battery measurement.
+ld (mmu_scr),A      ; Initiate battery sensor readout.
+ld A,sa_delay       ; Wait for a number of TCK periods while
+dly A               ; the sensor converts.
+ld A,(mmu_sdb)      ; Load the sensor byte and
+ld (mmu_xlb),A      ; Write the battery measurement to transmit LO register.
+
+; Prepare the auiliary message: auxiliary channel number, top four bits of
+; primary channel number, and auxiliary type.
+ld A,(xmit_ch)      ; Load A with channel number
+or A,0x0F           ; set lower four bits to one
+ld (mmu_xcn),A      ; and write the transmit channel register.
+ld A,(xmit_ch)      ; Load A with channel number again
+sla A               ; Shift A 
+sla A               ; left
+sla A               ; four
+sla A               ; times.
+or A,batt_at        ; The battery type code for auxiliary message.
+ld (mmu_xhb),A      ; Write to transmit HI register.
+
+; Transit the message and wait until complete.
+ld A,tx_txi         ; Initiate transmission 
+ld (mmu_xcr),A      ; with another write to control register.
+ld A,tx_delay       ; Wait for a number of TCK periods while 
+dly A               ; the transmit completes.
+
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+xor A,bit1_mask     ; Clear bit one and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
 
 pop F
 pop A
@@ -425,8 +475,9 @@ pop A
 ret
 
 ; ------------------------------------------------------------
-; Transmit a identification. We assume interrupts are disabled and
-; the CPU is boosted.
+; Transmit an identification message. We assume interrupts are 
+; disabled and the CPU is boosted.
+
 xmit_identify:
 
 push A
@@ -442,6 +493,7 @@ ret
 ; count variable, stimulus and configuration locations, and starts
 ; and stops stimuli, transmission, battery measurement and
 ; acknowledgements.
+
 cmd_execute:
 
 ; Disable interrupts, push A onto stack, and boost CPU, then push more
@@ -718,6 +770,7 @@ ret                 ; Return
 ; ------------------------------------------------------------
 ; Initiate a pulse, leaving the termination of the pulse to the
 ; interrupt routine.
+
 start_pulse:
 
 ; Disable interrupts so we can boost the CPU and read the
@@ -773,6 +826,7 @@ ret                 ; return.
 ; ------------------------------------------------------------
 ; The main program. We begin by initializing the device, which
 ; includes initializing the stack pointer, variables, and interrupts.
+
 main:
 
 ; Initialize the stack pointer.
@@ -800,6 +854,8 @@ ld HL,device_id    ; Set the transmit channel
 push L             ; equal to the low byte
 pop A              ; of the
 ld (xmit_ch),A     ; device identifier.
+ld A,tx_calib      ; Set the radio frequency for
+ld (mmu_xfc),A     ; transmission to calibration value.
 
 ; Calibrate the transmit clock.
 call calibrate_tck

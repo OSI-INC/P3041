@@ -726,13 +726,13 @@ begin
 	end process;
 	
 	
--- The Sample Transmitter responds to Transmit Initiate (TXI) by turning on the 
+-- The Message Transmitter responds to Transmit Initiate (TXI) by turning on the 
 -- radio-frequency oscillator, reading sixteen bits from one of the sensors and
 -- transmitting the bits. The process runs off TCK, so the CPU must assert ENTCK
 -- for the process to run. The TXI signal will be asserted for one period of CK
 -- following a CPU write to the TXI location. Further writes to the same location
--- will be ignored until the Sample Transmitter returns to its idle state.
-	Sample_Transmitter : process (TCK) is
+-- will be ignored until the Message Transmitter returns to its idle state.
+	Message_Transmitter : process (TCK) is
 		variable channel_num, set_num, completion_code : 
 			integer range 0 to 15; -- set number for data
 		constant num_sync_bits : integer := 11; -- Num synchronizing bits at start.
@@ -825,13 +825,13 @@ begin
 		end if;
 	end process;
 
--- With XEN we enable the VCO. We assert XEN while the Sample Transmitter is active,
+-- With XEN we enable the VCO. We assert XEN while the Message Transmitter is active,
 -- provided that the Command Processor is not receiving a command. We also turn on
 -- the VCO when the CPU asserts Transmit Warmup (TXWP). 
 	XEN <= to_std_logic((TXA or TXWP) and (CMDRDY or (not CPA)));
 			
 -- The Frequency Modulation process takes the transmit bit values provided by
--- the Sample Transmitter, turns them into a sequence of rising and falling
+-- the Message Transmitter, turns them into a sequence of rising and falling
 -- edges so as to balance the ratio of HI and LO, and modulates the transmit DAC
 -- output (xdac) between the HI and LO frequency values. These values are turned
 -- into analog voltages on the TUNE input of the radio frequency oscillator, and
