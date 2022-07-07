@@ -56,8 +56,7 @@ use ieee.numeric_std.all;
 entity main is 
 	port (
 		RP, -- Receive Power
-		RCK, -- Reference Clock
-		SDO -- Serial Data Out for DAC
+		RCK -- Reference Clock
 		: in std_logic; 
 		XEN, -- Transmit Enable, for data transmission
 		TP1, -- Test Point One, available on P3-1
@@ -68,7 +67,8 @@ entity main is
 		NCS, -- Chip Select for DAC, Negative-True
 		SCK -- Serial Clock for Battery Voltage DAC
 		: out std_logic;
-		ONL -- Turn Lamp On
+		ONL, -- Turn Lamp On
+		SDO -- Serial Data Out for DAC
 		: inout std_logic;
 		xdac -- Transmit DAC Output, to set data transmit frequency
 		: out std_logic_vector(4 downto 0));
@@ -461,7 +461,7 @@ begin
 						when mmu_it1p => int_period_1 <= cpu_data_out;
 						when mmu_it2p => int_period_2 <= cpu_data_out;
 						when mmu_it3p => int_period_3 <= cpu_data_out;
-						when mmu_it4p => int_period_4 <= cpu_data_out;
+--						when mmu_it4p => int_period_4 <= cpu_data_out;
 					end case;
 				end if;
 			end if;
@@ -662,7 +662,7 @@ begin
 			
 			case state is
 				when 0 => -- CS unasserted, SCK HI.
-					CS <= false; SCK <= '1';
+					CS <= false; SCK <= '0';
 					if not SAI then next_state := 0; end if;
 				when 1 => -- Assert CS to start conversion, a zero appears on SDO.
 					CS <= true; SCK <= '1';
@@ -707,13 +707,13 @@ begin
 					sensor_bits_in(1) <= SDO;			
 				when 18 => -- Clock D0 out of DAC
 					CS <= true; SCK <= '0';
-				when 19 => -- Read D0 into sensor register, leave SCK LO.
-					CS <= true; SCK <= '0';
+				when 19 => -- Read D0 into sensor register.
+					CS <= true; SCK <= '1';
 					sensor_bits_in(0) <= SDO;			
-				when 20 => -- Unassert CS.
+				when 20 => -- Drive SCK LO again
+					CS <= true; SCK <= '0';
+				when 21 => -- Unassert CS and leave SCK LO.
 					CS <= false; SCK <= '0';
-				when 21 => -- Return SCK to default HI.
-					CS <= false; SCK <= '1';
 					if SAI then next_state := 21; end if;
 				when others => next_state := 0;
 			end case;
@@ -1258,19 +1258,20 @@ begin
 	end process;
 
 -- Test Point One appears on P4-1.
-	TP1 <= df_reg(0);
+	TP1 <= NCS;
 	
 -- Test Point Two appears on P4-2.
-	TP2 <= df_reg(1);
+	TP2 <= XEN;
 
 -- Test Point Three appears on P4-3 after the programming connector is removed.
 --	TP3 <= to_std_logic(CMDRDY);
-   TP3 <= XEN;
+   TP3 <= SCK;
 
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
 -- this output is almost always HI, and the programming extension is still 
 -- attached, quiescent current increases by 250 uA.
-	TP4 <= to_std_logic(FHI);
+--	TP4 <= to_std_logic(FHI);
+	TP4 <= SDO;
 
 end behavior;

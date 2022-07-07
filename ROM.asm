@@ -70,7 +70,7 @@ const bit3_mask  0x08 ; Bit Three Mask
 ; Timing Constants.
 const min_tcf       70  ; Minimum TCK periods per half RCK period.
 const tx_delay      50  ; Wait time for sample transmission, TCK periods.
-const sa_delay      40  ; Wait time for sensor access, TCK periods.
+const sa_delay      30  ; Wait time for sensor access, TCK periods.
 const wp_delay     255  ; Warm-up delay for auxiliary messages.
 const num_vars      40  ; Number of vars to clear at start.
 const initial_tcd   15  ; Max possible value of TCK divisor.
@@ -97,18 +97,18 @@ const Sicnt2      0x0010 ; Stimulus Interval Counter Byte Two
 const Sicnt1      0x0011 ; Stimulus Interval Counter Byte One
 const Sicnt0      0x0012 ; Stimulus Interval Counter Byte Zero
 const Sistart     0x0013 ; Stimulus Interval Start
-const xmit_ch     0x0014 ; Transmit Channel
+const xmit_pcn    0x0014 ; Primary Channel Number
 const Rcnt        0x0015 ; Ramp Counter
 const Sprun       0x0016 ; Stimulus Pulse Run Flag
 
 ; Operation Codes
 const op_stop_stim   0 ; 0 operands
-const op_start_stim  1 ; 7 operands
-const op_xmit        2 ; 2 operands
+const op_start_stim  1 ; 8 operands
+const op_xmit        2 ; 1 operand
 const op_ack         3 ; 1 operand
-const op_battery     4 ; 1 operand
-const op_randomize   5 ; 1 operand
-const op_identify    6 ; 0 operands
+const op_battery     4 ; 0 operand
+const op_identify    5 ; 0 operands
+const op_setpcn      6 ; 1 operand
 
 ; ------------------------------------------------------------
 ; The CPU reserves two locations 0x0000 for the start of program
@@ -306,7 +306,7 @@ jp z,int_done       ; skip transmit if not set.
 ld A,bit0_mask      ; Reset this interrupt
 ld (mmu_irst),A     ; with the bit zero mask.
 
-ld A,(xmit_ch)      ; Load A with channel number
+ld A,(xmit_pcn)     ; Load A with primary channel number
 ld (mmu_xcn),A      ; and write the transmit channel register.
 ld A,(Rcnt)         ; Load A with ramp counter.
 inc A               ; Increment A and
@@ -388,12 +388,12 @@ dly A               ; transmit.
 
 ; Prepare the auxiliary message: auxiliary channel number, top four bits of
 ; primary channel number, auxiliary type, and acknowledgement key.
-ld A,(xmit_ch)      ; Load A with channel number
+ld A,(xmit_pcn)     ; Load A with primary channel number
 or A,0x0F           ; set lower four bits to one
 ld (mmu_xcn),A      ; and write the transmit channel register.
 ld A,(Sack_key)     ; Load the acknowledgement key
 ld (mmu_xlb),A      ; and write to transmit LO register.
-ld A,(xmit_ch)      ; Load A with channel number again
+ld A,(xmit_pcn)     ; Load A with primary channel number again
 sla A               ; Shift A 
 sla A               ; left
 sla A               ; four
@@ -439,8 +439,12 @@ ld (mmu_xcr),A      ; let the battery recover
 ld A,wp_delay       ; before we 
 dly A               ; transmit.
 
-; Get the battery measurement.
-ld (mmu_scr),A      ; Initiate battery sensor readout.
+; Get the battery measurement. We have to acquire and then convert,
+; so we read the ADC twice.
+ld (mmu_scr),A      ; Read out what may be an all-zeroes blank byte.
+ld A,sa_delay       ; Wait for a number of TCK periods while
+dly A               ; the blank byte readout completes.
+ld (mmu_scr),A      ; Initiate conversion of battery voltage.
 ld A,sa_delay       ; Wait for a number of TCK periods while
 dly A               ; the sensor converts.
 ld A,(mmu_sdb)      ; Load the sensor byte and
@@ -448,10 +452,10 @@ ld (mmu_xlb),A      ; Write the battery measurement to transmit LO register.
 
 ; Prepare the auiliary message: auxiliary channel number, top four bits of
 ; primary channel number, and auxiliary type.
-ld A,(xmit_ch)      ; Load A with channel number
+ld A,(xmit_pcn)     ; Load A with primary channel number
 or A,0x0F           ; set lower four bits to one
 ld (mmu_xcn),A      ; and write the transmit channel register.
-ld A,(xmit_ch)      ; Load A with channel number again
+ld A,(xmit_pcn)     ; Load A with primary channel number again
 sla A               ; Shift A 
 sla A               ; left
 sla A               ; four
@@ -621,6 +625,10 @@ ld A,(IX)            ; Read stimulus length byte zero.
 ld (Slength_0),A
 inc IX
 call dec_cmd_cnt
+ld A,(IX)            ; Read randomization state
+ld (Srandomize),A    ; and write to memory.
+inc IX
+call dec_cmd_cnt
 ld A,0x01            ; Set the
 ld (Srun),A          ; stimulus run and
 ld (Sistart),A       ; stimulus start flags.
@@ -642,10 +650,6 @@ check_xmit:
 ld A,(IX)
 sub A,op_xmit
 jp nz,check_ack
-inc IX
-call dec_cmd_cnt
-ld A,(IX)            ; Read data channel number.
-ld (xmit_ch),A
 inc IX
 call dec_cmd_cnt
 ld A,(IX)            ; Read transmit period minus one. 
@@ -683,33 +687,34 @@ jp cmd_loop_end
 check_battery:
 ld A,(IX)
 sub A,op_battery
-jp nz,check_randomize
+jp nz,check_identify
 inc IX
 call dec_cmd_cnt
 call xmit_batt       ; Call the battery transmit routine.
 jp cmd_loop_end
 
-; Set or unset randomization of pulses.
-check_randomize:
-ld A,(IX)
-sub A,op_randomize
-jp nz,check_identify
-inc IX
-call dec_cmd_cnt
-ld A,(IX)            ; Read randomization state
-ld (Srandomize),A    ; and write to memory.
-inc IX
-call dec_cmd_cnt
-jp cmd_loop_end
-
-; Self identification request instruction.
+; Identification request instruction.
 check_identify:
 ld A,(IX)
 sub A,op_identify
-jp nz,cmd_done
+jp nz,check_setpcn
 inc IX
 call dec_cmd_cnt
 call xmit_identify    ; Call the identification transmit routine.
+jp cmd_loop_end
+
+; Set the primary channel number for acknowledgements, battery
+; measurements and synchronizing signal transmission.
+check_setpcn:
+ld A,(IX)
+sub A,op_setpcn
+jp nz,cmd_done
+inc IX
+call dec_cmd_cnt
+ld A,(IX)            ; Read primary channel number
+ld (xmit_pcn),A      ; and write to memory.
+inc IX
+call dec_cmd_cnt
 jp cmd_loop_end
 
 ; Check the number of bytes remaining to be read. If greater
@@ -850,10 +855,10 @@ jp nz,main_vclr
 ; Configure some registers.
 ld A,0             ; Make sure the stimulus
 ld (mmu_stc),A     ; current is zero.
-ld HL,device_id    ; Set the transmit channel
+ld HL,device_id    ; Set the primary channel number
 push L             ; equal to the low byte
 pop A              ; of the
-ld (xmit_ch),A     ; device identifier.
+ld (xmit_pcn),A    ; device identifier.
 ld A,tx_calib      ; Set the radio frequency for
 ld (mmu_xfc),A     ; transmission to calibration value.
 
