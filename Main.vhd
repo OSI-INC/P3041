@@ -46,7 +46,7 @@
 
 -- V1.5. 06-JUL-22 Status register now contains CMDRDY, ENTCK, SAA, TXA, CPA, and BOOST. We have all
 -- four interrupt timers implemented, hoping to use the second and third for transmission scatter
--- and pulse randomization.
+-- and pulse randomization. Perfect ADC readout. Remove interrupt timer four to free up logic.
 
 
 library ieee;  
@@ -1261,7 +1261,7 @@ begin
 	TP1 <= df_reg(0);
 	
 -- Test Point Two appears on P4-2.
-	TP2 <= XEN;
+	TP2 <= ONL;
 
 -- Test Point Three appears on P4-3 after the programming connector is removed.
 	TP3 <= to_std_logic(CMDRDY);
