@@ -8,9 +8,9 @@
 ; main loop. RCK is connected directly to the reference clock. The
 ; TCK pin is connected to FHI.
 
-; Calibration Constants
-const device_id    0xA123 ; Will be used as the first channel number.
-const tx_calib          5 ; Transmit frequency calibration
+; Calibration Constants.
+const device_id  0xA123 ; Bottom niblle 1-14.
+const tx_calib        5 ; Transmit frequency calibration
 
 ; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
@@ -76,6 +76,7 @@ const num_vars      40  ; Number of vars to clear at start.
 const initial_tcd   15  ; Max possible value of TCK divisor.
 const stim_tick     33  ; Stimulus interrupt period.
 const xx_delay   32767  ; Transmit Extinguish Delay
+const id_delay      33  ; To pad id delay to 50 TCK periods.
 
 ; Variable Locations
 const Scurrent    0x0000 ; Stimulus Current
@@ -112,6 +113,10 @@ const op_ack         3 ; 1 operand
 const op_battery     4 ; 0 operand
 const op_identify    5 ; 0 operands
 const op_setpcn      6 ; 1 operand
+
+; Synchronization values.
+const synch_nostim  32 ; 
+const synch_stim    96 ;
 
 ; ------------------------------------------------------------
 ; The CPU reserves two locations 0x0000 for the start of program
@@ -311,26 +316,46 @@ ld (mmu_irst),A     ; with the bit zero mask.
 
 ld A,(xmit_pcn)     ; Load A with primary channel number
 ld (mmu_xcn),A      ; and write the transmit channel register.
-ld A,(Rcnt)         ; Load A with ramp counter.
-inc A               ; Increment A and
-ld (Rcnt),A         ; write new value to counter.
-push A              ; Set up 
-pop B               ; Rcnt in 
-push A              ; both B and C
-pop C               ; to prepare for multiplication.
-call multiply       ; and obtain the sixteen-bit square.
-push C              ; Load bottom byte of square into 
-pop A               ; A and 
+
+; If a not Srun, we will transmit synch_nostim. If Srun but not Sprun, we 
+; transmit synch_stim. If Srun we transmit synch_stim + 8*Scurrent.
+; Regardless, the lower byte we transmit will be zero.
+ld A,0              ; Load A with zero
 ld (mmu_xlb),A      ; write to transmit LO register.
-push B              ; Load top byte into 
-pop A               ; A and
+
+ld A,(Srun)         ; Load A with Srun
+add A,0             ; check value
+jp nz,int_xmit_stim ; jump if set.
+
+ld A,synch_nostim   ; Load A with synch_nostim and
 ld (mmu_xhb),A      ; write to transmit HI register.
+jp int_xmit_rdy   
+
+int_xmit_stim:
+ld A,(Sprun)        ; Load A with Sprun
+add A,0             ; check value, jump if set.
+jp nz,int_xmit_pulse
+
+ld A,synch_stim     ; Load A with synch_stim and
+ld (mmu_xhb),A      ; write to transmit HI register.
+jp int_xmit_rdy   
+
+int_xmit_pulse:
+ld A,(Scurrent)     ; Load A with Scurrent and
+sla A               ; shift left
+sla A               ; three times to
+sla A               ; multiply by eight
+add A,synch_stim    ; then add synch_stim.
+ld (mmu_xhb),A      ; Write to transmit HI register.
+
+int_xmit_rdy:
 ld A,tx_txi         ; Load transmit initiate bit
 ld (mmu_xcr),A      ; and write to transmit control register.
 
-ld A,(Srun)         ; If Srun is set, we set the xmit
-add A,0             ; extinguish counter at its maximum
-jp z,int_xmit_xx    ; value.
+ld A,(Srun)         ; Load A with Srun
+add A,0             ; and check value
+jp z,int_xmit_xx    ; jump if zero.
+
 ld HL,xx_delay      ; Load the transmit exitinguish
 push H              ; delay into HL
 pop A               ; and store
@@ -340,8 +365,8 @@ pop A               ; counter locations
 ld (xxcnt0), A      ; ready for when Srun is cleared.
 jp int_done
 
-int_xmit_xx:        ; If Srun is cleared, we decrement
-ld A,(xxcnt0)       ; the 
+int_xmit_xx:        
+ld A,(xxcnt0)       ; Decrement the
 sub A,1             ; extinguish
 ld (xxcnt0),A       ; counter.
 ld A,(xxcnt1)       ; When it gets below zero,
@@ -451,10 +476,6 @@ xmit_batt:
 push A
 push F
 
-ld A,(mmu_dfr)      ; Load the diagnostic flag register.
-or A,bit1_mask      ; Set bit one and
-ld (mmu_dfr),A      ; write to diagnostic flag register.
-
 ; Prepare the VCO for a transmission.
 ld A,tx_txwp        ; Turn on the VCO by writing the 
 ld (mmu_xcr),A      ; warm-up bit to the transmit control register.
@@ -495,10 +516,6 @@ ld (mmu_xcr),A      ; with another write to control register.
 ld A,tx_delay       ; Wait for a number of TCK periods while 
 dly A               ; the transmit completes.
 
-ld A,(mmu_dfr)      ; Load the diagnostic flag register.
-xor A,bit1_mask     ; Clear bit one and
-ld (mmu_dfr),A      ; write to diagnostic flag register.
-
 pop F
 pop A
 
@@ -506,15 +523,74 @@ ret
 
 ; ------------------------------------------------------------
 ; Transmit an identification message. We assume interrupts are 
-; disabled and the CPU is boosted.
+; disabled and the CPU is running on the boost clock. 
 
 xmit_identify:
 
 push A
 push F
+push H
+push L
 
-; Work in progress.
+; Delay for 50 clcok cycles multiplied by numeric value of 
+; the device id. By this means, each device transmits its
+; identifying message at a different time, up to 656 ms from
+; the time of the command.
+ld HL,device_id 
+identify_delay:
+ld A,id_delay
+dly A
+push L
+pop A
+sub A,1
+push A
+pop L
+push H
+pop A
+sbc A,0
+push A
+pop H
+jp nc,identify_delay
 
+; Prepare the VCO for a transmission.
+ld A,tx_txwp        ; Turn on the VCO by writing the 
+ld (mmu_xcr),A      ; warm-up bit to the transmit control register.
+ld A,wp_delay       ; Wait for a number of TCK periods while 
+dly A               ; the VCO warms up.
+ld A,0              ; Turn off the VCO and
+ld (mmu_xcr),A      ; let the battery recover
+ld A,wp_delay       ; before we 
+dly A               ; transmit.
+
+; Load the top byte of the device_id into the transmit LO byte.
+ld HL,device_id     ; Load device_id into HL
+push H              ; move to
+pop A               ; A and 
+ld (mmu_xlb),A      ; write the battery measurement to transmit LO register.
+
+; Prepare the auiliary message. We use the lower byte of the device_id
+; as the primary channel number for an auxiliary message. 
+push L              ; Move the lower byte of device_id
+pop A               ; into A,
+or A,0x0F           ; set lower four bits to one
+ld (mmu_xcn),A      ; and write the transmit channel register.
+push L              ; Load A with primary
+pop A               ; channel number again
+sla A               ; Shift A 
+sla A               ; left
+sla A               ; four
+sla A               ; times.
+or A,id_at          ; The identify type code for auxiliary message.
+ld (mmu_xhb),A      ; Write to transmit HI register.
+
+; Transit the message and wait until complete.
+ld A,tx_txi         ; Initiate transmission 
+ld (mmu_xcr),A      ; with another write to control register.
+ld A,tx_delay       ; Wait for a number of TCK periods while 
+dly A               ; the transmit completes.
+
+pop L
+pop H
 pop F
 pop A
 
