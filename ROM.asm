@@ -530,16 +530,16 @@ ld (mmu_xcr),A      ; let the battery recover
 ld A,wp_delay       ; before we 
 dly A               ; transmit.
 
-; Load the most recent battery measurement from memory and use as
-; the auxiliary message data byte. 
+; Get the battery measurement. We have to acquire and then convert,
+; so we read the ADC twice.
+ld (mmu_scr),A      ; Read out what may be an all-zeroes blank byte.
+ld A,sa_delay       ; Wait for a number of TCK periods while
+dly A               ; the blank byte readout completes.
 ld (mmu_scr),A      ; Initiate conversion of battery voltage.
-ld A,sa_delay       ; Load sensor delay,
-dly A               ; Wait,
-ld (mmu_scr),A      ; conver again,
-ld A,sa_delay       ; wait
-dly A               ; again
-ld A,(mmu_sdb)      ; and get battery measurement.
-ld (mmu_xlb),A      ; Write the to transmit LO register.
+ld A,sa_delay       ; Wait for a number of TCK periods while
+dly A               ; the sensor converts.
+ld A,(mmu_sdb)      ; Load the sensor byte and
+ld (mmu_xlb),A      ; Write the battery measurement to transmit LO register.
 
 ; Prepare the auiliary message: auxiliary channel number, top four bits of
 ; primary channel number, and auxiliary type.
