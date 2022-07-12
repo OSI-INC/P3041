@@ -330,6 +330,13 @@ ld A,(Sprun)        ; Check the stimulus pulse flag
 add A,0             ; is set, we decrement pulse counter,
 jp z,int_Sdly       ; otherwise jump to stimulus delay check.
 
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+or A,bit3_mask      ; set bit three and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+xor A,bit3_mask     ; clear bit three and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
+
 ld A,(Spcnt0)       ; Load stimulus pulse counter byte zero,
 sub A,stim_tick     ; subtract the stimulus tick,
 ld (Spcnt0),A       ; and write the result to memory.
@@ -341,6 +348,7 @@ ld A,0              ; but if <0,
 ld (mmu_stc),A      ; turn off the lamp,
 ld (Sprun),A        ; clear the pulse flag and now
 jp int_stim_done    ; we are done with this interrupt.
+
 
 int_Sdly:
 ld A,(Sdrun)        ; If the stimulus delay flag is
@@ -420,7 +428,7 @@ dly A               ; and wait for transmission to complete.
 
 ; If there is no stimulus, we decrement the transmit extinguish
 ; counter. When it reaches zero, we turn off the transmit interrupt
-; so that we don't run down our battery.
+; so we don't run down our battery.
 
 ld A,(Srun)         ; Load A with Srun
 add A,0             ; and check value
@@ -476,7 +484,7 @@ int_entck:          ; Now TCK and BOOST are restored.
 
 ; Pop registers and return from interrupt.
 
-Pop L
+pop L
 pop H
 pop A               
 pop F               
@@ -1049,6 +1057,11 @@ ld A,0x01           ; Set bit zero to one.
 ld (mmu_etc),A      ; Enable the transmit clock, TCK.
 ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
 
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+or A,bit1_mask      ; set bit one and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
+
+
 ; Push more registers.
 
 push B
@@ -1202,6 +1215,10 @@ pop D
 pop C
 pop B
 
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+xor A,bit1_mask     ; clear bit one and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
+
 ; Move out of boost, pop A and F and return.
 
 ld A,0x00           ; Load a zero and use it to
@@ -1285,6 +1302,14 @@ jp z,main_nostim
 ld A,(Sistart)
 and A,0x01
 jp z,main_nostim
+
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+or A,bit2_mask      ; set bit two and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
+
+ld A,(mmu_dfr)      ; Load the diagnostic flag register.
+xor A,bit2_mask     ; clear bit two and
+ld (mmu_dfr),A      ; write to diagnostic flag register.
 
 ; Decrement the stimulus length counter, which is the number of pulses
 ; that remain in the stimulus. Jump forwards if it is still positive.
