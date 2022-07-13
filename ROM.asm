@@ -72,7 +72,7 @@ const bit2_clr   0xFB ; Bit Two Clear
 const bit3_clr   0xF7 ; Bit Three Clear
 
 ; Timing Constants.
-const min_tcf       70  ; Minimum TCK periods per half RCK period.
+const min_tcf       72  ; Minimum TCK periods per half RCK period.
 const tx_delay      50  ; Wait time for sample transmission, TCK periods.
 const sa_delay      30  ; Wait time for sensor access, TCK periods.
 const wp_delay     255  ; Warm-up delay for auxiliary messages.
