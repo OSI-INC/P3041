@@ -82,7 +82,7 @@ const stim_tick     33  ; Stimulus interrupt period.
 const xx_delay   32767  ; Transmit Extinguish Delay
 const id_delay      33  ; To pad id delay to 50 TCK periods.
 
-; Variable Locations
+; Stimulus Control Variables
 const Scurrent    0x0000 ; Stimulus Current
 const Spulse_1    0x0001 ; Pulse Length, HI
 const Spulse_0    0x0002 ; Pulse Length, LO
@@ -93,27 +93,40 @@ const Slength_1   0x0006 ; Stimulus Length, HI
 const Slength_0   0x0007 ; Stimulus Length, LO
 const Srandomize  0x0008 ; Randomise
 const Srun        0x0009 ; Run stimulus
-const Sack_key    0x000A ; Acknowledgement key
-const cmd_cnt_h   0x000B ; Command Count, HI
-const cmd_cnt_l   0x000C ; Command Count, LO
-const xmit_T      0x000D ; Transmit Period
-const Spcnt1      0x000E ; Stimulus Pulse Counter Byte One
-const Spcnt0      0x000F ; Stimulus Pulse Counter Byte Zero
-const Sicnt2      0x0010 ; Stimulus Interval Counter Byte Two
-const Sicnt1      0x0011 ; Stimulus Interval Counter Byte One
-const Sicnt0      0x0012 ; Stimulus Interval Counter Byte Zero
-const Sistart     0x0013 ; Stimulus Interval Start
-const xmit_pcn    0x0014 ; Primary Channel Number
-const Rcnt        0x0015 ; Ramp Counter
-const Sprun       0x0016 ; Stimulus Pulse Run Flag
-const xxcnt1      0x0017 ; Transmit Extinguish Counter Byte One
-const xxcnt0      0x0018 ; Transmit Extinguish Counter Byte Zero
-const Sdly2       0x0019 ; Stimulus Delay Byte Two
-const Sdly1       0x0020 ; Stimulus Delay Byte One
-const Sdly0       0x0021 ; Stimulus Delay Byte Zero
-const Rand1       0x0022 ; Random Number Byte One
-const Rand0       0x0023 ; Random Number Byte Zero
-const Sdrun       0x0024 ; Stimulus Delay Run Flag
+const Sprun       0x000A ; Stimulus Pulse Run Flag
+const Sack_key    0x000B ; Acknowledgement key
+const Spcnt1      0x000C ; Stimulus Pulse Counter Byte One
+const Spcnt0      0x000D ; Stimulus Pulse Counter Byte Zero
+const Sicnt2      0x000E ; Stimulus Interval Counter Byte Two
+const Sicnt1      0x000F ; Stimulus Interval Counter Byte One
+const Sicnt0      0x0010 ; Stimulus Interval Counter Byte Zero
+const Sistart     0x0011 ; Stimulus Interval Start
+const Sdly2       0x0012 ; Stimulus Delay Byte Two
+const Sdly1       0x0013 ; Stimulus Delay Byte One
+const Sdly0       0x0014 ; Stimulus Delay Byte Zero
+const Sdrun       0x0015 ; Stimulus Delay Run Flag
+
+; Command Execution Variables
+const cmd_cnt_h   0x0020 ; Command Count, HI
+const cmd_cnt_l   0x0021 ; Command Count, LO
+
+; Random Number Variabls
+const Rand1       0x0030 ; Random Number Byte One
+const Rand0       0x0031 ; Random Number Byte Zero
+
+; Transmission Control Variables
+const xmit_T      0x0040 ; Transmit Period
+const xmit_pcn    0x0041 ; Primary Channel Number
+const xxcnt1      0x0042 ; Transmit Extinguish Counter Byte One
+const xxcnt0      0x0043 ; Transmit Extinguish Counter Byte Zero
+
+; Global Scratch Registers Variables.
+const scratch1    0x0050 ; Scratchpad Variable 1
+const scratch2    0x0051 ; Scratchpad Variable 2
+const scratch3    0x0052 ; Scratchpad Variable 3
+const scratch4    0x0053 ; Scratchpad Variable 4
+const scratch5    0x0054 ; Scratchpad Variable 5
+const scratch6    0x0055 ; Scratchpad Variable 6
 
 ; Operation Codes
 const op_stop_stim   0 ; 0 operands
@@ -685,11 +698,18 @@ ret
 
 cmd_execute:
 
-; Disable interrupts, push A onto stack, and boost CPU, then push more
-; registers now the CPU is running fast.
+; Push the flags onto the stack and disable interrupts. Allowing interrupts
+; while we are configuring a stimulus or a transmission is more challenging
+; than simply turning them off and making sure everything is set up properly
+; before returning from this routine and popping the flags off the stack 
+; again, restoring the interrupt flag (I) to its prior state. 
 
 push F              ; Push flags.
 seti                ; Disable interrupts.
+
+; Now we push A, turn on the transmit clock and go into boost, then push all 
+; the remaining registers we plan to use.
+
 push A              ; Save A.
 ld A,0x01           ; Set bit zero to one.
 ld (mmu_etc),A      ; Enable the transmit clock, TCK.
@@ -702,9 +722,9 @@ push H
 push L
 push IX
 
-ld A,(mmu_dfr)      
-or A,bit1_mask     
-ld (mmu_dfr),A   
+ld A,(mmu_dfr)       ; A pulse to show that we 
+or A,bit1_mask       ; are starting the command
+ld (mmu_dfr),A       ; execution.
 
 ; Calculate and store the command count in memory. We read the wr_cmd_addr and subtract
 ; two. We will use the dec_cmd_cnt routine to decrement as we increment through the command
@@ -881,7 +901,9 @@ and A,bit0_clr       ; the xmit interrupt
 ld (mmu_imsk),A      ; with mask.
 jp cmd_loop_end
 
-; Acknowledgement request instruction.
+; Acknowledgement request instruction. We read the acknowledgement
+; key that will serve as a verification code and call the acknowledgement
+; transmit routine, which will take about fifty microseconds.
 
 check_ack:
 ld A,(IX)
@@ -889,49 +911,55 @@ sub A,op_ack
 jp nz,check_battery
 inc IX
 call dec_cmd_cnt
-ld A,(IX)            ; Read the key to send back.
-ld (Sack_key),A
-inc IX
-call dec_cmd_cnt
-call xmit_ack        ; Call the acknowledge routine.
+ld A,(IX)           
+ld (Sack_key),A      
+inc IX             
+call dec_cmd_cnt     
+call xmit_ack        
 jp cmd_loop_end
 
-; Battery voltage measurement request instruction.
+; Battery voltage measurement request instruction. This instruction
+; takes no parameters. We call the battery measurement routine
+; immediately, which will take about fifty microseconds.
 
 check_battery:
 ld A,(IX)
 sub A,op_battery
 jp nz,check_identify
-inc IX
-call dec_cmd_cnt
-call xmit_batt       ; Call the battery transmit routine.
+inc IX                
+call dec_cmd_cnt     
+call xmit_batt       
 jp cmd_loop_end
 
-; Identification request instruction.
+; Identification request instruction. This instruction takes no
+; operands. We call the identification transmission routine, which
+; will occupy the CPU for up to 650 ms before transmitting a single
+; message that gives the device id to any listeners.
 
 check_identify:
 ld A,(IX)
 sub A,op_identify
 jp nz,check_setpcn
-inc IX
-call dec_cmd_cnt
-call xmit_identify    ; Call the identification transmit routine.
+inc IX                
+call dec_cmd_cnt      
+call xmit_identify    
 jp cmd_loop_end
 
 ; Set the primary channel number for acknowledgements, battery
-; measurements and synchronizing signal transmission.
+; measurements and synchronizing signal transmission. We read
+; the primary channel number and write to memory.
 
 check_setpcn:
 ld A,(IX)
 sub A,op_setpcn
 jp nz,cmd_done
-inc IX
+inc IX 
 call dec_cmd_cnt
-ld A,(IX)            ; Read primary channel number
-ld (xmit_pcn),A      ; and write to memory.
-inc IX
-call dec_cmd_cnt
-jp cmd_loop_end
+ld A,(IX)           
+ld (xmit_pcn),A      
+inc IX               
+call dec_cmd_cnt    
+jp cmd_loop_end     
 
 ; Check the number of bytes remaining to be read. If greater
 ; than zero, jump back to start of loop, otherwise we are done.
@@ -957,7 +985,7 @@ ld A,(mmu_dfr)
 and A,bit1_clr    
 ld (mmu_dfr),A    
 
-; Restore most registers, but not A, which we still need.
+; Restore most registers.
 
 pop IX
 pop L
@@ -977,12 +1005,13 @@ pop F
 ret                 
 
 ; ------------------------------------------------------------
-; The random number generator returns a random eight-bit number
-; in A using the a sixteen-bit Galois Linear Feedback Shift Register.
+; The random number generator updates Rand0 and Rand1 with a 
+; sixteen-bit linear feedback shift register.
 
 random:
 
 push F
+push A
 
 ld A,(Rand1)      ; Rotate Rand1 to the right,
 srl A             ; filling top bit with zero,
@@ -993,10 +1022,11 @@ ld (Rand0),A      ; and placing bottom bit in carry.
 
 ld A,(Rand1)      ; Load A with Rand1 again.
 jp nc,rand_tz     ; If carry is set, perform the XOR
-xor A,rand_taps   ; operation on four bits and
+xor A,rand_taps   ; operation on tap bits and
 ld (Rand1),A      ; save to memory.
-rand_tz:          ; Return Rand1 as our number.
+rand_tz:
 
+pop A
 pop F
 
 ret
@@ -1008,13 +1038,14 @@ ret
 
 start_pulse:
 
+push F
+push A
+
 ; Disable interrupts so we can boost the CPU and read the
 ; interval counter without risking the interrupt routine
 ; changing its value while we are reading.
-
-push F
 seti
-push A
+
 ld A,0x01           ; Set bit zero to one.
 ld (mmu_etc),A      ; Enable the transmit clock, TCK.
 ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
@@ -1025,9 +1056,13 @@ push E
 push H
 push L
 
+; Generate a pulse on diagnostic flag two.
+
 ld A,(mmu_dfr)      
 or A,bit2_mask     
 ld (mmu_dfr),A     
+
+; Add the stimulus interval to the stimulus interval counter.
 
 ld A,(Sinterval_0)  ; Add the stimulus interval
 push A              ; to the stimulus counter.
@@ -1058,23 +1093,46 @@ ld (Spcnt0),A       ; both bytes from memory
 ld A,(Spulse_1)     ; and writing to the pulse
 ld (Spcnt1),A       ; counter bytes.
 
+; Check the randomize flag.
+
 ld A,(Srandomize)
 add A,0
 jp z,stp_nr
 
-; Get a random number.
+; Copy the stimulus interval length into scratch variables
+; and subtract the pulse length. The result is our maximum 
+; delay for randomized pulses.
 
-call random         ; Get a random number in A and
-push A              ; store it
-pop D               ; in D for later
-push A              ; and in
-pop B               ; B for multiplication.
+ld A,(Spulse_0)
+push A
+pop B
+ld A,(Sinterval_0)
+sub A,B
+ld (scratch1),A
+ld A,(Spulse_1)
+push A
+pop B
+ld A,(Sinterval_1)
+sbc A,B
+ld (scratch2),A
+ld A,(Sinterval_2)
+sbc A,0
+ld (scratch3),A
+
+; Get a random number and stash it in D. This is one
+; of our product terms, the other is the stimulus interval.
+
+ld A,(Rand0)        ; Load the random number.
+push A              ; and move to B
+pop B               ; for multiplication.
+push A              ; Also store in D for 
+pop D               ; later.
 
 ; Multiply the stimulus interval by the random number and
 ; store that top three bytes of the thirty-two bit product
 ; in the stimulus delay register.
 
-ld A,(Sinterval_0)  ; Load LO byte of interval length
+ld A,(scratch1)     ; Load LO byte of max delay
 push A              ; and place in C for
 pop C               ; multiplication.
 call multiply       ; Let BC := B * C.
@@ -1082,7 +1140,7 @@ push B              ; Store B (first carry byte) in
 pop E               ; E for later.
 push D              ; Bring back our random
 pop B               ; number
-ld A,(Sinterval_1)  ; and put MID byte of interval
+ld A,(scratch2)     ; and put MID byte of max delay
 push A              ; in
 pop C               ; C for multiplication
 call multiply       ; Let BC := B * C.
@@ -1096,7 +1154,7 @@ add A,B             ; add to obtain delay byte zero,
 ld (Sdly0),A        ; this addition never generates a carry.
 push D              ; Bring back our random
 pop B               ; number
-ld A,(Sinterval_2)  ; and put HI byte of interval
+ld A,(scratch3)      ; and put HI byte of max delay
 push A              ; in
 pop C               ; C for multiplication
 call multiply       ; Let BC := B * C.
@@ -1111,20 +1169,6 @@ ld (Sdly1),A        ; this addition never generates a carry.
 push E              ; Bring back third carry byte
 pop A               ; and use as
 ld (Sdly2),A        ; delay byte two.
-
-; Divide the stimulus delay by two. This avoids problems with
-; one pulse being delayed into the next, provided that the pulse
-; length is less than half the interval length.
-
-ld A,(Sdly2)        ; Load second byte
-srl A               ; and shift right, fill top with zero
-ld (Sdly2),A        ; use bottom for carry, store.
-ld A,(Sdly1)        ; Load first byte
-rr A                ; and shift right, usin carry for top
-ld (Sdly1),A        ; use bottom for carry, store.
-ld A,(Sdly0)        ; And do the same
-rr A                ; for byte
-ld (Sdly0),A        ; zero.
 
 ; Set the delay run flag, make sure pulse run is clear.
 
@@ -1151,6 +1195,9 @@ ld A,0              ; Clear the
 ld (Sdrun),A        ; delay run flag.
 
 stp_done:
+
+; End pulse on diagnostic flag two.
+
 ld A,(mmu_dfr)     
 and A,bit2_clr    
 ld (mmu_dfr),A    
@@ -1230,6 +1277,10 @@ and A,sr_cmdrdy     ; Check the command ready bit.
 jp z,main_nocmd     ; Jump if it's clear,
 call cmd_execute    ; execute command if it's set.
 main_nocmd:
+
+; Update the random number.
+
+call random
 
 ; Check to see if the stimulus is running, and if we are at the
 ; start of an interval we will decrement the stimulus length 
