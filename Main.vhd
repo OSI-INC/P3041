@@ -48,6 +48,8 @@
 -- four interrupt timers implemented, hoping to use the second and third for transmission scatter
 -- and pulse randomization. Perfect ADC readout. Remove interrupt timer four to free up logic.
 
+-- V1.6. 13-JUL-22 Add support for transmission warm-up (TXWP) so CPU can turn on the VCO to warm
+-- it up before transmitting auxiliary messages.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -1082,13 +1084,13 @@ begin
 		state := next_state;
 	end process;
 
--- This process runs all the bits of a command through a sixteen-bit linear shift 
--- register, with local name "crc" for "cyclic redundancy check". We preset crc 
--- to all ones. The final sixteen bits of every command are chosen so that they 
--- reset the crc register to all zeros. If crc is not zero at the end of a command,
--- there was some error during reception. We use the Bit Strobe (BITS) signal to 
--- clock crc, because BITS is asserted only when a command data bit is receive,
--- not when we receive a start or stop bit.
+-- This process runs all the bits of a command through a sixteen-bit linear 
+-- feedback shift register, with local name "crc" for "cyclic redundancy check". 
+-- We preset crc to all ones. The final sixteen bits of every command are chosen 
+-- so that they reset the crc register to all zeros. If crc is not zero at the 
+-- end of a command, there was some error during reception. We use the Bit Strobe 
+-- (BITS) signal to clock crc, because BITS is asserted only when a command data 
+-- bit is receive, not when we receive a start or stop bit.
 	Error_Check : process is
 		variable crc, next_crc : std_logic_vector(15 downto 0) := (others => '1');
 	begin

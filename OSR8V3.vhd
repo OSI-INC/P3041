@@ -1,6 +1,6 @@
 -- Open-Source Reconfigurable Eight-Bit (OSR8) Central Processing Unit (CPU)
 --
--- Copyright (C) 2020 Kevan Hashemi, Open Source Instruments Inc.
+-- Copyright (C) 2020-2022 Kevan Hashemi, Open Source Instruments Inc.
 --
 -- This program is free software; you can redistribute it and/orpr
 -- modify it under the terms of the GNU General Public License

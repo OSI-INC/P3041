@@ -9,7 +9,7 @@
 ; TCK pin is connected to FHI.
 
 ; Calibration Constants.
-const device_id  0xA123 ; Bottom niblle 1-14.
+const device_id  0x2C9B ; Bottom niblle 1-14.
 const tx_calib        5 ; Transmit frequency calibration
 
 ; Address Map Boundary Constants
@@ -1265,6 +1265,7 @@ ld A,0xFF            ; Load A with ones
 ld (mmu_irst),A      ; and reset all interrupts.
 ld A,0x00            ; Load zeros
 ld (mmu_imsk),A      ; and disable all interrupts.
+
 
 ; The main event loop.
 
