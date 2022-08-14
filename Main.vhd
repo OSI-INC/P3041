@@ -24,7 +24,8 @@
 -- V1.3, 20-JUN-22: The transmit clock turns on only when the CPU says so with ENTCK. The CPU
 -- must assert ENTCK for sample transmission. If the CPU asserts ENTCK for sensor access, so
 -- much the better: the access will go faster and the sensor will be awake for less time. 
--- Remove TXD, SAD, and stack overflow interrupts. The command processor now asserts CPA until-- the CPU resets its state to idle. We will have OND asserted by CPA until the CPU asserts CPRST. 
+-- Remove TXD, SAD, and stack overflow interrupts. The command processor now asserts CPA until
+-- the CPU resets its state to idle. We will have OND asserted by CPA until the CPU asserts CPRST. 
 -- The CPU can use the CMDRDY memory location to poll for new commands. Combine readback of 
 -- CMDRDY, ENTCK, ONL, SAA, and TXA in a single status register. Eliminate stack pointer base 
 -- and height locations in memory management unit.  The OSR8 will initialize SP to zero. An interrupt 
@@ -886,7 +887,7 @@ begin
 					(c=0) or (c=2) or (c=4) or (c=6) or (c=8) or (c=10) or (c=12) 
 					or (c=14));
 				when 9 => ONL <= to_std_logic(
-					(c/=0) and (c/=3) and (c/=9) and (c/=9) and (c/=12) and (c/=14));
+					(c/=0) and (c/=3) and (c/=9) and (c/=10) and (c/=12) and (c/=14));
 				when 10 => ONL <= to_std_logic(
 					(c/=0) and (c/=4) and (c/=7) and (c/=10) and (c/=13));
 				when 11 => ONL <= to_std_logic(

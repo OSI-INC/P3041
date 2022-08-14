@@ -120,7 +120,7 @@ const xmit_pcn    0x0041 ; Primary Channel Number
 const xxcnt1      0x0042 ; Transmit Extinguish Counter Byte One
 const xxcnt0      0x0043 ; Transmit Extinguish Counter Byte Zero
 
-; Global Scratch Registers Variables.
+; Scratch Pad Variables
 const scratch1    0x0050 ; Scratchpad Variable 1
 const scratch2    0x0051 ; Scratchpad Variable 2
 const scratch3    0x0052 ; Scratchpad Variable 3
@@ -578,7 +578,7 @@ dly A               ; transmit.
 ld (mmu_scr),A      ; Initiate conversion of battery voltage.
 ld A,sa_delay       ; Load sensor delay,
 dly A               ; Wait,
-ld (mmu_scr),A      ; conver again,
+ld (mmu_scr),A      ; convert again,
 ld A,sa_delay       ; wait
 dly A               ; again
 ld A,(mmu_sdb)      ; and get battery measurement.
@@ -1099,7 +1099,7 @@ ld A,(Srandomize)
 add A,0
 jp z,stp_nr
 
-; Copy the stimulus interval length into scratch variables
+; Copy the stimulus interval length into the scratch pad
 ; and subtract the pulse length. The result is our maximum 
 ; delay for randomized pulses.
 
@@ -1119,8 +1119,9 @@ ld A,(Sinterval_2)
 sbc A,0
 ld (scratch3),A
 
-; Get a random number and stash it in D. This is one
-; of our product terms, the other is the stimulus interval.
+; Get a random number and place it in D. This is one of our
+; product terms. The other is the maximum delay for randomizede
+; pulses, which is currently in the scratch pad.
 
 ld A,(Rand0)        ; Load the random number.
 push A              ; and move to B
@@ -1128,7 +1129,7 @@ pop B               ; for multiplication.
 push A              ; Also store in D for 
 pop D               ; later.
 
-; Multiply the stimulus interval by the random number and
+; Multiply the maximum delay by the random number and
 ; store that top three bytes of the thirty-two bit product
 ; in the stimulus delay register.
 
