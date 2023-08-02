@@ -3,13 +3,8 @@
 
 ; This code runs in the OSR8V3 microprocessor of the A3041A.
 
-; V1: Provides a ramp value for transmission at 128 SPS. Sets
-; TP1 is set during the transmit interrupt. TP2 is set during the
-; main loop. RCK is connected directly to the reference clock. The
-; TCK pin is connected to FHI.
-
 ; Calibration Constants.
-const device_id  0x2C9B ; Bottom niblle 1-14.
+const device_id  0x4721 ; Bottom nibble 1-14.
 const tx_calib        5 ; Transmit frequency calibration
 
 ; Address Map Boundary Constants
