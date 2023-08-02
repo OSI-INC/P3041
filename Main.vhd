@@ -52,6 +52,9 @@
 -- V1.6. 13-JUL-22 Add support for transmission warm-up (TXWP) so CPU can turn on the VCO to warm
 -- it up before transmitting auxiliary messages.
 
+-- V1.7. 02-AUG-23 Fix bug in lamp current control, producing linear increase in duty cycle with 
+-- current code.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -867,37 +870,44 @@ begin
 	end process;
 
 -- The Stimulus Controller takes the stimulus current value and modulates
--- the On Lamp (ONL) output from 0% to 100% for values 0 to 15.
+-- the On Lamp (ONL) output from 6% to 100% for values 0 to 15.
 	Stimulus_Controller: process (RCK) is 
 	variable c : integer range 0 to 15;
 	begin
 		if rising_edge(RCK) then
 			case stimulus_current is
-				when 0 => ONL <= '0';
-				when 1 => ONL <= to_std_logic((c=0));
-				when 2 => ONL <= to_std_logic((c=0) or (c=8));
-				when 3 => ONL <= to_std_logic((c=0) or (c=5) or (c=10));
-				when 4 => ONL <= to_std_logic((c=0) or (c=4) or (c=8) or (c=12));
-				when 5 => ONL <= to_std_logic((c=0) or (c=3) or (c=6) or (c=10) or (c=13));
-				when 6 => ONL <= to_std_logic(
+				when 0 => ONL <= to_std_logic((c=0));
+				when 1 => ONL <= to_std_logic((c=0) or (c=8));
+				when 2 => ONL <= to_std_logic((c=0) or (c=5) or (c=10));
+				when 3 => ONL <= to_std_logic((c=0) or (c=4) or (c=8) or (c=12));
+				when 4 => ONL <= to_std_logic((c=0) or (c=3) or (c=6) or (c=10) or (c=13));
+				when 5 => ONL <= to_std_logic(
 					(c=0) or (c=3) or (c=6) or (c=9) or (c=12) or (c=14));
-				when 7 => ONL <= to_std_logic(
+				when 6 => ONL <= to_std_logic(
 					(c=0) or (c=2) or (c=4) or (c=6) or (c=8) or (c=10) or (c=12));
+				when 7 => ONL <= to_std_logic(
+					(c=0) or (c=2) or (c=4) or (c=6) or (c=8) or (c=10) or (c=12) or (c=14));
 				when 8 => ONL <= to_std_logic(
-					(c=0) or (c=2) or (c=4) or (c=6) or (c=8) or (c=10) or (c=12) 
-					or (c=14));
+					(c=0) or (c=1) or (c=2) or (c=5) or (c=6) or (c=7) or (c=10) or (c=11)
+					or (c=12));
 				when 9 => ONL <= to_std_logic(
-					(c/=0) and (c/=3) and (c/=9) and (c/=10) and (c/=12) and (c/=14));
+					(c=0) or (c=1) or (c=2) or (c=5) or (c=6) or (c=7) or (c=10) or (c=11)
+					or (c=12) or (c=14));
 				when 10 => ONL <= to_std_logic(
-					(c/=0) and (c/=4) and (c/=7) and (c/=10) and (c/=13));
+					(c=0) or (c=1) or (c=2) or (c=4) or (c=5) or (c=6) or (c=8) or (c=9)
+					or (c=10) or (c=12) or (c=13));
 				when 11 => ONL <= to_std_logic(
-					(c/=0) and (c/=4) and (c/=8) and (c/=12));
+					(c=0) or (c=1) or (c=2) or (c=4) or (c=5) or (c=6) or (c=8) or (c=9)
+					or (c=10) or (c=12) or (c=13) or (c=14));			
 				when 12 => ONL <= to_std_logic(
-					(c/=0) and (c/=5) and (c/=10));
+					(c=0) or (c=1) or (c=2) or (c=4) or (c=5) or (c=6) or (c=8) or (c=9)
+					or (c=10) or (c=12) or (c=13) or (c=14) or (c=15));	
 				when 13 => ONL <= to_std_logic(
-					(c/=0) and (c/=8));
+					(c=0) or (c=1) or (c=2) or (c=3) or (c=4) or (c=5) or (c=6) or (c=8)
+					or (c=9) or (c=10) or (c=11) or (c=12) or (c=13) or (c=14));	
 				when 14 => ONL <= to_std_logic(
-					(c/=0));
+					(c=0) or (c=1) or (c=2) or (c=3) or (c=4) or (c=5) or (c=6) or (c=7)
+					or (c=8) or (c=9) or (c=10) or (c=11) or (c=12) or (c=13) or (c=14));	
 				when 15 => ONL <= '1';
 			end case;
 			c := c + 1;
