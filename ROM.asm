@@ -4,7 +4,7 @@
 ; This code runs in the OSR8V3 microprocessor of the A3041A.
 
 ; Calibration Constants.
-const device_id  0x4721 ; Bottom nibble 1-14.
+const device_id  0x21CE ; Sixteen bit identifier.
 const tx_calib        5 ; Transmit frequency calibration
 
 ; Address Map Boundary Constants
