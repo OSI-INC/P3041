@@ -94,6 +94,8 @@ entity main is
 	constant cmd_range : integer := 2;
 	constant ctrl_base : integer := 4;
 	constant ctrl_range : integer := 2;
+	constant rom_base : integer := 6;
+	constant rom_range : integer := 2;
 	
 -- Memory Map Constants, low nibble addresses in units of bytes;
 	constant mmu_sdb  : integer := 0;  -- Sensor Data Byte
@@ -185,7 +187,10 @@ architecture behavior of main is
 
 -- Program Memory Signals
 	signal prog_data : std_logic_vector(7 downto 0); -- ROM Data
-	signal prog_addr : std_logic_vector(prog_addr_len-1 downto 0); -- ROM Address
+	signal prog_addr : std_logic_vector(prog_addr_len-1 downto 0); -- Prog Address
+	signal rom_in : std_logic_vector(7 downto 0); 
+	signal rom_addr : std_logic_vector(prog_addr_len-1 downto 0); -- ROM Address
+	signal ROMWR : std_logic; -- ROM Write
 	
 -- Process Memory Signals
 	signal ram_addr : std_logic_vector(ram_addr_len-1 downto 0); -- RAM Address
@@ -321,16 +326,22 @@ begin
 		Data => ram_in,
 		Q => ram_out);
 
--- Instruction Memory for CPU. This read-only memory will be initialized with the
--- CPU program, the first instruction of the program being stored at address zero.
--- The CPU reads the instruction memory with a separate address bus, which we call
--- the program counter.
+-- Instruction Memory for CPU. This memory will be initialized with the CPU program, 
+-- the first instruction of the program being stored at address zero. The CPU reads 
+-- the instruction memory with a separate address bus, which we call the program counter. 
+-- The CPU may also write to the program memory through the cpu_addr, but only to the 
+-- top kilobyte of the ROM.
 	ROM : entity ROM port map (
-		Address => prog_addr,
-        OutClock => not CK,
-        OutClockEn => '1',
+		RdAddress => prog_addr,
+        RdClock => not CK,
+        RdClockEn => '1',
         Reset => RESET,	
-        Q => prog_data);
+        Q => prog_data,
+		WrAddress => rom_addr,
+		WrClock => not CK,
+		WrClockEn => '1',
+		WE => ROMWR,
+		Data => rom_in);
 
 -- The processor itself, and eight-bit microprocessor with thirteen-bit address bus.
 	CPU : entity OSR8_CPU 
@@ -369,14 +380,17 @@ begin
 		-- We want the following signals to be combinatorial functions
 		-- of the address. Here we define their default values.
 		RAMWR <= '0';
+		ROMWR <= '0';
 		ram_in <= cpu_data_out;
 		ram_addr <= cpu_addr(ram_addr_len-1 downto 0);
 		cmd_rd_addr <= cpu_addr(cmd_addr_len-1 downto 0);
 		cpu_data_in <= (others => '0');	
+		rom_in <= cpu_data_out;
+		rom_addr <= (others => '1');
 		
-		-- These signals develop after the CPU assserts a new address
-		-- along with CPU Write and CPU Sixteen-Bit Access. They will
-		-- be ready before the falling edge of the CPU clock.
+		-- These signals develop after the CPU asserts a new address
+		-- along with CPU Write. They will be ready before the falling 
+		-- edge of the CPU clock.
 		case top_bits is
 		when ram_base to (ram_base+ram_range-1) => 
 			if not CPUWR then
@@ -408,6 +422,10 @@ begin
 					when mmu_ccl =>
 						cpu_data_in <= cmd_wr_addr(7 downto 0);
 				end case;
+			end if;
+		when rom_base to (rom_base+rom_range-1) =>
+			if CPUWR then
+				ROMWR <= to_std_logic(CPUDS);
 			end if;
 		end case;
 		

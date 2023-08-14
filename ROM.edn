@@ -4,9 +4,9 @@
   (keywordMap (keywordLevel 0))
   (status
     (written
-      (timestamp 2023 8 4 18 23 24)
+      (timestamp 2023 8 14 19 4 41)
       (program "SCUBA" (version "Diamond (64-bit) 3.12.1.454"))))
-      (comment "C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type bram -wp 00 -rp 1100 -addr_width 12 -data_width 8 -num_rows 4096 -cascade 11 -memfile c:/kevan/a3041/p3041/ROM.mem -memformat hex ")
+      (comment "C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type bram -wp 10 -rp 0011 -rdata_width 8 -data_width 8 -num_rows 4096 -cascade 11 -memfile c:/kevan/a3041/p3041/rom.mem -memformat hex ")
   (library ORCLIB
     (edifLevel 0)
     (technology
@@ -191,18 +191,31 @@
       (view view1
         (viewType NETLIST)
         (interface
-          (port (array (rename Address "Address(11:0)") 12)
+          (port (array (rename WrAddress "WrAddress(11:0)") 12)
             (direction INPUT))
-          (port OutClock
+          (port (array (rename RdAddress "RdAddress(11:0)") 12)
             (direction INPUT))
-          (port OutClockEn
+          (port (array (rename Data "Data(7:0)") 8)
+            (direction INPUT))
+          (port WE
+            (direction INPUT))
+          (port RdClock
+            (direction INPUT))
+          (port RdClockEn
             (direction INPUT))
           (port Reset
+            (direction INPUT))
+          (port WrClock
+            (direction INPUT))
+          (port WrClockEn
             (direction INPUT))
           (port (array (rename Q "Q(7:0)") 8)
             (direction OUTPUT)))
         (property NGD_DRC_MASK (integer 1))
         (contents
+          (instance scuba_vhi_inst
+            (viewRef view1 
+              (cellRef VHI)))
           (instance ROM_0_0_0_3
             (viewRef view1 
               (cellRef DP8KC))
@@ -213,7 +226,7 @@
             (property MEM_LPC_FILE
               (string "ROM.lpc"))
             (property MEM_INIT_FILE
-              (string "ROM.mem"))
+              (string "rom.mem"))
             (property INITVAL_1F
               (string "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000"))
             (property INITVAL_1E
@@ -279,7 +292,7 @@
             (property INITVAL_00
               (string "0x08AD0182450161812201102141885418841008EC1B495028060044F0861801008014100602707065"))
             (property CSDECODE_B
-              (string "0b111"))
+              (string "0b000"))
             (property CSDECODE_A
               (string "0b000"))
             (property WRITEMODE_B
@@ -308,7 +321,7 @@
             (property MEM_LPC_FILE
               (string "ROM.lpc"))
             (property MEM_INIT_FILE
-              (string "ROM.mem"))
+              (string "rom.mem"))
             (property INITVAL_1F
               (string "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000"))
             (property INITVAL_1E
@@ -374,7 +387,7 @@
             (property INITVAL_00
               (string "0x04809092E4012000F2091CE901C80019C49000640284500885062800801400C10182100041403814"))
             (property CSDECODE_B
-              (string "0b111"))
+              (string "0b000"))
             (property CSDECODE_A
               (string "0b000"))
             (property WRITEMODE_B
@@ -403,7 +416,7 @@
             (property MEM_LPC_FILE
               (string "ROM.lpc"))
             (property MEM_INIT_FILE
-              (string "ROM.mem"))
+              (string "rom.mem"))
             (property INITVAL_1F
               (string "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000"))
             (property INITVAL_1E
@@ -469,7 +482,7 @@
             (property INITVAL_00
               (string "0x088D1122040C6F4002100081100EAE020510348F1FEB901CFB17CC21C0EE0740E1F6B80F06A15020"))
             (property CSDECODE_B
-              (string "0b111"))
+              (string "0b000"))
             (property CSDECODE_A
               (string "0b000"))
             (property WRITEMODE_B
@@ -488,9 +501,6 @@
               (string "2"))
             (property DATA_WIDTH_A
               (string "2")))
-          (instance scuba_vhi_inst
-            (viewRef view1 
-              (cellRef VHI)))
           (instance scuba_vlo_inst
             (viewRef view1 
               (cellRef VLO)))
@@ -504,7 +514,7 @@
             (property MEM_LPC_FILE
               (string "ROM.lpc"))
             (property MEM_INIT_FILE
-              (string "ROM.mem"))
+              (string "rom.mem"))
             (property INITVAL_1F
               (string "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000"))
             (property INITVAL_1E
@@ -570,7 +580,7 @@
             (property INITVAL_00
               (string "0x00040000000000400005000000001000000000000000000040020010020008000080000000000810"))
             (property CSDECODE_B
-              (string "0b111"))
+              (string "0b000"))
             (property CSDECODE_A
               (string "0b000"))
             (property WRITEMODE_B
@@ -591,15 +601,7 @@
               (string "2")))
           (net scuba_vhi
             (joined
-              (portRef Z (instanceRef scuba_vhi_inst))
-              (portRef OCEB (instanceRef ROM_0_0_0_3))
-              (portRef CEB (instanceRef ROM_0_0_0_3))
-              (portRef OCEB (instanceRef ROM_0_0_1_2))
-              (portRef CEB (instanceRef ROM_0_0_1_2))
-              (portRef OCEB (instanceRef ROM_0_0_2_1))
-              (portRef CEB (instanceRef ROM_0_0_2_1))
-              (portRef OCEB (instanceRef ROM_0_0_3_0))
-              (portRef CEB (instanceRef ROM_0_0_3_0))))
+              (portRef Z (instanceRef scuba_vhi_inst))))
           (net scuba_vlo
             (joined
               (portRef Z (instanceRef scuba_vlo_inst))
@@ -609,22 +611,7 @@
               (portRef CSA1 (instanceRef ROM_0_0_0_3))
               (portRef CSB0 (instanceRef ROM_0_0_0_3))
               (portRef CSA0 (instanceRef ROM_0_0_0_3))
-              (portRef RSTB (instanceRef ROM_0_0_0_3))
               (portRef WEB (instanceRef ROM_0_0_0_3))
-              (portRef WEA (instanceRef ROM_0_0_0_3))
-              (portRef CLKB (instanceRef ROM_0_0_0_3))
-              (portRef ADB12 (instanceRef ROM_0_0_0_3))
-              (portRef ADB11 (instanceRef ROM_0_0_0_3))
-              (portRef ADB10 (instanceRef ROM_0_0_0_3))
-              (portRef ADB9 (instanceRef ROM_0_0_0_3))
-              (portRef ADB8 (instanceRef ROM_0_0_0_3))
-              (portRef ADB7 (instanceRef ROM_0_0_0_3))
-              (portRef ADB6 (instanceRef ROM_0_0_0_3))
-              (portRef ADB5 (instanceRef ROM_0_0_0_3))
-              (portRef ADB4 (instanceRef ROM_0_0_0_3))
-              (portRef ADB3 (instanceRef ROM_0_0_0_3))
-              (portRef ADB2 (instanceRef ROM_0_0_0_3))
-              (portRef ADB1 (instanceRef ROM_0_0_0_3))
               (portRef ADB0 (instanceRef ROM_0_0_0_3))
               (portRef ADA0 (instanceRef ROM_0_0_0_3))
               (portRef DIB8 (instanceRef ROM_0_0_0_3))
@@ -634,13 +621,11 @@
               (portRef DIB6 (instanceRef ROM_0_0_0_3))
               (portRef DIA6 (instanceRef ROM_0_0_0_3))
               (portRef DIB5 (instanceRef ROM_0_0_0_3))
-              (portRef DIA5 (instanceRef ROM_0_0_0_3))
               (portRef DIB4 (instanceRef ROM_0_0_0_3))
               (portRef DIA4 (instanceRef ROM_0_0_0_3))
               (portRef DIB3 (instanceRef ROM_0_0_0_3))
               (portRef DIA3 (instanceRef ROM_0_0_0_3))
               (portRef DIB2 (instanceRef ROM_0_0_0_3))
-              (portRef DIA2 (instanceRef ROM_0_0_0_3))
               (portRef DIB1 (instanceRef ROM_0_0_0_3))
               (portRef DIA1 (instanceRef ROM_0_0_0_3))
               (portRef DIB0 (instanceRef ROM_0_0_0_3))
@@ -651,22 +636,7 @@
               (portRef CSA1 (instanceRef ROM_0_0_1_2))
               (portRef CSB0 (instanceRef ROM_0_0_1_2))
               (portRef CSA0 (instanceRef ROM_0_0_1_2))
-              (portRef RSTB (instanceRef ROM_0_0_1_2))
               (portRef WEB (instanceRef ROM_0_0_1_2))
-              (portRef WEA (instanceRef ROM_0_0_1_2))
-              (portRef CLKB (instanceRef ROM_0_0_1_2))
-              (portRef ADB12 (instanceRef ROM_0_0_1_2))
-              (portRef ADB11 (instanceRef ROM_0_0_1_2))
-              (portRef ADB10 (instanceRef ROM_0_0_1_2))
-              (portRef ADB9 (instanceRef ROM_0_0_1_2))
-              (portRef ADB8 (instanceRef ROM_0_0_1_2))
-              (portRef ADB7 (instanceRef ROM_0_0_1_2))
-              (portRef ADB6 (instanceRef ROM_0_0_1_2))
-              (portRef ADB5 (instanceRef ROM_0_0_1_2))
-              (portRef ADB4 (instanceRef ROM_0_0_1_2))
-              (portRef ADB3 (instanceRef ROM_0_0_1_2))
-              (portRef ADB2 (instanceRef ROM_0_0_1_2))
-              (portRef ADB1 (instanceRef ROM_0_0_1_2))
               (portRef ADB0 (instanceRef ROM_0_0_1_2))
               (portRef ADA0 (instanceRef ROM_0_0_1_2))
               (portRef DIB8 (instanceRef ROM_0_0_1_2))
@@ -676,13 +646,11 @@
               (portRef DIB6 (instanceRef ROM_0_0_1_2))
               (portRef DIA6 (instanceRef ROM_0_0_1_2))
               (portRef DIB5 (instanceRef ROM_0_0_1_2))
-              (portRef DIA5 (instanceRef ROM_0_0_1_2))
               (portRef DIB4 (instanceRef ROM_0_0_1_2))
               (portRef DIA4 (instanceRef ROM_0_0_1_2))
               (portRef DIB3 (instanceRef ROM_0_0_1_2))
               (portRef DIA3 (instanceRef ROM_0_0_1_2))
               (portRef DIB2 (instanceRef ROM_0_0_1_2))
-              (portRef DIA2 (instanceRef ROM_0_0_1_2))
               (portRef DIB1 (instanceRef ROM_0_0_1_2))
               (portRef DIA1 (instanceRef ROM_0_0_1_2))
               (portRef DIB0 (instanceRef ROM_0_0_1_2))
@@ -693,22 +661,7 @@
               (portRef CSA1 (instanceRef ROM_0_0_2_1))
               (portRef CSB0 (instanceRef ROM_0_0_2_1))
               (portRef CSA0 (instanceRef ROM_0_0_2_1))
-              (portRef RSTB (instanceRef ROM_0_0_2_1))
               (portRef WEB (instanceRef ROM_0_0_2_1))
-              (portRef WEA (instanceRef ROM_0_0_2_1))
-              (portRef CLKB (instanceRef ROM_0_0_2_1))
-              (portRef ADB12 (instanceRef ROM_0_0_2_1))
-              (portRef ADB11 (instanceRef ROM_0_0_2_1))
-              (portRef ADB10 (instanceRef ROM_0_0_2_1))
-              (portRef ADB9 (instanceRef ROM_0_0_2_1))
-              (portRef ADB8 (instanceRef ROM_0_0_2_1))
-              (portRef ADB7 (instanceRef ROM_0_0_2_1))
-              (portRef ADB6 (instanceRef ROM_0_0_2_1))
-              (portRef ADB5 (instanceRef ROM_0_0_2_1))
-              (portRef ADB4 (instanceRef ROM_0_0_2_1))
-              (portRef ADB3 (instanceRef ROM_0_0_2_1))
-              (portRef ADB2 (instanceRef ROM_0_0_2_1))
-              (portRef ADB1 (instanceRef ROM_0_0_2_1))
               (portRef ADB0 (instanceRef ROM_0_0_2_1))
               (portRef ADA0 (instanceRef ROM_0_0_2_1))
               (portRef DIB8 (instanceRef ROM_0_0_2_1))
@@ -718,13 +671,11 @@
               (portRef DIB6 (instanceRef ROM_0_0_2_1))
               (portRef DIA6 (instanceRef ROM_0_0_2_1))
               (portRef DIB5 (instanceRef ROM_0_0_2_1))
-              (portRef DIA5 (instanceRef ROM_0_0_2_1))
               (portRef DIB4 (instanceRef ROM_0_0_2_1))
               (portRef DIA4 (instanceRef ROM_0_0_2_1))
               (portRef DIB3 (instanceRef ROM_0_0_2_1))
               (portRef DIA3 (instanceRef ROM_0_0_2_1))
               (portRef DIB2 (instanceRef ROM_0_0_2_1))
-              (portRef DIA2 (instanceRef ROM_0_0_2_1))
               (portRef DIB1 (instanceRef ROM_0_0_2_1))
               (portRef DIA1 (instanceRef ROM_0_0_2_1))
               (portRef DIB0 (instanceRef ROM_0_0_2_1))
@@ -735,22 +686,7 @@
               (portRef CSA1 (instanceRef ROM_0_0_3_0))
               (portRef CSB0 (instanceRef ROM_0_0_3_0))
               (portRef CSA0 (instanceRef ROM_0_0_3_0))
-              (portRef RSTB (instanceRef ROM_0_0_3_0))
               (portRef WEB (instanceRef ROM_0_0_3_0))
-              (portRef WEA (instanceRef ROM_0_0_3_0))
-              (portRef CLKB (instanceRef ROM_0_0_3_0))
-              (portRef ADB12 (instanceRef ROM_0_0_3_0))
-              (portRef ADB11 (instanceRef ROM_0_0_3_0))
-              (portRef ADB10 (instanceRef ROM_0_0_3_0))
-              (portRef ADB9 (instanceRef ROM_0_0_3_0))
-              (portRef ADB8 (instanceRef ROM_0_0_3_0))
-              (portRef ADB7 (instanceRef ROM_0_0_3_0))
-              (portRef ADB6 (instanceRef ROM_0_0_3_0))
-              (portRef ADB5 (instanceRef ROM_0_0_3_0))
-              (portRef ADB4 (instanceRef ROM_0_0_3_0))
-              (portRef ADB3 (instanceRef ROM_0_0_3_0))
-              (portRef ADB2 (instanceRef ROM_0_0_3_0))
-              (portRef ADB1 (instanceRef ROM_0_0_3_0))
               (portRef ADB0 (instanceRef ROM_0_0_3_0))
               (portRef ADA0 (instanceRef ROM_0_0_3_0))
               (portRef DIB8 (instanceRef ROM_0_0_3_0))
@@ -760,13 +696,11 @@
               (portRef DIB6 (instanceRef ROM_0_0_3_0))
               (portRef DIA6 (instanceRef ROM_0_0_3_0))
               (portRef DIB5 (instanceRef ROM_0_0_3_0))
-              (portRef DIA5 (instanceRef ROM_0_0_3_0))
               (portRef DIB4 (instanceRef ROM_0_0_3_0))
               (portRef DIA4 (instanceRef ROM_0_0_3_0))
               (portRef DIB3 (instanceRef ROM_0_0_3_0))
               (portRef DIA3 (instanceRef ROM_0_0_3_0))
               (portRef DIB2 (instanceRef ROM_0_0_3_0))
-              (portRef DIA2 (instanceRef ROM_0_0_3_0))
               (portRef DIB1 (instanceRef ROM_0_0_3_0))
               (portRef DIA1 (instanceRef ROM_0_0_3_0))
               (portRef DIB0 (instanceRef ROM_0_0_3_0))
@@ -774,45 +708,38 @@
           (net dataout7
             (joined
               (portRef (member Q 0))
-              (portRef DOA1 (instanceRef ROM_0_0_3_0))))
+              (portRef DOB1 (instanceRef ROM_0_0_3_0))))
           (net dataout6
             (joined
               (portRef (member Q 1))
-              (portRef DOA0 (instanceRef ROM_0_0_3_0))))
+              (portRef DOB0 (instanceRef ROM_0_0_3_0))))
           (net dataout5
             (joined
               (portRef (member Q 2))
-              (portRef DOA1 (instanceRef ROM_0_0_2_1))))
+              (portRef DOB1 (instanceRef ROM_0_0_2_1))))
           (net dataout4
             (joined
               (portRef (member Q 3))
-              (portRef DOA0 (instanceRef ROM_0_0_2_1))))
+              (portRef DOB0 (instanceRef ROM_0_0_2_1))))
           (net dataout3
             (joined
               (portRef (member Q 4))
-              (portRef DOA1 (instanceRef ROM_0_0_1_2))))
+              (portRef DOB1 (instanceRef ROM_0_0_1_2))))
           (net dataout2
             (joined
               (portRef (member Q 5))
-              (portRef DOA0 (instanceRef ROM_0_0_1_2))))
+              (portRef DOB0 (instanceRef ROM_0_0_1_2))))
           (net dataout1
             (joined
               (portRef (member Q 6))
-              (portRef DOA1 (instanceRef ROM_0_0_0_3))))
+              (portRef DOB1 (instanceRef ROM_0_0_0_3))))
           (net dataout0
             (joined
               (portRef (member Q 7))
-              (portRef DOA0 (instanceRef ROM_0_0_0_3))))
-          (net Reset
+              (portRef DOB0 (instanceRef ROM_0_0_0_3))))
+          (net WrClockEn
             (joined
-              (portRef Reset)
-              (portRef RSTA (instanceRef ROM_0_0_0_3))
-              (portRef RSTA (instanceRef ROM_0_0_1_2))
-              (portRef RSTA (instanceRef ROM_0_0_2_1))
-              (portRef RSTA (instanceRef ROM_0_0_3_0))))
-          (net RdClockEn
-            (joined
-              (portRef OutClockEn)
+              (portRef WrClockEn)
               (portRef OCEA (instanceRef ROM_0_0_0_3))
               (portRef CEA (instanceRef ROM_0_0_0_3))
               (portRef OCEA (instanceRef ROM_0_0_1_2))
@@ -821,93 +748,245 @@
               (portRef CEA (instanceRef ROM_0_0_2_1))
               (portRef OCEA (instanceRef ROM_0_0_3_0))
               (portRef CEA (instanceRef ROM_0_0_3_0))))
-          (net rdclk
+          (net clk
             (joined
-              (portRef OutClock)
+              (portRef WrClock)
               (portRef CLKA (instanceRef ROM_0_0_0_3))
               (portRef CLKA (instanceRef ROM_0_0_1_2))
               (portRef CLKA (instanceRef ROM_0_0_2_1))
               (portRef CLKA (instanceRef ROM_0_0_3_0))))
+          (net Reset
+            (joined
+              (portRef Reset)
+              (portRef RSTB (instanceRef ROM_0_0_0_3))
+              (portRef RSTA (instanceRef ROM_0_0_0_3))
+              (portRef RSTB (instanceRef ROM_0_0_1_2))
+              (portRef RSTA (instanceRef ROM_0_0_1_2))
+              (portRef RSTB (instanceRef ROM_0_0_2_1))
+              (portRef RSTA (instanceRef ROM_0_0_2_1))
+              (portRef RSTB (instanceRef ROM_0_0_3_0))
+              (portRef RSTA (instanceRef ROM_0_0_3_0))))
+          (net RdClockEn
+            (joined
+              (portRef RdClockEn)
+              (portRef OCEB (instanceRef ROM_0_0_0_3))
+              (portRef CEB (instanceRef ROM_0_0_0_3))
+              (portRef OCEB (instanceRef ROM_0_0_1_2))
+              (portRef CEB (instanceRef ROM_0_0_1_2))
+              (portRef OCEB (instanceRef ROM_0_0_2_1))
+              (portRef CEB (instanceRef ROM_0_0_2_1))
+              (portRef OCEB (instanceRef ROM_0_0_3_0))
+              (portRef CEB (instanceRef ROM_0_0_3_0))))
+          (net rdclk
+            (joined
+              (portRef RdClock)
+              (portRef CLKB (instanceRef ROM_0_0_0_3))
+              (portRef CLKB (instanceRef ROM_0_0_1_2))
+              (portRef CLKB (instanceRef ROM_0_0_2_1))
+              (portRef CLKB (instanceRef ROM_0_0_3_0))))
+          (net wren
+            (joined
+              (portRef WE)
+              (portRef WEA (instanceRef ROM_0_0_0_3))
+              (portRef WEA (instanceRef ROM_0_0_1_2))
+              (portRef WEA (instanceRef ROM_0_0_2_1))
+              (portRef WEA (instanceRef ROM_0_0_3_0))))
+          (net datain7
+            (joined
+              (portRef (member Data 0))
+              (portRef DIA5 (instanceRef ROM_0_0_3_0))))
+          (net datain6
+            (joined
+              (portRef (member Data 1))
+              (portRef DIA2 (instanceRef ROM_0_0_3_0))))
+          (net datain5
+            (joined
+              (portRef (member Data 2))
+              (portRef DIA5 (instanceRef ROM_0_0_2_1))))
+          (net datain4
+            (joined
+              (portRef (member Data 3))
+              (portRef DIA2 (instanceRef ROM_0_0_2_1))))
+          (net datain3
+            (joined
+              (portRef (member Data 4))
+              (portRef DIA5 (instanceRef ROM_0_0_1_2))))
+          (net datain2
+            (joined
+              (portRef (member Data 5))
+              (portRef DIA2 (instanceRef ROM_0_0_1_2))))
+          (net datain1
+            (joined
+              (portRef (member Data 6))
+              (portRef DIA5 (instanceRef ROM_0_0_0_3))))
+          (net datain0
+            (joined
+              (portRef (member Data 7))
+              (portRef DIA2 (instanceRef ROM_0_0_0_3))))
           (net raddr11
             (joined
-              (portRef (member Address 0))
+              (portRef (member RdAddress 0))
+              (portRef ADB12 (instanceRef ROM_0_0_0_3))
+              (portRef ADB12 (instanceRef ROM_0_0_1_2))
+              (portRef ADB12 (instanceRef ROM_0_0_2_1))
+              (portRef ADB12 (instanceRef ROM_0_0_3_0))))
+          (net raddr10
+            (joined
+              (portRef (member RdAddress 1))
+              (portRef ADB11 (instanceRef ROM_0_0_0_3))
+              (portRef ADB11 (instanceRef ROM_0_0_1_2))
+              (portRef ADB11 (instanceRef ROM_0_0_2_1))
+              (portRef ADB11 (instanceRef ROM_0_0_3_0))))
+          (net raddr9
+            (joined
+              (portRef (member RdAddress 2))
+              (portRef ADB10 (instanceRef ROM_0_0_0_3))
+              (portRef ADB10 (instanceRef ROM_0_0_1_2))
+              (portRef ADB10 (instanceRef ROM_0_0_2_1))
+              (portRef ADB10 (instanceRef ROM_0_0_3_0))))
+          (net raddr8
+            (joined
+              (portRef (member RdAddress 3))
+              (portRef ADB9 (instanceRef ROM_0_0_0_3))
+              (portRef ADB9 (instanceRef ROM_0_0_1_2))
+              (portRef ADB9 (instanceRef ROM_0_0_2_1))
+              (portRef ADB9 (instanceRef ROM_0_0_3_0))))
+          (net raddr7
+            (joined
+              (portRef (member RdAddress 4))
+              (portRef ADB8 (instanceRef ROM_0_0_0_3))
+              (portRef ADB8 (instanceRef ROM_0_0_1_2))
+              (portRef ADB8 (instanceRef ROM_0_0_2_1))
+              (portRef ADB8 (instanceRef ROM_0_0_3_0))))
+          (net raddr6
+            (joined
+              (portRef (member RdAddress 5))
+              (portRef ADB7 (instanceRef ROM_0_0_0_3))
+              (portRef ADB7 (instanceRef ROM_0_0_1_2))
+              (portRef ADB7 (instanceRef ROM_0_0_2_1))
+              (portRef ADB7 (instanceRef ROM_0_0_3_0))))
+          (net raddr5
+            (joined
+              (portRef (member RdAddress 6))
+              (portRef ADB6 (instanceRef ROM_0_0_0_3))
+              (portRef ADB6 (instanceRef ROM_0_0_1_2))
+              (portRef ADB6 (instanceRef ROM_0_0_2_1))
+              (portRef ADB6 (instanceRef ROM_0_0_3_0))))
+          (net raddr4
+            (joined
+              (portRef (member RdAddress 7))
+              (portRef ADB5 (instanceRef ROM_0_0_0_3))
+              (portRef ADB5 (instanceRef ROM_0_0_1_2))
+              (portRef ADB5 (instanceRef ROM_0_0_2_1))
+              (portRef ADB5 (instanceRef ROM_0_0_3_0))))
+          (net raddr3
+            (joined
+              (portRef (member RdAddress 8))
+              (portRef ADB4 (instanceRef ROM_0_0_0_3))
+              (portRef ADB4 (instanceRef ROM_0_0_1_2))
+              (portRef ADB4 (instanceRef ROM_0_0_2_1))
+              (portRef ADB4 (instanceRef ROM_0_0_3_0))))
+          (net raddr2
+            (joined
+              (portRef (member RdAddress 9))
+              (portRef ADB3 (instanceRef ROM_0_0_0_3))
+              (portRef ADB3 (instanceRef ROM_0_0_1_2))
+              (portRef ADB3 (instanceRef ROM_0_0_2_1))
+              (portRef ADB3 (instanceRef ROM_0_0_3_0))))
+          (net raddr1
+            (joined
+              (portRef (member RdAddress 10))
+              (portRef ADB2 (instanceRef ROM_0_0_0_3))
+              (portRef ADB2 (instanceRef ROM_0_0_1_2))
+              (portRef ADB2 (instanceRef ROM_0_0_2_1))
+              (portRef ADB2 (instanceRef ROM_0_0_3_0))))
+          (net raddr0
+            (joined
+              (portRef (member RdAddress 11))
+              (portRef ADB1 (instanceRef ROM_0_0_0_3))
+              (portRef ADB1 (instanceRef ROM_0_0_1_2))
+              (portRef ADB1 (instanceRef ROM_0_0_2_1))
+              (portRef ADB1 (instanceRef ROM_0_0_3_0))))
+          (net waddr11
+            (joined
+              (portRef (member WrAddress 0))
               (portRef ADA12 (instanceRef ROM_0_0_0_3))
               (portRef ADA12 (instanceRef ROM_0_0_1_2))
               (portRef ADA12 (instanceRef ROM_0_0_2_1))
               (portRef ADA12 (instanceRef ROM_0_0_3_0))))
-          (net raddr10
+          (net waddr10
             (joined
-              (portRef (member Address 1))
+              (portRef (member WrAddress 1))
               (portRef ADA11 (instanceRef ROM_0_0_0_3))
               (portRef ADA11 (instanceRef ROM_0_0_1_2))
               (portRef ADA11 (instanceRef ROM_0_0_2_1))
               (portRef ADA11 (instanceRef ROM_0_0_3_0))))
-          (net raddr9
+          (net waddr9
             (joined
-              (portRef (member Address 2))
+              (portRef (member WrAddress 2))
               (portRef ADA10 (instanceRef ROM_0_0_0_3))
               (portRef ADA10 (instanceRef ROM_0_0_1_2))
               (portRef ADA10 (instanceRef ROM_0_0_2_1))
               (portRef ADA10 (instanceRef ROM_0_0_3_0))))
-          (net raddr8
+          (net waddr8
             (joined
-              (portRef (member Address 3))
+              (portRef (member WrAddress 3))
               (portRef ADA9 (instanceRef ROM_0_0_0_3))
               (portRef ADA9 (instanceRef ROM_0_0_1_2))
               (portRef ADA9 (instanceRef ROM_0_0_2_1))
               (portRef ADA9 (instanceRef ROM_0_0_3_0))))
-          (net raddr7
+          (net waddr7
             (joined
-              (portRef (member Address 4))
+              (portRef (member WrAddress 4))
               (portRef ADA8 (instanceRef ROM_0_0_0_3))
               (portRef ADA8 (instanceRef ROM_0_0_1_2))
               (portRef ADA8 (instanceRef ROM_0_0_2_1))
               (portRef ADA8 (instanceRef ROM_0_0_3_0))))
-          (net raddr6
+          (net waddr6
             (joined
-              (portRef (member Address 5))
+              (portRef (member WrAddress 5))
               (portRef ADA7 (instanceRef ROM_0_0_0_3))
               (portRef ADA7 (instanceRef ROM_0_0_1_2))
               (portRef ADA7 (instanceRef ROM_0_0_2_1))
               (portRef ADA7 (instanceRef ROM_0_0_3_0))))
-          (net raddr5
+          (net waddr5
             (joined
-              (portRef (member Address 6))
+              (portRef (member WrAddress 6))
               (portRef ADA6 (instanceRef ROM_0_0_0_3))
               (portRef ADA6 (instanceRef ROM_0_0_1_2))
               (portRef ADA6 (instanceRef ROM_0_0_2_1))
               (portRef ADA6 (instanceRef ROM_0_0_3_0))))
-          (net raddr4
+          (net waddr4
             (joined
-              (portRef (member Address 7))
+              (portRef (member WrAddress 7))
               (portRef ADA5 (instanceRef ROM_0_0_0_3))
               (portRef ADA5 (instanceRef ROM_0_0_1_2))
               (portRef ADA5 (instanceRef ROM_0_0_2_1))
               (portRef ADA5 (instanceRef ROM_0_0_3_0))))
-          (net raddr3
+          (net waddr3
             (joined
-              (portRef (member Address 8))
+              (portRef (member WrAddress 8))
               (portRef ADA4 (instanceRef ROM_0_0_0_3))
               (portRef ADA4 (instanceRef ROM_0_0_1_2))
               (portRef ADA4 (instanceRef ROM_0_0_2_1))
               (portRef ADA4 (instanceRef ROM_0_0_3_0))))
-          (net raddr2
+          (net waddr2
             (joined
-              (portRef (member Address 9))
+              (portRef (member WrAddress 9))
               (portRef ADA3 (instanceRef ROM_0_0_0_3))
               (portRef ADA3 (instanceRef ROM_0_0_1_2))
               (portRef ADA3 (instanceRef ROM_0_0_2_1))
               (portRef ADA3 (instanceRef ROM_0_0_3_0))))
-          (net raddr1
+          (net waddr1
             (joined
-              (portRef (member Address 10))
+              (portRef (member WrAddress 10))
               (portRef ADA2 (instanceRef ROM_0_0_0_3))
               (portRef ADA2 (instanceRef ROM_0_0_1_2))
               (portRef ADA2 (instanceRef ROM_0_0_2_1))
               (portRef ADA2 (instanceRef ROM_0_0_3_0))))
-          (net raddr0
+          (net waddr0
             (joined
-              (portRef (member Address 11))
+              (portRef (member WrAddress 11))
               (portRef ADA1 (instanceRef ROM_0_0_0_3))
               (portRef ADA1 (instanceRef ROM_0_0_1_2))
               (portRef ADA1 (instanceRef ROM_0_0_2_1))

@@ -11,13 +11,13 @@ Status=S
 VendorName=Lattice Semiconductor Corporation
 CoreType=LPM
 CoreStatus=Demo
-CoreName=ROM
-CoreRevision=5.4
+CoreName=RAM_DP
+CoreRevision=6.5
 ModuleName=ROM
 SourceFormat=VHDL
 ParameterFileVersion=1.0
-Date=08/04/2023
-Time=18:23:24
+Date=08/14/2023
+Time=19:04:41
 
 [Parameters]
 Verilog=0
@@ -27,8 +27,10 @@ Destination=Synplicity
 Expression=BusA(0 to 7)
 Order=Big Endian [MSB:LSB]
 IO=0
-Address=4096
-Data=8
+RAddress=4096
+RData=8
+WAddress=4096
+WData=8
 enByte=0
 ByteSize=9
 OutputEn=0
@@ -36,17 +38,16 @@ ClockEn=0
 Optimization=Area
 Reset=Sync
 Reset1=Sync
-Init=0
-MemFile=c:/kevan/a3041/p3041/ROM.mem
+Init=mem
+MemFile=c:/kevan/a3041/p3041/rom.mem
 MemFormat=hex
 EnECC=0
 Pipeline=0
-Write=Normal
 init_data=0
 no_init=0
 
 [FilesGenerated]
-c:/kevan/a3041/p3041/ROM.mem=mem
+c:/kevan/a3041/p3041/rom.mem=mem
 
 [Command]
-cmd_line= -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type romblk -device LCMXO2-1200ZE -addr_width 12 -data_width 8 -num_words 4096 -cascade 11 -memfile "c:/kevan/a3041/p3041/ROM.mem" -memformat hex
+cmd_line= -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type ramdps -device LCMXO2-1200ZE -raddr_width 12 -rwidth 8 -waddr_width 12 -wwidth 8 -rnum_words 4096 -wnum_words 4096 -cascade 11 -memfile "c:/kevan/a3041/p3041/rom.mem" -memformat hex
