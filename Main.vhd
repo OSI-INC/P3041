@@ -426,6 +426,7 @@ begin
 		when rom_base to (rom_base+rom_range-1) =>
 			if CPUWR then
 				ROMWR <= to_std_logic(CPUDS);
+				rom_addr(10 downto 0) <= cpu_addr(10 downto 0);
 			end if;
 		end case;
 		
@@ -483,8 +484,8 @@ begin
 						-- Disable one or more of the eight-bit interrupt timers, and have
 						-- their resources freed, by commenting out lines below.
 						when mmu_it1p => int_period_1 <= cpu_data_out;
-						when mmu_it2p => int_period_2 <= cpu_data_out;
-						when mmu_it3p => int_period_3 <= cpu_data_out;
+--						when mmu_it2p => int_period_2 <= cpu_data_out;
+--						when mmu_it3p => int_period_3 <= cpu_data_out;
 --						when mmu_it4p => int_period_4 <= cpu_data_out;
 					end case;
 				end if;
@@ -581,7 +582,12 @@ begin
 		-- We use the falling edge of RCK to count down or else the compiler can become
 		-- confused when generating our delayed zero signal in the next section, where 
 		-- CK is the clock.
-		if falling_edge(RCK) then
+		if (RESET = '1') then
+			counter_1 := 0;
+			counter_2 := 0;
+			counter_3 := 0;
+			counter_4 := 0;
+		elsif falling_edge(RCK) then
 			if (counter_1 = 0) then
 				counter_1 := to_integer(unsigned(int_period_1));
 			else

@@ -17,7 +17,7 @@ ModuleName=ROM
 SourceFormat=VHDL
 ParameterFileVersion=1.0
 Date=08/14/2023
-Time=19:04:41
+Time=23:36:23
 
 [Parameters]
 Verilog=0
@@ -27,9 +27,9 @@ Destination=Synplicity
 Expression=BusA(0 to 7)
 Order=Big Endian [MSB:LSB]
 IO=0
-RAddress=4096
+RAddress=3072
 RData=8
-WAddress=4096
+WAddress=3072
 WData=8
 enByte=0
 ByteSize=9
@@ -50,4 +50,4 @@ no_init=0
 c:/kevan/a3041/p3041/rom.mem=mem
 
 [Command]
-cmd_line= -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type ramdps -device LCMXO2-1200ZE -raddr_width 12 -rwidth 8 -waddr_width 12 -wwidth 8 -rnum_words 4096 -wnum_words 4096 -cascade 11 -memfile "c:/kevan/a3041/p3041/rom.mem" -memformat hex
+cmd_line= -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type ramdps -device LCMXO2-1200ZE -raddr_width 12 -rwidth 8 -waddr_width 12 -wwidth 8 -rnum_words 3072 -wnum_words 3072 -cascade 11 -memfile "c:/kevan/a3041/p3041/rom.mem" -memformat hex

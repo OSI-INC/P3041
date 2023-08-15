@@ -3,7 +3,7 @@ Starting process: Module
 Starting process: 
 
 SCUBA, Version Diamond (64-bit) 3.12.1.454
-Mon Aug 14 19:04:41 2023
+Mon Aug 14 23:36:23 2023
 
 Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
 Copyright (c) 1995 AT&T Corp.   All rights reserved.
@@ -13,7 +13,7 @@ Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
 
 BEGIN SCUBA Module Synthesis
 
-    Issued command   : C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type ramdps -device LCMXO2-1200ZE -raddr_width 12 -rwidth 8 -waddr_width 12 -wwidth 8 -rnum_words 4096 -wnum_words 4096 -cascade 11 -memfile c:/kevan/a3041/p3041/rom.mem -memformat hex 
+    Issued command   : C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type ramdps -device LCMXO2-1200ZE -raddr_width 12 -rwidth 8 -waddr_width 12 -wwidth 8 -rnum_words 3072 -wnum_words 3072 -cascade 11 -memfile c:/kevan/a3041/p3041/rom.mem -memformat hex 
     Circuit name     : ROM
     Module type      : RAM_DP
     Module Version   : 6.5
@@ -30,7 +30,9 @@ BEGIN SCUBA Module Synthesis
     Bus notation     : big endian
     Report output    : ROM.srp
     Estimated Resource Usage:
-            EBR : 4
+            LUT : 8
+            EBR : 3
+            Reg : 2
 
 END   SCUBA Module Synthesis
 
