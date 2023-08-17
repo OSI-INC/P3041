@@ -45,15 +45,18 @@
 -- transmit control register, not just any write to the control register. But TXI still clears itself
 -- on the next CK cycle, while TXWP must be cleared deliberately. 
 
--- V1.5. 06-JUL-22 Status register now contains CMDRDY, ENTCK, SAA, TXA, CPA, and BOOST. We have all
+-- V1.5, 06-JUL-22: Status register now contains CMDRDY, ENTCK, SAA, TXA, CPA, and BOOST. We have all
 -- four interrupt timers implemented, hoping to use the second and third for transmission scatter
 -- and pulse randomization. Perfect ADC readout. Remove interrupt timer four to free up logic.
 
--- V1.6. 13-JUL-22 Add support for transmission warm-up (TXWP) so CPU can turn on the VCO to warm
+-- V1.6, 13-JUL-22: Add support for transmission warm-up (TXWP) so CPU can turn on the VCO to warm
 -- it up before transmitting auxiliary messages.
 
--- V1.7. 02-AUG-23 Fix bug in lamp current control, producing linear increase in duty cycle with 
+-- V1.7, 02-AUG-23: Fix bug in lamp current control, producing linear increase in duty cycle with 
 -- current code.
+
+-- V1.8, 16-AUG-23: Reduce program memory to 3 kByte and make it dual-port. Map the top kilobyte -- into the top kilobyte of cpu memory. Now we can write to the program memory. 
+
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -94,8 +97,8 @@ entity main is
 	constant cmd_range : integer := 2;
 	constant ctrl_base : integer := 4;
 	constant ctrl_range : integer := 2;
-	constant rom_base : integer := 6;
-	constant rom_range : integer := 2;
+	constant prog_base : integer := 6;
+	constant prog_range : integer := 2;
 	
 -- Memory Map Constants, low nibble addresses in units of bytes;
 	constant mmu_sdb  : integer := 0;  -- Sensor Data Byte
@@ -188,9 +191,9 @@ architecture behavior of main is
 -- Program Memory Signals
 	signal prog_data : std_logic_vector(7 downto 0); -- ROM Data
 	signal prog_addr : std_logic_vector(prog_addr_len-1 downto 0); -- Prog Address
-	signal rom_in : std_logic_vector(7 downto 0); 
-	signal rom_addr : std_logic_vector(prog_addr_len-1 downto 0); -- ROM Address
-	signal ROMWR : std_logic; -- ROM Write
+	signal prog_in : std_logic_vector(7 downto 0); 
+	signal prog_in_addr : std_logic_vector(prog_addr_len-1 downto 0); -- ROM Address
+	signal PROGWR : std_logic; -- ROM Write
 	
 -- Process Memory Signals
 	signal ram_addr : std_logic_vector(ram_addr_len-1 downto 0); -- RAM Address
@@ -337,11 +340,11 @@ begin
         RdClockEn => '1',
         Reset => RESET,	
         Q => prog_data,
-		WrAddress => rom_addr,
+		WrAddress => prog_in_addr,
 		WrClock => not CK,
 		WrClockEn => '1',
-		WE => ROMWR,
-		Data => rom_in);
+		WE => PROGWR,
+		Data => prog_in);
 
 -- The processor itself, and eight-bit microprocessor with thirteen-bit address bus.
 	CPU : entity OSR8_CPU 
@@ -377,16 +380,27 @@ begin
 		top_bits := to_integer(unsigned(cpu_addr(cpu_addr_len-1 downto 9)));
 		bottom_bits := to_integer(unsigned(cpu_addr(5 downto 0)));
 		
-		-- We want the following signals to be combinatorial functions
-		-- of the address. Here we define their default values.
+		-- By default, don't write to RAM or PROG memories.
 		RAMWR <= '0';
-		ROMWR <= '0';
+		PROGWR <= '0';
+		
+		-- The RAM address we take from the lower bits of the cpu
+		-- address. The RAM data in is always the cpu data out.
 		ram_in <= cpu_data_out;
 		ram_addr <= cpu_addr(ram_addr_len-1 downto 0);
+		
+		-- The command memory read address is the lower bits of the
+		-- cpu address. By default, the command data is zero.
 		cmd_rd_addr <= cpu_addr(cmd_addr_len-1 downto 0);
 		cpu_data_in <= (others => '0');	
-		rom_in <= cpu_data_out;
-		rom_addr <= (others => '1');
+		
+		-- The program memory data input is the cpu data, but its 
+		-- write address we restrict to the upper kilobyte of the 
+		-- program memory, so we can never write to the lower two
+		-- kilobytes. 
+		prog_in <= cpu_data_out;
+		prog_in_addr(11 downto 10) <= "10";
+		prog_in_addr(9 downto 0) <= cpu_addr(9 downto 0);
 		
 		-- These signals develop after the CPU asserts a new address
 		-- along with CPU Write. They will be ready before the falling 
@@ -423,10 +437,9 @@ begin
 						cpu_data_in <= cmd_wr_addr(7 downto 0);
 				end case;
 			end if;
-		when rom_base to (rom_base+rom_range-1) =>
+		when prog_base to (prog_base+prog_range-1) =>
 			if CPUWR then
-				ROMWR <= to_std_logic(CPUDS);
-				rom_addr(10 downto 0) <= cpu_addr(10 downto 0);
+				PROGWR <= to_std_logic(CPUDS);
 			end if;
 		end case;
 		
@@ -481,10 +494,8 @@ begin
 						when mmu_bcc => BOOST <= (cpu_data_out(0) = '1');
 						when mmu_dfr => df_reg <= cpu_data_out(3 downto 0);
 						when mmu_crst => CPRST <= true;
-						-- Disable one or more of the eight-bit interrupt timers, and have
-						-- their resources freed, by commenting out lines below.
 						when mmu_it1p => int_period_1 <= cpu_data_out;
---						when mmu_it2p => int_period_2 <= cpu_data_out;
+						when mmu_it2p => int_period_2 <= cpu_data_out;
 --						when mmu_it3p => int_period_3 <= cpu_data_out;
 --						when mmu_it4p => int_period_4 <= cpu_data_out;
 					end case;

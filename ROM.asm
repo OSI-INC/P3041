@@ -110,7 +110,7 @@ const Rand1       0x0030 ; Random Number Byte One
 const Rand0       0x0031 ; Random Number Byte Zero
 
 ; Transmission Control Variables
-const xmit_T      0x0040 ; Transmit Period
+const xmit_p      0x0040 ; Transmit Period
 const xmit_pcn    0x0041 ; Primary Channel Number
 const xxcnt1      0x0042 ; Transmit Extinguish Counter Byte One
 const xxcnt0      0x0043 ; Transmit Extinguish Counter Byte Zero
@@ -448,7 +448,7 @@ sbc A,0             ; we set the transmit period to
 ld (xxcnt1),A       ; zero in memory, which will
 jp nc,int_xmit_done ; allow the main loop to turn
 ld A,0              ; off power to the
-ld (xmit_T),A       ; device, preserving our battery.
+ld (xmit_p),A       ; device, preserving our battery.
 
 int_xmit_done:
 
@@ -873,7 +873,7 @@ jp nz,check_ack
 inc IX
 call dec_cmd_cnt
 ld A,(IX)            ; Read transmit period minus one. 
-ld (xmit_T),A        ; Save to memory and
+ld (xmit_p),A        ; Save to memory and
 ld (mmu_it1p),A      ; write to interrupt timer period.
 inc IX
 call dec_cmd_cnt
@@ -1321,7 +1321,7 @@ call start_pulse
 ; main loop. 
 
 main_nostim:
-ld A,(xmit_T)
+ld A,(xmit_p)
 add A,0
 jp nz,main_loop
 ld A,(Srun)
