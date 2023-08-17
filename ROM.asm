@@ -11,6 +11,7 @@ const tx_calib        5 ; Transmit frequency calibration
 const mmu_vmem 0x0000 ; Base of Variable Memory
 const mmu_cmem 0x0400 ; Base of Command Memory
 const mmu_ctrl 0x0800 ; Base of Control Space
+const mmu_prog 0x0C00 ; Base of User Program Memory
 const mmu_sba  0x0300 ; Stack Base Address
 
 ; Address Map Locations
