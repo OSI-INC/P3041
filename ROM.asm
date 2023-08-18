@@ -3,10 +3,6 @@
 
 ; This code runs in the OSR8V3 microprocessor of the A3041A.
 
-; Calibration Constants.
-const device_id  0x074B ; Sixteen bit identifier.
-const tx_calib        5 ; Transmit frequency calibration
-
 ; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
 const mmu_cmem 0x0400 ; Base of Command Memory
@@ -27,7 +23,6 @@ const mmu_xhb  0x0808 ; Transmit HI Byte
 const mmu_xlb  0x0809 ; Transmit LO Byte
 const mmu_xcn  0x080A ; Transmit Channel Number
 const mmu_xcr  0x080B ; Transmit Control Register
-const mmu_xfc  0x080C ; Transmit Frequency Calibration
 const mmu_etc  0x080D ; Enable Transmit Clock
 const mmu_tcf  0x080E ; Transmit Clock Frequency
 const mmu_tcd  0x080F ; Transmit Clock Divider
@@ -41,6 +36,8 @@ const mmu_it1p 0x0816 ; Interrupt Timer One Period
 const mmu_it2p 0x0817 ; Interrupt Timer Two Period
 const mmu_it3p 0x0818 ; Interrupt Timer Three Period
 const mmu_it4p 0x0819 ; Interrupt Timer Four Period
+const mmu_idh  0x0819 ; Device ID HI
+const mmu_idl  0x0820 ; Device ID LO
 
 ; Status Bit Masks, for use with status register.
 const sr_cmdrdy  0x01 ; Command Ready Flag
@@ -617,12 +614,17 @@ push A
 push H
 push L
 
-; Delay for 50 clcok cycles multiplied by numeric value of 
+; Delay for 50 clock cycles multiplied by numeric value of 
 ; the device id. By this means, each device transmits its
 ; identifying message at a different time, up to 656 ms from
 ; the time of the command.
 
-ld HL,device_id 
+ld A,(mmu_idh)
+push A
+pop H
+ld A,(mmu_idl)
+push A
+pop L
 identify_delay:
 ld A,id_delay
 dly A
@@ -649,23 +651,19 @@ ld (mmu_xcr),A      ; let the battery recover
 ld A,wp_delay       ; before we 
 dly A               ; transmit.
 
-; Load the top byte of the device_id into the transmit LO byte.
+; Load the HI byte of the device identifier into the transmit LO byte.
 
-ld HL,device_id     ; Load device_id into HL
-push H              ; move to
-pop A               ; A and 
-ld (mmu_xlb),A      ; write the battery measurement to transmit LO register.
+ld A,(mmu_idh)      ; Load HI byte into A and
+ld (mmu_xlb),A      ; write to transmit LO register.
 
-; Prepare the auiliary message. We use the lower byte of the device_id
+; Prepare the auiliary message. We use the LO byte of the device identifier
 ; as the primary channel number for an auxiliary message. 
 
-push L              ; Move the lower byte of device_id
-pop A               ; into A,
-or A,0x0F           ; set lower four bits to one
-ld (mmu_xcn),A      ; and write the transmit channel register.
-push L              ; Load A with primary
-pop A               ; channel number again
-sla A               ; Shift A 
+ld A,(mmu_idl)      ; Load LO byte into A,
+or A,0x0F           ; set lower four bits to one and
+ld (mmu_xcn),A      ; write to the transmit channel register.
+ld A,(mmu_idl)      ; Load LO byte into A again,
+sla A               ; shift A 
 sla A               ; left
 sla A               ; four
 sla A               ; times.
@@ -740,7 +738,12 @@ ld IX,mmu_cmem
 
 ; Load the device id into HL and the command's device id into DE.
 
-ld HL,device_id
+ld A,(mmu_idh)
+push A
+pop H
+ld A,(mmu_idl)
+push A
+pop L
 ld A,(IX)
 push A
 pop D
@@ -1241,16 +1244,11 @@ jp nz,main_vclr
 
 ld A,0             ; Make sure the stimulus
 ld (mmu_stc),A     ; current is zero.
-ld HL,device_id    ; Set the primary channel number
-push L             ; equal to the low byte
-pop A              ; of the
-ld (xmit_pcn),A    ; device identifier.
-ld (Rand0),A       ; And seed the random number generator
-push H             ; with the
-pop A              ; device
-ld (Rand1),A       ; identifier.
-ld A,tx_calib      ; Set the radio frequency for
-ld (mmu_xfc),A     ; transmission to calibration value.
+ld A,(mmu_idl)     ; Set the primary channel number to the
+ld (xmit_pcn),A    ; LO byte of the device identifier.
+ld (Rand0),A       ; Seed the random number generator
+ld A,(mmu_idh)     ; with the LO and HI bytes of the
+ld (Rand1),A       ; device identifier.
 
 ; Calibrate the transmit clock.
 

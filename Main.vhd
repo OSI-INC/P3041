@@ -55,7 +55,9 @@
 -- V1.7, 02-AUG-23: Fix bug in lamp current control, producing linear increase in duty cycle with 
 -- current code.
 
--- V1.8, 16-AUG-23: Reduce program memory to 3 kByte and make it dual-port. Map the top kilobyte -- into the top kilobyte of cpu memory. Now we can write to the program memory. 
+-- V1.8, 16-AUG-23: Reduce program memory to 3 kByte and make it dual-port. Map the top kilobyte -- into the top kilobyte of cpu memory. Now we can write to the program memory. Move specification
+-- of device ID and radio-frequency center frequency into VHDL and add locations to allow the
+-- software to read both bytes of the ID.
 
 
 library ieee;  
@@ -82,6 +84,10 @@ entity main is
 		xdac -- Transmit DAC Output, to set data transmit frequency
 		: out std_logic_vector(4 downto 0));
 
+-- Configuration of Device.
+	constant device_id : integer := 16#074B#;
+	constant frequency_low : integer := 5;
+	
 -- Configuration of OSR8 CPU.
 	constant prog_addr_len : integer := 12;
 	constant cpu_addr_len : integer := 12;
@@ -113,20 +119,21 @@ entity main is
 	constant mmu_xlb  : integer := 9;  -- Transmit LO Byte
 	constant mmu_xcn  : integer := 10; -- Transmit Channel Number
 	constant mmu_xcr  : integer := 11; -- Transmit Control Register
-	constant mmu_xfc  : integer := 12; -- Transmit Frequency Calibration
-	constant mmu_etc  : integer := 13; -- Enable Transmit Clock
-	constant mmu_tcf  : integer := 14; -- Transmit Clock Frequency
-	constant mmu_tcd  : integer := 15; -- Transmit Clock Divider
-	constant mmu_bcc  : integer := 16; -- Boost CPU Clock
-	constant mmu_dfr  : integer := 17; -- Diagnostic Flag Register
-	constant mmu_sr   : integer := 18; -- Status Register
-	constant mmu_cch  : integer := 19; -- Command Count HI Byte
-	constant mmu_ccl  : integer := 20; -- Command Count LO Byte
-	constant mmu_crst : integer := 21; -- Command Processor Reset
-	constant mmu_it1p : integer := 22; -- Interrupt Timer One Period
-	constant mmu_it2p : integer := 23; -- Interrupt Timer Two Period
-	constant mmu_it3p : integer := 24; -- Interrupt Timer Three Period
-	constant mmu_it4p : integer := 25; -- Interrupt Timer Four Period
+	constant mmu_etc  : integer := 13; -- Enable Transmit Clock (Write)
+	constant mmu_tcf  : integer := 14; -- Transmit Clock Frequency (Write)
+	constant mmu_tcd  : integer := 15; -- Transmit Clock Divider (Write)
+	constant mmu_bcc  : integer := 16; -- Boost CPU Clock (Write)
+	constant mmu_dfr  : integer := 17; -- Diagnostic Flag Register (Read/Write)
+	constant mmu_sr   : integer := 18; -- Status Register (Read)
+	constant mmu_cch  : integer := 19; -- Command Count HI Byte (Read)
+	constant mmu_ccl  : integer := 20; -- Command Count LO Byte (Read)
+	constant mmu_crst : integer := 21; -- Command Processor Reset (Write)
+	constant mmu_it1p : integer := 22; -- Interrupt Timer One Period (Write)
+	constant mmu_it2p : integer := 23; -- Interrupt Timer Two Period (Write)
+	constant mmu_it3p : integer := 24; -- Interrupt Timer Three Period (Write)
+	constant mmu_it4p : integer := 25; -- Interrupt Timer Four Period (Write)
+	constant mmu_idh  : integer := 26; -- Identifier HI Byte (Read)
+	constant mmu_idl  : integer := 27; -- Identifier LO Byte (Read)
 end;
 
 architecture behavior of main is
@@ -134,10 +141,6 @@ architecture behavior of main is
 -- Attributes to guide the compiler.
 	attribute syn_keep : boolean;
 	attribute nomerge : string;
-
--- Default Parameter Values.
-	constant tx_low_default : integer := 4;
-	constant tx_channel_default : integer := 1;
 
 -- Power Controller
 	signal USERSTDBY, CLRFLAG, SFLAG, STDBY, RESET : std_logic;
@@ -161,9 +164,9 @@ architecture behavior of main is
 	attribute syn_keep of TXI, TXA : signal is true;
 	attribute nomerge of TXI, TXA : signal is "";  
 	signal xmit_bits : std_logic_vector(15 downto 0) := (others => '0');
+	constant tx_channel_default : integer := device_id rem 256;
 	signal tx_channel : integer range 0 to 255 := tx_channel_default; 
-	signal tx_low : integer range 0 to 15 := tx_low_default; 
-	constant tx_step : integer := 1; 
+	constant frequency_step : integer := 1; 
 		
 -- Sensor Controller
 	signal CS : boolean; -- Chip Select for DAC
@@ -433,8 +436,9 @@ begin
 						cpu_data_in(5) <= to_std_logic(BOOST);  -- Boost CPU Flag
 					when mmu_cch => 
 						cpu_data_in(cmd_addr_len-9 downto 0) <= cmd_wr_addr(cmd_addr_len-1 downto 8);
-					when mmu_ccl =>
-						cpu_data_in <= cmd_wr_addr(7 downto 0);
+					when mmu_ccl => cpu_data_in <= cmd_wr_addr(7 downto 0);
+					when mmu_idh => cpu_data_in <= std_logic_vector(to_unsigned(device_id / 256,8));
+					when mmu_idl => cpu_data_in <= std_logic_vector(to_unsigned(device_id rem 256,8));
 				end case;
 			end if;
 		when prog_base to (prog_base+prog_range-1) =>
@@ -483,7 +487,6 @@ begin
 						when mmu_xcr => 
 							TXI <= (cpu_data_out(0) = '1');
 							TXWP <= (cpu_data_out(1) = '1');
-						when mmu_xfc => tx_low <= to_integer(unsigned(cpu_data_out));
 						when mmu_imsk => int_mask <= cpu_data_out;
 						when mmu_irst => int_rst <= cpu_data_out;
 						when mmu_dact => DACTIVE <= (cpu_data_out(0) = '1');
@@ -896,10 +899,10 @@ begin
 		-- the modulation frequency to go from high to low on the falling edge of
 		-- TCK.
 		elsif (TXB xor (TCK = '1')) then
-			xdac <= std_logic_vector(to_unsigned(tx_low + tx_step,5));
+			xdac <= std_logic_vector(to_unsigned(frequency_low + frequency_step,5));
 			FHI <= true;
 		else
-			xdac <= std_logic_vector(to_unsigned(tx_low,5));
+			xdac <= std_logic_vector(to_unsigned(frequency_low,5));
 			FHI <= false;
 		end if;
 	end process;
