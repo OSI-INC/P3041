@@ -2,13 +2,23 @@
 ; ------------------------------------------------
 
 ; This code runs in the OSR8V3 microprocessor of the A3041A.
+; V1.8: Device ID and radio center frequency now defined in the
+; VHDL code. We read the ID from the control space. Add support
+; for user programs by mapping top kilobyte of program memory
+; into top kilobyte of CPU memory. Add command interface
+; instruction that writes byte to the program memory. Add another
+; instruction that enables calling the user program as a routine
+; during synch transmission.
 
-; Address Map Boundary Constants
+; CPU Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
+const mmu_sba  0x0300 ; Stack Base Address
 const mmu_cmem 0x0400 ; Base of Command Memory
 const mmu_ctrl 0x0800 ; Base of Control Space
-const mmu_prog 0x0C00 ; Base of User Program Memory
-const mmu_sba  0x0300 ; Stack Base Address
+const mmu_prog 0x0C00 ; Base of program memory portal
+
+; Program Addres Map
+const prog_usr 0x0800 ; Base of program memory portal
 
 ; Address Map Locations
 const mmu_sdb  0x0800 ; Sensor Data Byte
@@ -113,6 +123,10 @@ const xmit_pcn    0x0041 ; Primary Channel Number
 const xxcnt1      0x0042 ; Transmit Extinguish Counter Byte One
 const xxcnt0      0x0043 ; Transmit Extinguish Counter Byte Zero
 
+; User Program Control Variables
+const run_prog    0x0048 ; Run User Program flag
+const ret_code      0x0A ; Return from subrouting instruction
+
 ; Scratch Pad Variables
 const scratch1    0x0050 ; Scratchpad Variable 1
 const scratch2    0x0051 ; Scratchpad Variable 2
@@ -129,6 +143,8 @@ const op_ack         3 ; 1 operand
 const op_battery     4 ; 0 operand
 const op_identify    5 ; 0 operands
 const op_setpcn      6 ; 1 operand
+const op_ldprog      7 ; 1 operand, 0-255 data
+const op_enprog      8 ; 1 operand
 
 ; Synchronization.
 const synch_nostim  32 ; 
@@ -374,7 +390,8 @@ int_stim_done:
 
 ; Handle the transmit interrupt, if it exists. We won't wait for the transmission
 ; to complete because we are certain to follow our transmission with at least one
-; RCK period when we move out of boost.
+; RCK period when we move out of boost. If the user program is enabled, we run it
+; and do nothing else, otherwise we transmit a synchronizing signal.
 
 int_xmit:
 
@@ -384,6 +401,12 @@ jp z,int_xmit_done  ; skip transmit if not set.
 
 ld A,bit0_mask      ; Reset this interrupt
 ld (mmu_irst),A     ; with the bit zero mask.
+
+ld A,(run_prog)     ; Check the run program flag
+and A,bit0_mask     ; check bit zero
+jp z,int_done_prog  ; and if set
+call prog_usr       ; call user program.
+int_done_prog:
 
 ld A,(xmit_pcn)     ; Load A with primary channel number
 ld (mmu_xcn),A      ; and write the transmit channel register.
@@ -577,7 +600,7 @@ dly A               ; again
 ld A,(mmu_sdb)      ; and get battery measurement.
 ld (mmu_xlb),A      ; Write the to transmit LO register.
 
-; Prepare the auiliary message: auxiliary channel number, top four bits of
+; Prepare the auxiliary message: auxiliary channel number, top four bits of
 ; primary channel number, and auxiliary type.
 
 ld A,(xmit_pcn)     ; Load A with primary channel number
@@ -951,11 +974,54 @@ jp cmd_loop_end
 check_setpcn:
 ld A,(IX)
 sub A,op_setpcn
-jp nz,cmd_done
+jp nz,check_ldprog
 inc IX 
 call dec_cmd_cnt
 ld A,(IX)           
 ld (xmit_pcn),A      
+inc IX               
+call dec_cmd_cnt    
+jp cmd_loop_end   
+
+; Receive user code and load into user program memory. Instruction
+; takes one operand: the number of program bytes that follow the
+; operand.
+  
+check_ldprog:
+ld A,(IX)
+sub A,op_ldprog
+jp nz,check_enprog
+inc IX 
+call dec_cmd_cnt
+ld A,(IX)          ; Get the number of program bytes.
+inc IX              
+call dec_cmd_cnt 
+add A,0            ; If number of bytes is zero,
+jp z,cmd_loop_end  ; stop now.
+push A             ; Otherwise, use B to count the
+pop B              ; program bytes.
+ld IY,mmu_prog     ; Load IY with the base of program memory.
+load_prog:         ; The program load loop start.    
+ld A,(IX)          ; Read instruction byte from command memory
+ld (IY),A          ; and write to program memory.
+inc IX
+inc IY
+call dec_cmd_cnt   
+dec B              ; Decrement B, and if not zero, 
+jp nz,load_prog    ; read another byte.
+jp cmd_loop_end    ; Otherwise we are done with this instruction.
+
+; Turn on and off execution of user code during transmit interrupt.
+; Instruction takes one operand: zero for disable, one for enable.
+
+check_enprog:
+ld A,(IX)
+sub A,op_enprog
+jp nz,cmd_done
+inc IX 
+call dec_cmd_cnt
+ld A,(IX)           
+ld (run_prog),A      
 inc IX               
 call dec_cmd_cnt    
 jp cmd_loop_end     
@@ -1244,6 +1310,9 @@ jp nz,main_vclr
 
 ld A,0             ; Make sure the stimulus
 ld (mmu_stc),A     ; current is zero.
+ld (run_prog),A    ; Disable user program.
+ld A,ret_code      ; Put a return opcode at first byte
+ld (mmu_prog),A    ; in user program, in case of enable.
 ld A,(mmu_idl)     ; Set the primary channel number to the
 ld (xmit_pcn),A    ; LO byte of the device identifier.
 ld (Rand0),A       ; Seed the random number generator
