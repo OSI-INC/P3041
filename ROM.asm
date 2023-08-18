@@ -36,8 +36,8 @@ const mmu_it1p 0x0816 ; Interrupt Timer One Period
 const mmu_it2p 0x0817 ; Interrupt Timer Two Period
 const mmu_it3p 0x0818 ; Interrupt Timer Three Period
 const mmu_it4p 0x0819 ; Interrupt Timer Four Period
-const mmu_idh  0x0819 ; Device ID HI
-const mmu_idl  0x0820 ; Device ID LO
+const mmu_idh  0x081A ; Device ID HI
+const mmu_idl  0x081B ; Device ID LO
 
 ; Status Bit Masks, for use with status register.
 const sr_cmdrdy  0x01 ; Command Ready Flag
