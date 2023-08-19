@@ -18,7 +18,7 @@ const mmu_ctrl 0x0800 ; Base of Control Space
 const mmu_prog 0x0C00 ; Base of program memory portal
 
 ; Program Addres Map
-const prog_usr 0x0800 ; Base of program memory portal
+const prog_usr 0x0800 ; User program location
 
 ; Address Map Locations
 const mmu_sdb  0x0800 ; Sensor Data Byte
@@ -997,11 +997,11 @@ ld A,(IX)          ; Get the number of program bytes.
 inc IX              
 call dec_cmd_cnt 
 add A,0            ; If number of bytes is zero,
-jp z,cmd_loop_end  ; stop now.
+jp z,cmd_loop_end  ; we are done with this instruction.
 push A             ; Otherwise, use B to count the
 pop B              ; program bytes.
-ld IY,mmu_prog     ; Load IY with the base of program memory.
-load_prog:         ; The program load loop start.    
+ld IY,mmu_prog     ; Load IY with the base of user program memory.
+load_prog:        
 ld A,(IX)          ; Read instruction byte from command memory
 ld (IY),A          ; and write to program memory.
 inc IX
