@@ -57,7 +57,8 @@
 
 -- V1.8, 16-AUG-23: Reduce program memory to 3 kByte and make it dual-port. Map the top kilobyte -- into the top kilobyte of cpu memory. Now we can write to the program memory. Move specification
 -- of device ID and radio-frequency center frequency into VHDL and add locations to allow the
--- software to read both bytes of the ID.
+-- software to read both bytes of the ID. Clock the program memory on the rising edge of CK, allows
+-- us to write to program memory on falling edge, and gives CPU more time to decode instructions.
 
 
 library ieee;  
@@ -339,7 +340,7 @@ begin
 -- top kilobyte of the ROM.
 	ROM : entity ROM port map (
 		RdAddress => prog_addr,
-        RdClock => not CK,
+        RdClock => CK,
         RdClockEn => '1',
         Reset => RESET,	
         Q => prog_data,

@@ -32,23 +32,26 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
--- The CPU requires seprate program and process memory. We set the size of both
--- memories by typing in their top address bit index in the declaration of the
--- OSR8 entity. Process and program memory can be anything from 1 kByte to 64 kByte.
--- All our efforts to use generic constants to define the memory sizes have failed
--- due to what we believe is a compiler error, so we cannot re-configure the OSR8
--- from the instantiating entity. 
+-- The CPU requires seprate program and process memory. Process and program memory 
+-- can be anything from 1 kByte to 64 kByte.
 
- -- Both memories must be clocked on the falling edge of CK. The CPU increments the
- -- program counter on the rising edge of CK and expects the next instruction byte
- -- to be present for decoding well before the next rising edge, which in practice
- -- means we must fetch it on the falling edge of CK. The WR and DS control signals
- -- along with the cpu_addr and cpu_data_out will be asserted on the rising edge of
- -- CK and persist until the next rising edge, so they are always valid on the
- -- falling edge of CK for the data memory to use. On a read cycle, the CPU expects
- -- the data to be ready before the next rising edge of CK after it asserts DS. On
- -- a write cycle, the CPU expects the write to take place on the falling edge of
- -- CK after it asserts DS and WR. 
+-- The program memory should be clocked on the rising edge of CK. The CPU will run
+-- with the program memory being read out on the falling edges, but using the 
+-- rising edges gives the CPU the maximum amount of time to decode instructions, and
+-- therefore increases the maximum possible CK frequency. If we want to write to 
+-- a dual-port program memory using CPU read and write cycles, thus permitting
+-- dynamically loadable user-code, we must use the falling edge of CK to write to
+-- program memory. The dual-port memory does not function correctly unless the write
+-- and read clocks are offset, so using the rising edge to read from program memory
+-- allows us to use the falling edge to write to program memory.
+
+-- The process memory must be clocked on the falling edge of CK. The CPU increments 
+-- the program counter on the rising edge of CK. When it asserts WR and DS, it does
+-- so for one CK cycle, starting and ending on the rising edges. These signals are
+-- always valid before and after the falling edge of CK. On a read cycle, the CPU 
+-- expects data to be ready before the next rising edge of CK after it asserts DS. On
+-- a write cycle, the CPU expects the write to take place on the falling edge of
+-- CK after it asserts DS and WR. 
 
 -- The IRQ signal is for an interrupt request. The external memory management unit (MMU) 
 -- must provide a way for the CPU to clear the IRQ signal so it can get back to its main
@@ -1137,9 +1140,9 @@ begin
 		-- We begin with the behavior of the ALU when we are in the read_opcode state. We use 
 		-- the current value of the program data as the opcode that controls the function of 
 		-- the ALU. If we are in the read_opcode state and we receive an interrupt request, the 
-		-- CPU will service the interrupt by overriding the value of prog_data with an nm_int 
-		-- opcode. The ALU ignores this will override and behaves as if the value on prog_data 
-		-- is the opcode. Because the nm_int command does not use the ALU, no error results from 
+		-- CPU will service the interrupt by overriding the value of prog_data with an sw_int 
+		-- opcode. The ALU ignores this override and behaves as if the value on prog_data 
+		-- is the opcode. Because the sw_int operation does not use the ALU, no error results from 
 		-- ignoring the override.
 		if (state = read_opcode) then
 			case opcode_now is
@@ -1237,6 +1240,7 @@ begin
 				end case;
 				
 			end case;
+			
 		-- If we are not in the read_opcode state, we have a variable "opcode" that holds
 		-- the value of the opcode that was presented in the most recent read_opcode state.
 		-- We use this variable to control the behavior of the ALU. The operand we are 
