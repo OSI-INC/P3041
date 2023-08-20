@@ -35,15 +35,18 @@ use ieee.numeric_std.all;
 -- The CPU requires seprate program and process memory. Process and program memory 
 -- can be anything from 1 kByte to 64 kByte.
 
--- The program memory should be clocked on the rising edge of CK. The CPU will run
--- with the program memory being read out on the falling edges, but using the 
--- rising edges gives the CPU the maximum amount of time to decode instructions, and
--- therefore increases the maximum possible CK frequency. If we want to write to 
--- a dual-port program memory using CPU read and write cycles, thus permitting
--- dynamically loadable user-code, we must use the falling edge of CK to write to
--- program memory. The dual-port memory does not function correctly unless the write
--- and read clocks are offset, so using the rising edge to read from program memory
--- allows us to use the falling edge to write to program memory.
+-- The program memory read cycles should be clocked on the falling edge of CK. We 
+-- see no reason program memory cannot be read on the rising edges of CK, but when
+-- we switch to reading on the rising edge, we find our peripherals don't work any
+-- more. In theory, if we re-built our peripherals, we could clock both CPU and 
+-- program memory on the rising edges of CK and gain more time for decoding
+-- instruction bytes. 
+
+-- The program memory write cycles, if supported by the peripherals, are how 
+-- the user can upload dynamic code into the embedded computer. The CPU must write
+-- to dual-port program memory on the rising edge of CK, on account of this same
+-- memory being read on the falling edge. Dual-port memory does not function 
+-- correctly unless the write and read clocks are offset.
 
 -- The process memory must be clocked on the falling edge of CK. The CPU increments 
 -- the program counter on the rising edge of CK. When it asserts WR and DS, it does

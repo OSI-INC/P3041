@@ -55,10 +55,10 @@
 -- V1.7, 02-AUG-23: Fix bug in lamp current control, producing linear increase in duty cycle with 
 -- current code.
 
--- V1.8, 16-AUG-23: Reduce program memory to 3 kByte and make it dual-port. Map the top kilobyte -- into the top kilobyte of cpu memory. Now we can write to the program memory. Move specification
--- of device ID and radio-frequency center frequency into VHDL and add locations to allow the
--- software to read both bytes of the ID. Clock the program memory on the rising edge of CK, allows
--- us to write to program memory on falling edge, and gives CPU more time to decode instructions.
+-- V1.8, 16-AUG-23: Reduce program memory to 3 kByte and make it dual-port. Map the top kilobyte -- into the top kilobyte of cpu memory. We read the program memory on !CK. We find we must write
+-- on CK or the writes fail. Now we can write to the program memory. Move specification of device
+-- identifier and radio-frequency center frequency into VHDL and add locations to allow the
+-- software to read both bytes of the ID. 
 
 
 library ieee;  
@@ -340,14 +340,14 @@ begin
 -- top kilobyte of the ROM.
 	ROM : entity ROM port map (
 		RdAddress => prog_addr,
-        RdClock => CK,
+        RdClock => not CK,
         RdClockEn => '1',
         Reset => RESET,	
         Q => prog_data,
 		WrAddress => prog_in_addr,
-		WrClock => not CK,
-		WrClockEn => '1',
-		WE => PROGWR,
+		WrClock => CK,
+		WrClockEn => PROGWR,
+		WE => '1',
 		Data => prog_in);
 
 -- The processor itself, and eight-bit microprocessor with thirteen-bit address bus.
