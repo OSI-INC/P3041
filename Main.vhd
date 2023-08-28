@@ -86,7 +86,7 @@ entity main is
 		: out std_logic_vector(4 downto 0));
 
 -- Configuration of Device.
-	constant device_id : integer := 16#074B#;
+	constant device_id : integer := 16#7A05#;
 	constant frequency_low : integer := 5;
 	
 -- Configuration of OSR8 CPU.
@@ -1313,9 +1313,10 @@ begin
 	TP1 <= df_reg(0);
 	
 -- Test Point Two appears on P4-2.
-	TP2 <= ONL;
+	TP2 <= df_reg(1);
 
--- Test Point Three appears on P4-3 after the programming connector is removed.
+-- Test Point Three appears on P4-3 after the programming connector is removed. When
+-- we set TP3 to df_reg(2), our code fails.
 	TP3 <= RCK;
 
 -- Test point Four appears on P4-4 after the programming connector is removed. 

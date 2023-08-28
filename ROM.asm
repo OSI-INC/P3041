@@ -331,6 +331,12 @@ jp z,int_stim_done  ; skip this is not the stimulus interrupt.
 ld A,bit1_mask      ; Reset this interrupt
 ld (mmu_irst),A     ; with the bit one mask.
 
+ld A,(mmu_dfr)     
+or A,bit1_mask
+ld (mmu_dfr),A  
+and A,bit1_clr
+ld (mmu_dfr),A
+
 ld A,(Sicnt0)       ; Load stimulus count byte zero,
 sub A,stim_tick     ; decremement by the stimulus tick,
 ld (Sicnt0),A       ; and write to memory.
@@ -358,9 +364,6 @@ jp nc,int_stim_done ; If result >=0, done with interrupt,
 ld A,0              ; but if <0,
 ld (mmu_stc),A      ; turn off the lamp,
 ld (Sprun),A        ; clear the pulse flag and now
-ld A,(mmu_dfr)     
-and A,bit3_clr  
-ld (mmu_dfr),A    
 jp int_stim_done    ; we are done with this interrupt.
 
 int_Sdly:
@@ -383,9 +386,6 @@ ld A,1              ; set the
 ld (Sprun),A        ; pulse flag, 
 ld A,(Scurrent)     ; load the pulse stimulus current and 
 ld (mmu_stc),A      ; start the pulse. Now done with this interrupt.
-ld A,(mmu_dfr)      
-or A,bit3_mask     
-ld (mmu_dfr),A     
 int_stim_done:
 
 ; Handle the transmit interrupt, if it exists. We won't wait for the transmission
@@ -739,10 +739,6 @@ push H
 push L
 push IX
 
-ld A,(mmu_dfr)       ; A pulse to show that we 
-or A,bit1_mask       ; are starting the command
-ld (mmu_dfr),A       ; execution.
-
 ; Calculate and store the command count in memory. We read the wr_cmd_addr and subtract
 ; two. We will use the dec_cmd_cnt routine to decrement as we increment through the command
 ; memory. If the command count is less than zero, we abort.
@@ -879,10 +875,7 @@ ld (Sicnt0),A        ; set the stimulus interval
 ld (Sicnt1),A        ; counter to
 ld (Sicnt2),A        ; zero.
 ld (Sprun),A         ; Clear the pulse run flag
-ld (Sdrun),A         ; and the delay flag.
-ld A,(mmu_dfr)     
-and A,bit3_clr    
-ld (mmu_dfr),A    
+ld (Sdrun),A         ; and the delay flag.  
 ld A,stim_tick       ; Set stimulus interrupt period by loading
 dec A                ; the period, subtracting one, and writing
 ld (mmu_it2p),A      ; to the timer register.
@@ -1046,10 +1039,6 @@ ld A,0x01
 ld (mmu_dva),A
 ld (mmu_cpr),A
 
-ld A,(mmu_dfr)     
-and A,bit1_clr    
-ld (mmu_dfr),A    
-
 ; Restore most registers.
 
 pop IX
@@ -1121,12 +1110,6 @@ push E
 push H
 push L
 
-; Generate a pulse on diagnostic flag two.
-
-ld A,(mmu_dfr)      
-or A,bit2_mask     
-ld (mmu_dfr),A     
-
 ; Add the stimulus interval to the stimulus interval counter.
 
 ld A,(Sinterval_0)  ; Add the stimulus interval
@@ -1149,9 +1132,6 @@ pop B               ; adding to a negative number and
 ld A,(Sicnt2)       ; restoring a positive number.
 adc A,B
 ld (Sicnt2),A
-
-ld A,0x00           ; Clear the stimulus start
-ld (Sistart),A      ; flag.
 
 ld A,(Spulse_0)     ; Refresh the pulse counter by reading
 ld (Spcnt0),A       ; both bytes from memory
@@ -1242,9 +1222,6 @@ ld A,1
 ld (Sdrun),A
 ld A,0
 ld (Sprun),A
-ld A,(mmu_dfr)     
-and A,bit3_clr    
-ld (mmu_dfr),A    
 jp stp_done
 
 ; Without randomization, we start the pulse right away.
@@ -1254,19 +1231,10 @@ ld A,(Scurrent)     ; Load the pulse stimulus current and
 ld (mmu_stc),A      ; start the pulse.
 ld A,1              ; Set the
 ld (Sprun),A        ; pulse run flag.
-ld A,(mmu_dfr)     
-or A,bit3_mask   
-ld (mmu_dfr),A    
 ld A,0              ; Clear the
 ld (Sdrun),A        ; delay run flag.
 
 stp_done:
-
-; End pulse on diagnostic flag two.
-
-ld A,(mmu_dfr)     
-and A,bit2_clr    
-ld (mmu_dfr),A    
 
 pop L
 pop H
@@ -1358,8 +1326,12 @@ ld A,(Sistart)
 and A,0x01
 jp z,main_nostim
 
+; Clear the stimulus start flag, which must be set for us to get here.
 ; Decrement the stimulus length counter, which is the number of pulses
 ; that remain in the stimulus. Jump forwards if it is still positive.
+
+ld A,0x00  
+ld (Sistart),A
 
 ld A,(Slength_0)
 sub A,1
