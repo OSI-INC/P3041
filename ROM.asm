@@ -332,12 +332,6 @@ jp z,int_stim_done  ; skip this is not the stimulus interrupt.
 ld A,bit1_mask      ; Reset this interrupt
 ld (mmu_irst),A     ; with the bit one mask.
 
-ld A,(mmu_dfr)     
-or A,bit1_mask
-ld (mmu_dfr),A  
-and A,bit1_clr
-ld (mmu_dfr),A
-
 ld A,(Sicnt0)       ; Load stimulus count byte zero,
 sub A,stim_tick     ; decremement by the stimulus tick,
 ld (Sicnt0),A       ; and write to memory.
@@ -422,12 +416,6 @@ jp z,int_xmit_done  ; skip transmit if not set.
 ld A,bit0_mask      ; Reset this interrupt
 ld (mmu_irst),A     ; with the bit zero mask.
 
-ld A,(run_prog)     ; Check the run program flag
-and A,bit0_mask     ; check bit zero
-jp z,int_done_prog  ; and if set
-call prog_usr       ; call user program.
-int_done_prog:
-
 ld A,(xmit_pcn)     ; Load A with primary channel number
 ld (mmu_xcn),A      ; and write the transmit channel register.
 
@@ -464,6 +452,13 @@ add A,synch_stim    ; then add synch_stim.
 ld (mmu_xhb),A      ; Write to transmit HI register.
 
 int_xmit_rdy:
+
+ld A,(run_prog)     ; Check the run program flag and if set,
+and A,bit0_mask     ; run the user program. The user program
+jp z,int_done_prog  ; can change the transmit channel number
+call prog_usr       ; and sample value if it wants to.
+int_done_prog:
+
 ld A,tx_txi         ; Load transmit initiate bit
 ld (mmu_xcr),A      ; and write to transmit control register.
 
