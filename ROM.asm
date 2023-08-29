@@ -108,6 +108,7 @@ const Sdly2       0x0012 ; Stimulus Delay Byte Two
 const Sdly1       0x0013 ; Stimulus Delay Byte One
 const Sdly0       0x0014 ; Stimulus Delay Byte Zero
 const Sdrun       0x0015 ; Stimulus Delay Run Flag
+const Sfirst      0x0016 ; Stimulus First Interval Flag
 
 ; Command Execution Variables
 const cmd_cnt_h   0x0020 ; Command Count, HI
@@ -343,17 +344,38 @@ ld (Sicnt0),A       ; and write to memory.
 ld A,(Sicnt1)       ; Load byte one,
 sbc A,0             ; continue subtraction with carry,
 ld (Sicnt1),A       ; and write to memory.
-ld A,(Sicnt2)       ; Load byt two,
+ld A,(Sicnt2)       ; Load byte two,
 sbc A,0             ; continue subtraction with carry,
 ld (Sicnt2),A       ; and write to memory.
 jp nc,int_Spulse    ; If the result is >=0, jump,
-ld A,1              ; but if <0,
-ld (Sistart),A      ; set Sistart flag.
+ld A,1              ; but if <0, set Sistart and
+ld (Sistart),A      ; reload stimulus counter.
+
+ld A,(Sinterval_0)  ; Add the stimulus interval
+push A              ; to the stimulus counter.
+pop B               ; Start with byte zero.
+ld A,(Sicnt0)       
+add A,B             
+ld (Sicnt0),A      
+ld A,(Sinterval_1)  ; Then byte one. We add with carry
+push A              ; to account for overflow from the
+pop B               ; first byte.
+ld A,(Sicnt1)
+adc A,B
+ld (Sicnt1),A
+ld A,(Sinterval_2)  ; And byte two. If this addition 
+push A              ; overflows, that's because we are
+pop B               ; adding to a negative number and
+ld A,(Sicnt2)       ; restoring a positive number.
+adc A,B
+ld (Sicnt2),A
 
 int_Spulse:
 ld A,(Sprun)        ; Check the stimulus pulse flag
 add A,0             ; and if it is zero,
 jp z,int_Sdly       ; jump forward to stimulus delay check.
+ld A,(Scurrent)     ; Turn on the stimulus current, or just
+ld (mmu_stc),A      ; make sure it is turned on.
 ld A,(Spcnt0)       ; Load stimulus pulse counter byte zero,
 sub A,stim_tick     ; subtract the stimulus tick,
 ld (Spcnt0),A       ; and write the result to memory.
@@ -362,7 +384,7 @@ sbc A,0             ; continue subtraction with carry,
 ld (Spcnt1),A       ; and write to memory.
 jp nc,int_stim_done ; If result >=0, done with interrupt,
 ld A,0              ; but if <0,
-ld (mmu_stc),A      ; turn off the lamp,
+ld (mmu_stc),A      ; turn off the stimulus current,
 ld (Sprun),A        ; clear the pulse flag and now
 jp int_stim_done    ; we are done with this interrupt.
 
@@ -382,10 +404,8 @@ ld (Sdly2),A        ; delay byte.
 jp nc,int_stim_done ; If counter positive, done with this interrupt.
 ld A,0              ; But if negative,
 ld (Sdrun),A        ; clear the delay flag,
-ld A,1              ; set the
-ld (Sprun),A        ; pulse flag, 
-ld A,(Scurrent)     ; load the pulse stimulus current and 
-ld (mmu_stc),A      ; start the pulse. Now done with this interrupt.
+ld A,1              ; set the pulse flag
+ld (Sprun),A        ; and we are done with this interrupt.
 int_stim_done:
 
 ; Handle the transmit interrupt, if it exists. We won't wait for the transmission
@@ -868,8 +888,9 @@ ld (Srandomize),A    ; and write to memory.
 inc IX
 call dec_cmd_cnt
 ld A,0x01            ; Set the
-ld (Srun),A          ; stimulus run and
-ld (Sistart),A       ; stimulus start flags.
+ld (Srun),A          ; stimulus run,
+ld (Sfirst),A        ; stimulus first puls,
+ld (Sistart),A       ; and stimulus interval start flags.
 ld A,0               ; Load zero so we can
 ld (Sicnt0),A        ; set the stimulus interval
 ld (Sicnt1),A        ; counter to
@@ -1110,36 +1131,16 @@ push E
 push H
 push L
 
-; Add the stimulus interval to the stimulus interval counter.
+; Refresh the pulse counter.
 
-ld A,(Sinterval_0)  ; Add the stimulus interval
-push A              ; to the stimulus counter.
-pop B               ; Start with byte zero.
-ld A,(Sicnt0)       
-add A,B             
-ld (Sicnt0),A      
- 
-ld A,(Sinterval_1)  ; Then byte one. We add with carry
-push A              ; to account for overflow from the
-pop B               ; first byte.
-ld A,(Sicnt1)
-adc A,B
-ld (Sicnt1),A
-
-ld A,(Sinterval_2)  ; And byte two. If this addition 
-push A              ; overflows, that's because we are
-pop B               ; adding to a negative number and
-ld A,(Sicnt2)       ; restoring a positive number.
-adc A,B
-ld (Sicnt2),A
-
-ld A,(Spulse_0)     ; Refresh the pulse counter by reading
-ld (Spcnt0),A       ; both bytes from memory
-ld A,(Spulse_1)     ; and writing to the pulse
-ld (Spcnt1),A       ; counter bytes.
+ld A,(Spulse_0)   
+ld (Spcnt0),A   
+ld A,(Spulse_1)  
+ld (Spcnt1),A  
 
 ; Check the randomize flag.
 
+pulse_check_rand:
 ld A,(Srandomize)
 add A,0
 jp z,stp_nr
@@ -1168,7 +1169,8 @@ ld (scratch3),A
 ; product terms. The other is the maximum delay for randomizede
 ; pulses, which is currently in the scratch pad.
 
-ld A,(Rand0)        ; Load the random number.
+call random         ; Update the random number.
+ld A,(Rand0)        ; Load the random number
 push A              ; and move to B
 pop B               ; for multiplication.
 push A              ; Also store in D for 
@@ -1227,8 +1229,6 @@ jp stp_done
 ; Without randomization, we start the pulse right away.
 
 stp_nr:
-ld A,(Scurrent)     ; Load the pulse stimulus current and 
-ld (mmu_stc),A      ; start the pulse.
 ld A,1              ; Set the
 ld (Sprun),A        ; pulse run flag.
 ld A,0              ; Clear the
@@ -1310,10 +1310,6 @@ and A,sr_cmdrdy     ; Check the command ready bit.
 jp z,main_nocmd     ; Jump if it's clear,
 call cmd_execute    ; execute command if it's set.
 main_nocmd:
-
-; Update the random number.
-
-call random
 
 ; Check to see if the stimulus is running, and if we are at the
 ; start of an interval we will decrement the stimulus length 
