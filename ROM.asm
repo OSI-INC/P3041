@@ -25,10 +25,7 @@ const mmu_vmem 0x0000 ; Base of Main Program Variable Memory
 const mmu_sba  0x0100 ; Stack Base Address
 const mmu_umem 0x0200 ; Base of User Program Variable Memory
 const mmu_ctrl 0x0400 ; Base of Control Space
-const mmu_prog 0x0800 ; Base of user program memory
-
-; Program Addres Map
-const prog_usr 0x0800 ; User program location
+const mmu_prog 0x0800 ; Base of user program memory window
 
 ; Address Map Locations
 const mmu_sdb  0x0400 ; Sensor Data Byte
@@ -58,7 +55,7 @@ const mmu_it4p 0x0419 ; Interrupt Timer Four Period
 const mmu_idh  0x041A ; Device ID HI
 const mmu_idl  0x041B ; Device ID LO
 
-; Status Bit Masks, for use with status register.
+; Status Bit Masks, for use with status register
 const sr_cmdrdy  0x01 ; Command Ready Flag
 const sr_entck   0x02 ; Transmit Clock Enabled
 const sr_saa     0x04 ; Sensor Access Active Flag
@@ -67,34 +64,36 @@ const sr_cpa     0x10 ; Command Processor Active
 const sr_boost   0x20 ; Boost Flag
 const sr_cme     0x40 ; Command Memory Empty
 
-; Transmit Control Masks, for use with tansmit control register.
-const tx_txi     0x01 ; Assert transmit initiate.
-const tx_txwp    0x02 ; Assert transmit warm-up.
-const id_at         0 ; Auxiliary type for identification.
-const ack_at        1 ; Auxiliary type for acknowledgements.
-const batt_at       2 ; Auxiliary type for battery measurement.
+; Transmit Control Masks, for use with tansmit control register
+const tx_txi     0x01 ; Assert transmit initiate
+const tx_txwp    0x02 ; Assert transmit warm-up
+const id_at         0 ; Auxiliary type for identification
+const ack_at        1 ; Auxiliary type for acknowledgements
+const batt_at       2 ; Auxiliary type for battery measurement
 
 ; Bit Masks
 const bit0_mask  0x01 ; Bit Zero Mask
 const bit1_mask  0x02 ; Bit One Mask
 const bit2_mask  0x04 ; Bit Two Mask
 const bit3_mask  0x08 ; Bit Three Mask
+const bit7_mask  0x80 ; Bit Seven Mask
 const bit0_clr   0xFE ; Bit Zero Clear
 const bit1_clr   0xFD ; Bit One Clear
 const bit2_clr   0xFB ; Bit Two Clear
 const bit3_clr   0xF7 ; Bit Three Clear
 
 ; Timing Constants.
-const min_tcf       72  ; Minimum TCK periods per half RCK period.
-const tx_delay      50  ; Wait time for sample transmission, TCK periods.
-const sa_delay      30  ; Wait time for sensor access, TCK periods.
-const wp_delay     255  ; Warm-up delay for auxiliary messages.
-const num_vars      40  ; Number of vars to clear at start.
-const initial_tcd   15  ; Max possible value of TCK divisor.
-const stim_tick     33  ; Stimulus interrupt period.
-const uprog_tick    33  ; User program interrupt period.
+const min_tcf       72  ; Minimum TCK periods per half RCK period
+const tx_delay      50  ; Wait time for sample transmission, TCK periods
+const sa_delay      30  ; Wait time for sensor access, TCK periods
+const wp_delay     255  ; Warm-up delay for auxiliary messages
+const num_vars      40  ; Number of vars to clear at start
+const initial_tcd   15  ; Max possible value of TCK divisor
+const stim_tick     33  ; Stimulus interrupt period
+const uprog_tick    33  ; User program interrupt period
 const xx_delay   32767  ; Transmit Extinguish Delay
-const id_delay      33  ; To pad id delay to 50 TCK periods.
+const id_delay      33  ; To pad id delay to 50 TCK periods
+const min_tx_p      25  ; Minimum transmit period
 
 ; Stimulus Control Variables
 const Scurrent    0x0000 ; Stimulus Current
@@ -120,9 +119,16 @@ const Sdly1       0x0013 ; Stimulus Delay Byte One
 const Sdly0       0x0014 ; Stimulus Delay Byte Zero
 const Sdrun       0x0015 ; Stimulus Delay Run Flag
 
+; Command Decode Variables
+const ccmdb       0x0016 ; Copy of Command Byte
+
 ; Random Number Variabls
 const Rand1       0x0020 ; Random Number Byte One
 const Rand0       0x0021 ; Random Number Byte Zero
+
+; User Program Control Variables
+const UPrun       0x0022 ; User Program Running
+const UPinit      0x0023 ; User Program Initialize
 
 ; Transmission Control Variables
 const xmit_p      0x0028 ; Transmit Period
@@ -131,6 +137,7 @@ const xxcnt1      0x002A ; Transmit Extinguish Counter Byte One
 const xxcnt0      0x002B ; Transmit Extinguish Counter Byte Zero
 
 ; User Program Constants
+const prog_usr    0x0800 ; User program location
 const ret_code      0x0A ; Return from subrouting instruction
 
 ; Scratch Pad Variables
@@ -324,6 +331,89 @@ ld (mmu_dfr),A      ; write to diagnostic flag register.
 push H
 push L
 
+; Handle the transmit interrupt, if it exists. We won't wait for the transmission
+; to complete because we are certain to follow our transmission with at least one
+; RCK period when we move out of boost. If the user program is enabled, we run it
+; and do nothing else, otherwise we transmit a synchronizing signal.
+
+int_xmit:
+
+ld A,(mmu_irqb)     ; Read the interrupt request bits
+and A,bit0_mask     ; and test bit zero,
+jp z,int_xmit_done  ; skip transmit if not set.
+
+ld A,bit0_mask      ; Reset this interrupt
+ld (mmu_irst),A     ; with the bit zero mask.
+
+ld A,(xmit_pcn)     ; Load A with primary channel number
+ld (mmu_xcn),A      ; and write the transmit channel register.
+
+; If a not Srun, we will transmit synch_nostim. If Srun but not Sprun,
+; we transmit synch_stim. If Srun we transmit synch_stim + 8*Scurrent.
+; Regardless, the lower byte we transmit will be zero.
+
+ld A,0              ; Load A with zero
+ld (mmu_xlb),A      ; write to transmit LO register.
+
+ld A,(Srun)         ; Load A with Srun
+add A,0             ; check value
+jp nz,int_xmit_stim ; jump if set.
+
+ld A,synch_nostim   ; Load A with synch_nostim and
+ld (mmu_xhb),A      ; write to transmit HI register.
+jp int_xmit_rdy   
+
+int_xmit_stim:
+ld A,(Sprun)        ; Load A with Sprun
+add A,0             ; check value, jump if set.
+jp nz,int_xmit_pulse
+
+ld A,synch_stim     ; Load A with synch_stim and
+ld (mmu_xhb),A      ; write to transmit HI register.
+jp int_xmit_rdy   
+
+int_xmit_pulse:
+ld A,(Scurrent)     ; Load A with Scurrent and
+sla A               ; shift left
+sla A               ; three times to
+sla A               ; multiply by eight
+add A,synch_stim    ; then add synch_stim.
+ld (mmu_xhb),A      ; Write to transmit HI register.
+
+int_xmit_rdy:
+
+ld A,tx_txi         ; Load transmit initiate bit
+ld (mmu_xcr),A      ; and write to transmit control register.
+
+; Check to see if we should be counting down the transit extinguish
+; counter, and if so, decrement it.
+
+ld A,(Srun)         ; Load A with Srun
+add A,0             ; and check value
+jp z,int_xmit_xx    ; jump if zero.
+
+ld HL,xx_delay      ; Load the transmit exitinguish
+push H              ; delay into HL
+pop A               ; and store
+ld (xxcnt1),A       ; in the
+push L              ; transmit extinguish
+pop A               ; counter locations
+ld (xxcnt0), A      ; ready for when Srun is cleared.
+jp int_xmit_done
+
+int_xmit_xx:        
+ld A,(xxcnt0)       ; Decrement the
+sub A,1             ; extinguish
+ld (xxcnt0),A       ; counter.
+ld A,(xxcnt1)       ; When it gets below zero,
+sbc A,0             ; we set the transmit period to
+ld (xxcnt1),A       ; zero in memory, which will
+jp nc,int_xmit_done ; allow the main loop to turn
+ld A,0              ; off power to the
+ld (xmit_p),A       ; device, preserving our battery.
+
+int_xmit_done:
+
 ; Handle the stimulus interrupt, if it exists. We decrement the stimulus
 ; interval counter and the stimulus pulse counter and set the stimulus 
 ; interval start and stimulus pulse run flags for the main program to use.
@@ -405,95 +495,23 @@ ld A,0              ; But if negative,
 ld (Sdrun),A        ; clear the delay flag,
 ld A,1              ; set the pulse flag
 ld (Sprun),A        ; and we are done with this interrupt.
+
 int_stim_done:
 
-; Handle the transmit interrupt, if it exists. We won't wait for the transmission
-; to complete because we are certain to follow our transmission with at least one
-; RCK period when we move out of boost. If the user program is enabled, we run it
-; and do nothing else, otherwise we transmit a synchronizing signal.
-
-int_xmit:
-
-ld A,(mmu_irqb)     ; Read the interrupt request bits
-and A,bit0_mask     ; and test bit zero,
-jp z,int_xmit_done  ; skip transmit if not set.
-
-ld A,bit0_mask      ; Reset this interrupt
-ld (mmu_irst),A     ; with the bit zero mask.
-
-ld A,(xmit_pcn)     ; Load A with primary channel number
-ld (mmu_xcn),A      ; and write the transmit channel register.
-
-; If a not Srun, we will transmit synch_nostim. If Srun but not Sprun,
-; we transmit synch_stim. If Srun we transmit synch_stim + 8*Scurrent.
-; Regardless, the lower byte we transmit will be zero.
-
-ld A,0              ; Load A with zero
-ld (mmu_xlb),A      ; write to transmit LO register.
-
-ld A,(Srun)         ; Load A with Srun
-add A,0             ; check value
-jp nz,int_xmit_stim ; jump if set.
-
-ld A,synch_nostim   ; Load A with synch_nostim and
-ld (mmu_xhb),A      ; write to transmit HI register.
-jp int_xmit_rdy   
-
-int_xmit_stim:
-ld A,(Sprun)        ; Load A with Sprun
-add A,0             ; check value, jump if set.
-jp nz,int_xmit_pulse
-
-ld A,synch_stim     ; Load A with synch_stim and
-ld (mmu_xhb),A      ; write to transmit HI register.
-jp int_xmit_rdy   
-
-int_xmit_pulse:
-ld A,(Scurrent)     ; Load A with Scurrent and
-sla A               ; shift left
-sla A               ; three times to
-sla A               ; multiply by eight
-add A,synch_stim    ; then add synch_stim.
-ld (mmu_xhb),A      ; Write to transmit HI register.
-
-int_xmit_rdy:
-
-ld A,tx_txi         ; Load transmit initiate bit
-ld (mmu_xcr),A      ; and write to transmit control register.
-
-ld A,(Srun)         ; Load A with Srun
-add A,0             ; and check value
-jp z,int_xmit_xx    ; jump if zero.
-
-ld HL,xx_delay      ; Load the transmit exitinguish
-push H              ; delay into HL
-pop A               ; and store
-ld (xxcnt1),A       ; in the
-push L              ; transmit extinguish
-pop A               ; counter locations
-ld (xxcnt0), A      ; ready for when Srun is cleared.
-jp int_xmit_done
-
-int_xmit_xx:        
-ld A,(xxcnt0)       ; Decrement the
-sub A,1             ; extinguish
-ld (xxcnt0),A       ; counter.
-ld A,(xxcnt1)       ; When it gets below zero,
-sbc A,0             ; we set the transmit period to
-ld (xxcnt1),A       ; zero in memory, which will
-jp nc,int_xmit_done ; allow the main loop to turn
-ld A,0              ; off power to the
-ld (xmit_p),A       ; device, preserving our battery.
-
-int_xmit_done:
-
-; On interrupt 2, we call the user program.
+; Handle the user program interrupt, in which we call the user program
+; and allow it to execute and return.
 
 int_uprog:
+
 ld A,(mmu_irqb)     ; Read the interrupt request bits
-and A,bit2_mask     ; and test bit two,
-jp z,int_uprog_done  ; skip user program if not set.
-call prog_usr       ; and sample value if it wants to.
+and A,bit2_mask     ; and test bit one,
+jp z,int_uprog_done ; skip if uprog interrupt.
+
+ld A,bit2_mask      ; Reset this interrupt
+ld (mmu_irst),A     ; with the bit two mask.
+
+call prog_usr       ; Call the user program.
+
 int_uprog_done:
 
 ; Turn off the transmit clock, move out of boost, restore registers and return 
@@ -510,7 +528,6 @@ ld (mmu_bcc),A      ; move CPU back to slow RCK
 ld (mmu_etc),A      ; and stop the transmit clock.
 pop F               ; Restore the flags.
 pop A               ; Restore A.
-
 rti                 ; Return from interrupt.
 
 
@@ -705,6 +722,80 @@ pop F
 ret
 
 ; ------------------------------------------------------------
+; Read a byte out of the command memory portal and store in a
+; variable location, as well as returning it in A. With gcb_dsp
+; set, we produce a serial display of the byte on diagnostic flag 
+; one. We assume interrupts are disabled and the CPU is running 
+; on the boost clock. 
+
+get_cmd_byte:
+
+const gcb_dsp 0     ; Set to one for debugging.
+const gcb_dly 33    ; Bit period for display.
+const gcb_nb 11     ; Total number of bits minus start bit.
+
+push F
+
+ld A,(mmu_cm)       ; Read from command FIFO portal. 
+ld (ccmdb),A        ; Store byte in memory.
+ld A,gcb_dsp        ; Check if we should display the byte.
+and A,bit0_mask     ; If not, jump to end
+jp z,gcb_done       ; of routine.
+
+push B              ; Push the two registers we are 
+push C              ; going to use.
+
+ld A,(mmu_dfr)      ; Display the start bit.    
+or A,bit1_mask      ; and 
+ld (mmu_dfr),A      ; wait for
+ld A,gcb_dly        ; proscribed delay.
+dly A
+
+ld A,gcb_nb         ; We are going to 
+push A              ; transmit this number of bits
+pop B               ; plus a stop bit.
+
+ld A,(ccmdb)        ; Make a copy of the command
+push A              ; byte in 
+pop C               ; register C.
+
+gcb_loop:
+and A,bit7_mask     ; Check the most significant bit
+jp nz,gcb_hi        ; in the remaining command bits.
+
+ld A,(mmu_dfr)      ; Transmit a zero and wait.
+and A,bit1_clr
+ld (mmu_dfr),A
+ld A,gcb_dly
+dly A
+jp gcb_sl
+
+gcb_hi:      
+ld A,(mmu_dfr)       ; Transmit a one and wait.
+or A,bit1_mask
+ld (mmu_dfr),A
+ld A,gcb_dly
+dly A
+
+gcb_sl:
+push C               ; Get the remaining bits
+pop A                ; and shift them to
+sla A                ; the left, bringing a zero
+push A               ; in for the least significant
+pop C                ; bit, copy into C.
+dec B                ; Check bit counter and 
+jp nz,gcb_loop       ; repeat if still not zero.
+
+pop C                ; Recover C and
+pop B                ; B registers.
+
+gcb_done:
+ld A,(ccmdb)         ; Load the command byte into A.
+
+pop F
+ret
+
+; ------------------------------------------------------------
 ; Read out, interpret, and execute comands. Uses the global command
 ; count variable, stimulus and configuration locations, and starts
 ; and stops stimuli, transmission, battery measurement and
@@ -735,12 +826,9 @@ push E
 push H
 push L
 push IX
+push IY
 
-; Load IX with the command memory portal to start reading bytes.
-
-ld IX,mmu_cm
-
-; Check the almost full flag and abort if it is set.
+; Check the empty flag and abort if it is set.
 
 ld A,(mmu_sr)
 and A,sr_cme 
@@ -754,10 +842,10 @@ pop H
 ld A,(mmu_idl)
 push A
 pop L
-ld A,(IX)
+call get_cmd_byte
 push A
 pop D
-ld A,(IX)
+call get_cmd_byte
 push A
 pop E
 
@@ -789,15 +877,21 @@ pop A
 sub A,0xFF
 jp nz,cmd_done
 
-; Every time we execute this loop, IX should be pointed to the next
-; command byte we want to process.
+; The start of our command byte decoding loop. 
 
 cmd_loop_start:
+
+; The command memory is a first-in first-out buffer, so we read a 
+; byte and store it in memory and in A with get_cmd_byte. After that, 
+; we can get the byte by reading it from location ccmdb (copy of 
+; command byte).
+
+call get_cmd_byte
 
 ; The stimulus stop instruction.
 
 check_stop_stim:
-ld A,(IX)
+ld A,(ccmdb)
 sub A,op_stop_stim
 jp nz,check_start_stim
 ld A,0
@@ -811,26 +905,26 @@ jp cmd_loop_end
 ; The stimulus start instruction.
 
 check_start_stim:
-ld A,(IX)
+ld A,(ccmdb)
 sub A,op_start_stim
 jp nz,check_xmit
-ld A,(IX)           ; Read stimulus current.
+call get_cmd_byte    ; Read stimulus current.
 ld (Scurrent),A
-ld A,(IX)           ; Read pulse length byte one.
+call get_cmd_byte    ; Read pulse length byte one.
 ld (Spulse_1),A
-ld A,(IX)           ; Read pulse length byte zero.
+call get_cmd_byte    ; Read pulse length byte zero.
 ld (Spulse_0),A
-ld A,(IX)           ; Read interval length byte two.
+call get_cmd_byte    ; Read interval length byte two.
 ld (Sinterval_2),A
-ld A,(IX)           ; Read interval length byte one.
+call get_cmd_byte    ; Read interval length byte one.
 ld (Sinterval_1),A
-ld A,(IX)           ; Read interval length byte zero.
+call get_cmd_byte    ; Read interval length byte zero.
 ld (Sinterval_0),A
-ld A,(IX)            ; Read stimulus length byte one.
+call get_cmd_byte    ; Read stimulus length byte one.
 ld (Slength_1),A
-ld A,(IX)            ; Read stimulus length byte zero.
+call get_cmd_byte    ; Read stimulus length byte zero.
 ld (Slength_0),A
-ld A,(IX)            ; Read randomization state
+call get_cmd_byte    ; Read randomization state
 ld (Srandomize),A    ; and write to memory.
 ld A,0x01            ; Set the
 ld (Srun),A          ; stimulus run
@@ -852,27 +946,31 @@ jp cmd_loop_end
 ; Start data transmission.
 
 check_xmit:
-ld A,(IX)
+ld A,(ccmdb)
 sub A,op_xmit
 jp nz,check_ack
-ld A,(IX)            ; Read transmit period minus one. 
-ld (xmit_p),A        ; Save to memory and
-ld (mmu_it1p),A      ; write to interrupt timer period.
-add A,0              ; If period = 0 jump forwards
-jp z,xmit_disable    ; to disable.
-ld A,(mmu_imsk)      ; If period > 0 enable xmit
+call get_cmd_byte    ; Read xmit period minus one. 
+sub A,min_tx_p       ; Subtract the minimum period.
+jp c,xmit_disable    ; If result negative, disable xmit.
+ld A,(ccmdb)         ; Load the period again,
+ld (xmit_p),A        ; save to memory
+ld (mmu_it1p),A      ; and write to interrupt timer period.
+ld A,(mmu_imsk)      ; Enable xmit
 or A,bit0_mask       ; interrupt
 ld (mmu_imsk),A      ; with mask.
-ld HL,xx_delay       ; Load the transmit exitinguish
+ld HL,xx_delay       ; Load the xmit exitinguish
 push H               ; delay into HL
 pop A                ; and store
 ld (xxcnt1),A        ; in the
-push L               ; transmit extinguish
+push L               ; xmit extinguish
 pop A                ; counter locations
 ld (xxcnt0), A       ; so we can count them down.
 jp cmd_loop_end      
 xmit_disable:      
-ld A,(mmu_imsk)      ; When period = 0 we disable
+ld A,0               ; Set the xmit period to zero
+ld (xmit_p),A        ; in memory
+ld (mmu_it1p),A      ; and the interrupt handler.
+ld A,(mmu_imsk)      ; Disable
 and A,bit0_clr       ; the xmit interrupt
 ld (mmu_imsk),A      ; with mask.
 jp cmd_loop_end
@@ -882,10 +980,10 @@ jp cmd_loop_end
 ; transmit routine, which will take about fifty microseconds.
 
 check_ack:
-ld A,(IX)
+ld A,(ccmdb)
 sub A,op_ack
 jp nz,check_battery
-ld A,(IX)           
+call get_cmd_byte         
 ld (Sack_key),A      
 call xmit_ack        
 jp cmd_loop_end
@@ -895,7 +993,7 @@ jp cmd_loop_end
 ; immediately, which will take about fifty microseconds.
 
 check_battery:
-ld A,(IX)
+ld A,(ccmdb)
 sub A,op_battery
 jp nz,check_identify
 call xmit_batt       
@@ -907,7 +1005,7 @@ jp cmd_loop_end
 ; message that gives the device id to any listeners.
 
 check_identify:
-ld A,(IX)
+ld A,(ccmdb)
 sub A,op_identify
 jp nz,check_setpcn
 call xmit_identify    
@@ -918,10 +1016,10 @@ jp cmd_loop_end
 ; the primary channel number and write to memory.
 
 check_setpcn:
-ld A,(IX)
+ld A,(ccmdb)
 sub A,op_setpcn
 jp nz,check_ldprog
-ld A,(IX)           
+call get_cmd_byte           
 ld (xmit_pcn),A      
 jp cmd_loop_end   
 
@@ -930,19 +1028,19 @@ jp cmd_loop_end
 ; operand.
   
 check_ldprog:
-ld A,(IX)
+ld A,(ccmdb)
 sub A,op_ldprog
 jp nz,check_enprog
-ld A,(IX)          ; Get the number of program bytes.
+call get_cmd_byte  ; Get the number of program bytes.
 add A,0            ; If number of bytes is zero,
 jp z,cmd_loop_end  ; we are done with this instruction.
 push A             ; Otherwise, use B to count the
 pop B              ; program bytes.
 ld IY,mmu_prog     ; Load IY with the base of user program memory.
 load_prog:        
-ld A,(IX)          ; Read instruction byte from command memory
+call get_cmd_byte  ; Read instruction byte from command memory
 ld (IY),A          ; and write to program memory.
-inc IY
+inc IY             ; Increment memory pointer.
 dec B              ; Decrement B, and if not zero, 
 jp nz,load_prog    ; read another byte.
 jp cmd_loop_end    ; Otherwise we are done with this instruction.
@@ -952,12 +1050,15 @@ jp cmd_loop_end    ; Otherwise we are done with this instruction.
 ; If enable, start the user program interrupt, otherwise disable.
 
 check_enprog:
-ld A,(IX)
+ld A,(ccmdb)
 sub A,op_enprog
 jp nz,cmd_done
-ld A,(IX)           
+call get_cmd_byte       
 and A,bit0_mask  
 jp z,cmd_disable_prog
+ld A,1
+ld (UPrun),A
+ld (UPinit),A
 ld A,uprog_tick
 ld (mmu_it3p),A
 ld A,(mmu_imsk)   
@@ -966,6 +1067,8 @@ ld (mmu_imsk),A
 jp cmd_loop_end
 cmd_disable_prog:
 ld A,0 
+ld (UPrun),A
+ld (UPinit),A
 ld (mmu_it3p),A
 ld A,(mmu_imsk)   
 and A,bit2_clr 
@@ -991,6 +1094,7 @@ ld (mmu_cpr),A
 
 ; Restore most registers.
 
+pop IY
 pop IX
 pop L
 pop H
@@ -1032,8 +1136,8 @@ rand_tz:
 
 pop A
 pop F
-
 ret
+
 
 ; ------------------------------------------------------------
 ; Initiate a pulse, leaving the termination of the pulse to the
@@ -1048,11 +1152,14 @@ push A
 ; Disable interrupts so we can boost the CPU and read the
 ; interval counter without risking the interrupt routine
 ; changing its value while we are reading.
-seti
 
+seti
 ld A,0x01           ; Set bit zero to one.
 ld (mmu_etc),A      ; Enable the transmit clock, TCK.
 ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
+
+; Push registers onto the stack.
+
 push B
 push C
 push D
@@ -1131,7 +1238,7 @@ add A,B             ; add to obtain delay byte zero,
 ld (Sdly0),A        ; this addition never generates a carry.
 push D              ; Bring back our random
 pop B               ; number
-ld A,(scratch3)      ; and put HI byte of max delay
+ld A,(scratch3)     ; and put HI byte of max delay
 push A              ; in
 pop C               ; C for multiplication
 call multiply       ; Let BC := B * C.
@@ -1207,6 +1314,7 @@ jp nz,main_vclr
 
 ld A,0             ; Make sure the stimulus
 ld (mmu_stc),A     ; current is zero.
+ld (mmu_dfr),A     ; Set the diagnostic flags to zero.
 ld A,ret_code      ; Put a return opcode at first byte
 ld (mmu_prog),A    ; in user program, in case of enable.
 ld A,(mmu_idl)     ; Set the primary channel number to the
@@ -1225,7 +1333,6 @@ ld A,0xFF            ; Load A with ones
 ld (mmu_irst),A      ; and reset all interrupts.
 ld A,0x00            ; Load zeros
 ld (mmu_imsk),A      ; and disable all interrupts.
-
 
 ; The main event loop.
 
@@ -1290,6 +1397,9 @@ ld A,(xmit_p)
 add A,0
 jp nz,main_loop
 ld A,(Srun)
+add A,0
+jp nz,main_loop
+ld A,(UPrun)
 add A,0
 jp nz,main_loop
 

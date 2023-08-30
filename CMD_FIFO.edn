@@ -4,9 +4,9 @@
   (keywordMap (keywordLevel 0))
   (status
     (written
-      (timestamp 2023 8 29 23 11 4)
+      (timestamp 2023 8 30 13 22 9)
       (program "SCUBA" (version "Diamond (64-bit) 3.12.1.454"))))
-      (comment "C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n CMD_FIFO -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type ebfifo -depth 2048 -width 8 -rwidth 8 -no_enable -pe 2 -pf 1000 ")
+      (comment "C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n CMD_FIFO -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type ebfifo -depth 2048 -width 8 -rwidth 8 -no_enable -pe 2 -pf 2046 ")
   (library ORCLIB
     (edifLevel 0)
     (technology
@@ -175,9 +175,9 @@
             (property FULLPOINTER
               (string "0b10000000000000"))
             (property AFPOINTER1
-              (string "0b00111110011100"))
+              (string "0b01111111110100"))
             (property AFPOINTER
-              (string "0b00111110100000"))
+              (string "0b01111111111000"))
             (property AEPOINTER1
               (string "0b00000000001100"))
             (property AEPOINTER

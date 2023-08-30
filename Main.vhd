@@ -107,12 +107,12 @@ entity main is
 	constant cmd_addr_len : integer := 10;
 
 -- Memory Map Constants, sizes and base addresses in units of 256 Bytes.
-	constant ram_base : integer := 0;
-	constant ram_range : integer := 4;
-	constant ctrl_base : integer := 4;
-	constant ctrl_range : integer := 4;
-	constant prog_base : integer := 8;
-	constant prog_range : integer := 8;
+	constant ram_bot : integer  := 16#0000#;
+	constant ram_top : integer  := 16#03FF#;
+	constant ctrl_bot : integer := 16#0400#;
+	constant ctrl_top : integer := 16#07FF#;
+	constant prog_bot : integer := 16#0800#;
+	constant prog_top : integer := 16#0FFF#;
 	
 -- Memory Map Constants, low nibble addresses in units of bytes;
 	constant mmu_sdb  : integer := 0;  -- Sensor Data Byte (Write)
@@ -382,14 +382,9 @@ begin
 -- Transmitter, Random Access Memory, and Interrupt Handler. Byte ordering is big-endian 
 -- (most significant byte at lower address). 
 	MMU : process (CK,RESET) is
-		variable top_bits : integer range 0 to 7;
-		variable bottom_bits : integer range 0 to 63;
-	begin
-	
-		-- Some variables for brevity.
-		top_bits := to_integer(unsigned(cpu_addr(cpu_addr_len-1 downto 8)));
-		bottom_bits := to_integer(unsigned(cpu_addr(7 downto 0)));
-		
+		variable all_bits : integer range 0 to 4096;
+		variable bottom_bits : integer range 0 to 255;
+	begin		
 		-- By default, don't write to RAM or PROG memories, nor do we read from
 		-- the command memory FIFO.
 		RAMWR <= '0';
@@ -412,14 +407,16 @@ begin
 		-- These signals develop after the CPU asserts a new address
 		-- along with CPU Write. They will be ready before the falling 
 		-- edge of the CPU clock.
-		case top_bits is
-		when ram_base to (ram_base+ram_range-1) => 
+		all_bits := to_integer(unsigned(cpu_addr));
+		bottom_bits := to_integer(unsigned(cpu_addr(7 downto 0)));
+		case all_bits is
+		when ram_bot to ram_top => 
 			if not CPUWR then
 				cpu_data_in <= ram_out;
 			else
 				RAMWR <= to_std_logic(CPUDS);
 			end if;
-		when ctrl_base to (ctrl_base+ctrl_range-1) =>
+		when ctrl_bot to ctrl_top =>
 			if not CPUWR then 
 				case bottom_bits is
 					when mmu_sdb => cpu_data_in <= sensor_bits_in;
@@ -441,7 +438,7 @@ begin
 					when mmu_idl => cpu_data_in <= std_logic_vector(to_unsigned(device_id rem 256,8));
 				end case;
 			end if;
-		when prog_base to (prog_base+prog_range-1) =>
+		when prog_bot to prog_top =>
 			if CPUWR then
 				PROGWR <= to_std_logic(CPUDS);
 			end if;
@@ -478,7 +475,7 @@ begin
 			TXI <= false;
 			int_rst <= (others => '0');
 			if CPUDS and CPUWR then 
-				if (top_bits >= ctrl_base) and (top_bits <= ctrl_base+ctrl_range-1) then
+				if (all_bits >= ctrl_bot) and (all_bits <= ctrl_top) then
 					case bottom_bits is
 						when mmu_scr => SAI <= true;
 						when mmu_xlb => xmit_bits(7 downto 0) <= cpu_data_out;
@@ -1090,8 +1087,8 @@ begin
 		
 		-- In the end state, we assert Receive Byte Done and we wait for the command
 		-- processor to un-assert Receive Byte Initiate. When we see not RBI, we return
-		-- to the idle state. We stop asserting RBD, or refrain from asserting it, when
-		-- we have Terminate Command.
+		-- to the idle state and unassert RBD. When we see Terminate Command (TCMD) we
+		-- unassert RBD.
 		if (state = 63) then 
 			if not RBI then 
 				next_state := 0; 
@@ -1183,8 +1180,8 @@ begin
 		Data => cmd_in,
 		RdClock => not CK,
 		RdEn => CMRD,
-		Empty => CME,
-		AlmostFull => CMF,
+		AlmostEmpty => CME,
+		Full => CMF,
 		Q => cmd_out);
 	
 -- This Command Processor detects Inititiate Command (ICMD) and activates the Byte Receiver. 
@@ -1200,7 +1197,7 @@ begin
 		constant idle_s : integer := 0;
 		constant receive_cmd_s : integer := 1;
 		constant store_cmd_s : integer := 2;
-		constant check_addr_s : integer := 3;
+		constant check_fifo_s : integer := 3;
 		constant check_cmd_s : integer := 4;
 		constant complete_s : integer := 5;
 		
@@ -1249,30 +1246,28 @@ begin
 				RBI <= true;
 			end if;
 			
-			-- Store the new command byte in the command memory. We assert CMWR.
+			-- Store the new command byte in the command memory. We assert Command
+			-- Memory Write (CMWR) for one clock cycle.
 			if (state = store_cmd_s) then 
-				if not RBD then 
-					next_state := check_addr_s;
-				else 
-					next_state := store_cmd_s;
-				end if;
+				next_state := check_fifo_s;
 				CMWR <= '1';
 			end if;
 			
-			-- Check if we have run out of space in the Command Memory. If so, we 
-			-- abort our attempt to process the command, and wait for the next 
-			-- command.
-			if (state = check_addr_s) then
+			-- Check if the Command Memory is full. If so, abort. Otherwise, we 
+			-- wait for RBD to be unasserted before receiving the next command byte.
+			if (state = check_fifo_s) then
 				if (CMF = '1') then
 					next_state := idle_s;
-				else
+				elsif not RBD then
 					next_state := receive_cmd_s;
+				else
+					next_state := check_fifo_s;
 				end if;
 			end if;		
 			
 			-- There are two possible sources of error: a failure in the cyclic redundancy
-			-- check (CRCERR) or an error in the structure of a command byte (BYTERR). If either
-			-- is asserted, we go back to idle.
+			-- check (CRCERR) or an error in the structure of a command byte (BYTERR). 
+			-- If either is asserted, we go back to idle.
 			if (state = check_cmd_s) then
 				if CRCERR or BYTERR then 
 					next_state := idle_s;
@@ -1304,7 +1299,7 @@ begin
 	
 -- Test Point Two appears on P4-2.
 	TP2 <= df_reg(1);
-
+	
 -- Test Point Three appears on P4-3 after the programming connector is removed. When
 -- we set TP3 to df_reg(2), our code fails.
 	TP3 <= RCK;
