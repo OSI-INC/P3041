@@ -2,13 +2,17 @@
 ; ------------------------------------------------
 
 ; This code runs in the OSR8V3 microprocessor of the A3041A.
+
 ; V1.8: Device ID and radio center frequency now defined in the
-; VHDL code. We read the ID from the control space. Add support
-; for user programs by mapping top kilobyte of program memory
-; into top kilobyte of CPU memory. Add command interface
+; VHDL code. We read the ID from the control space. No modificatin
+; of this code is required as we move from one IST to the next.
+; Add support for user programs by mapping top kilobyte of program 
+; memory into top kilobyte of CPU memory. Add command interface
 ; instruction that writes byte to the program memory. Add another
 ; instruction that enables calling the user program as a routine
-; during synch transmission.
+; during synch transmission. Move all stimulus current control
+; into the interrupt routine so as to solve accumulating failure 
+; during stimuli with periods less than 15 ms.
 
 ; CPU Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
@@ -108,7 +112,6 @@ const Sdly2       0x0012 ; Stimulus Delay Byte Two
 const Sdly1       0x0013 ; Stimulus Delay Byte One
 const Sdly0       0x0014 ; Stimulus Delay Byte Zero
 const Sdrun       0x0015 ; Stimulus Delay Run Flag
-const Sfirst      0x0016 ; Stimulus First Interval Flag
 
 ; Command Execution Variables
 const cmd_cnt_h   0x0020 ; Command Count, HI
@@ -883,8 +886,7 @@ ld (Srandomize),A    ; and write to memory.
 inc IX
 call dec_cmd_cnt
 ld A,0x01            ; Set the
-ld (Srun),A          ; stimulus run,
-ld (Sfirst),A        ; stimulus first puls,
+ld (Srun),A          ; stimulus run
 ld (Sistart),A       ; and stimulus interval start flags.
 ld A,0               ; Load zero so we can
 ld (Sicnt0),A        ; set the stimulus interval
@@ -1318,11 +1320,12 @@ and A,0x01
 jp z,main_nostim
 
 ; Clear the stimulus start flag, which must be set for us to get here.
-; Decrement the stimulus length counter, which is the number of pulses
-; that remain in the stimulus. Jump forwards if it is still positive.
 
 ld A,0x00  
 ld (Sistart),A
+
+; Decrement the stimulus length counter, which is the number of pulses
+; that remain in the stimulus. Jump forwards if it is still positive.
 
 ld A,(Slength_0)
 sub A,1
