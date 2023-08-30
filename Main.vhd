@@ -55,10 +55,19 @@
 -- V1.7, 02-AUG-23: Fix bug in lamp current control, producing linear increase in duty cycle with 
 -- current code.
 
--- V1.8, 16-AUG-23: Reduce program memory to 3 kByte and make it dual-port. Map the top kilobyte -- into the top kilobyte of cpu memory. We read the program memory on !CK. We find we must write
+-- V1.8, 16-AUG-23: Reduce program memory to 3 KByte and make it dual-port. Map the top kilobyte -- into the top kilobyte of cpu memory. We read the program memory on !CK. We find we must write
 -- on CK or the writes fail. Now we can write to the program memory. Move specification of device
 -- identifier and radio-frequency center frequency into VHDL and add locations to allow the
 -- software to read both bytes of the ID. 
+
+-- V1.9, 29-AUG-23: Convert command memory into 2-KByte FIFO. This frees up logic with elimination
+-- of command address. Enable timer interrupts 3 and 4. Expand program memory to 4 KByte, top two
+-- are user-memory. CPU reads command memory through one location and checks empty with its nearly-- empty flag. We configure the nearly empty flag to assert when there are only two bytes left to
+-- read in the FIFO, which means we will leave the checksum bytes in the FIFO automatically. We 
+-- assign first KByte of CPU memory to RAM, second KByte to control registers, and final two KByte 
+-- to user program memory. We expand top_bits to include CPU address 8 and increase bottom bits to 
+-- include all lower eight bits. These changes to the memory map cause the code size to drop from 
+-- 1220 LUTs to 1184 LUTs.
 
 
 library ieee;  
@@ -97,37 +106,34 @@ entity main is
 	constant ram_addr_len : integer := 10;
 	constant cmd_addr_len : integer := 10;
 
--- Memory Map Constants, sizes and base addresses in units of 512 Bytes.
+-- Memory Map Constants, sizes and base addresses in units of 256 Bytes.
 	constant ram_base : integer := 0;
-	constant ram_range : integer := 2;
-	constant cmd_base : integer := 2;
-	constant cmd_range : integer := 2;
+	constant ram_range : integer := 4;
 	constant ctrl_base : integer := 4;
-	constant ctrl_range : integer := 2;
-	constant prog_base : integer := 6;
-	constant prog_range : integer := 2;
+	constant ctrl_range : integer := 4;
+	constant prog_base : integer := 8;
+	constant prog_range : integer := 8;
 	
 -- Memory Map Constants, low nibble addresses in units of bytes;
-	constant mmu_sdb  : integer := 0;  -- Sensor Data Byte
-	constant mmu_scr  : integer := 1;  -- Sensor Control Register
-	constant mmu_irqb : integer := 2;  -- Interrupt Request Bits
-	constant mmu_imsk : integer := 3;  -- Interrupt Mask Bits
-	constant mmu_irst : integer := 4;  -- Interrupt Reset Bits
-	constant mmu_dact : integer := 5;  -- Device Active
-	constant mmu_stc  : integer := 6;  -- Stimulus Current
-	constant mmu_rst  : integer := 7;  -- System Reset
-	constant mmu_xhb  : integer := 8;  -- Transmit HI Byte
-	constant mmu_xlb  : integer := 9;  -- Transmit LO Byte
-	constant mmu_xcn  : integer := 10; -- Transmit Channel Number
-	constant mmu_xcr  : integer := 11; -- Transmit Control Register
+	constant mmu_sdb  : integer := 0;  -- Sensor Data Byte (Write)
+	constant mmu_scr  : integer := 1;  -- Sensor Control Register (Write)
+	constant mmu_irqb : integer := 2;  -- Interrupt Request Bits (Read)
+	constant mmu_imsk : integer := 3;  -- Interrupt Mask Bits (Read/Write)
+	constant mmu_irst : integer := 4;  -- Interrupt Reset Bits (Write)
+	constant mmu_dact : integer := 5;  -- Device Active (Write)
+	constant mmu_stc  : integer := 6;  -- Stimulus Current (Write)
+	constant mmu_rst  : integer := 7;  -- System Reset (Write)
+	constant mmu_xhb  : integer := 8;  -- Transmit HI Byte (Write)
+	constant mmu_xlb  : integer := 9;  -- Transmit LO Byte (Write)
+	constant mmu_xcn  : integer := 10; -- Transmit Channel Number (Write)
+	constant mmu_xcr  : integer := 11; -- Transmit Control Register (Write)
 	constant mmu_etc  : integer := 13; -- Enable Transmit Clock (Write)
 	constant mmu_tcf  : integer := 14; -- Transmit Clock Frequency (Write)
 	constant mmu_tcd  : integer := 15; -- Transmit Clock Divider (Write)
 	constant mmu_bcc  : integer := 16; -- Boost CPU Clock (Write)
 	constant mmu_dfr  : integer := 17; -- Diagnostic Flag Register (Read/Write)
 	constant mmu_sr   : integer := 18; -- Status Register (Read)
-	constant mmu_cch  : integer := 19; -- Command Count HI Byte (Read)
-	constant mmu_ccl  : integer := 20; -- Command Count LO Byte (Read)
+	constant mmu_cm   : integer := 19; -- Command Memory (Read)
 	constant mmu_crst : integer := 21; -- Command Processor Reset (Write)
 	constant mmu_it1p : integer := 22; -- Interrupt Timer One Period (Write)
 	constant mmu_it2p : integer := 23; -- Interrupt Timer Two Period (Write)
@@ -234,13 +240,14 @@ architecture behavior of main is
 		: boolean := false; 
 	
 -- Command Memory
-	constant cmd_addr_max : integer := (2 ** cmd_addr_len) - 1;
-	signal cmd_wr_addr : std_logic_vector(cmd_addr_len-1 downto 0); -- Command Memory Write Address
-	signal cmd_rd_addr : std_logic_vector(cmd_addr_len-1 downto 0); -- Command Memory Read Address
 	signal cmd_in : std_logic_vector(7 downto 0); -- Command Memory Data In
 	signal cmd_out : std_logic_vector(7 downto 0); -- Command Memory Data Out
 	signal BYTSEL, -- Command Memory Select
-		CMWR  -- Command Memory Write
+		CME, -- Command Memory Empty
+		CMF, -- Command Memory Full
+		CMRST, -- Command Memory Reset
+		CMWR,  -- Command Memory Write
+		CMRD -- Command Memory Read
 		: std_logic; 
 
 -- Command Processor
@@ -299,7 +306,6 @@ begin
 		-- processor is active (CPA) or the microprocessor has asserted
 		-- Device Active (DACTIVE).
 		OND <= to_std_logic(CPA or DACTIVE);
-
 	end process;
 	
 	
@@ -381,30 +387,27 @@ begin
 	begin
 	
 		-- Some variables for brevity.
-		top_bits := to_integer(unsigned(cpu_addr(cpu_addr_len-1 downto 9)));
-		bottom_bits := to_integer(unsigned(cpu_addr(5 downto 0)));
+		top_bits := to_integer(unsigned(cpu_addr(cpu_addr_len-1 downto 8)));
+		bottom_bits := to_integer(unsigned(cpu_addr(7 downto 0)));
 		
-		-- By default, don't write to RAM or PROG memories.
+		-- By default, don't write to RAM or PROG memories, nor do we read from
+		-- the command memory FIFO.
 		RAMWR <= '0';
 		PROGWR <= '0';
+		CMRD <= '0';
 		
 		-- The RAM address we take from the lower bits of the cpu
 		-- address. The RAM data in is always the cpu data out.
 		ram_in <= cpu_data_out;
 		ram_addr <= cpu_addr(ram_addr_len-1 downto 0);
 		
-		-- The command memory read address is the lower bits of the
-		-- cpu address. By default, the command data is zero.
-		cmd_rd_addr <= cpu_addr(cmd_addr_len-1 downto 0);
-		cpu_data_in <= (others => '0');	
-		
 		-- The program memory data input is the cpu data, but its 
 		-- write address we restrict to the upper kilobyte of the 
 		-- program memory, so we can never write to the lower two
 		-- kilobytes. 
 		prog_in <= cpu_data_out;
-		prog_in_addr(11 downto 10) <= "10";
-		prog_in_addr(9 downto 0) <= cpu_addr(9 downto 0);
+		prog_in_addr(11) <= '1';
+		prog_in_addr(10 downto 0) <= cpu_addr(10 downto 0);
 		
 		-- These signals develop after the CPU asserts a new address
 		-- along with CPU Write. They will be ready before the falling 
@@ -415,10 +418,6 @@ begin
 				cpu_data_in <= ram_out;
 			else
 				RAMWR <= to_std_logic(CPUDS);
-			end if;
-		when cmd_base to (cmd_base+cmd_range-1) => 
-			if not CPUWR then
-				cpu_data_in <= cmd_out;
 			end if;
 		when ctrl_base to (ctrl_base+ctrl_range-1) =>
 			if not CPUWR then 
@@ -435,10 +434,10 @@ begin
 						cpu_data_in(3) <= to_std_logic(TXA);    -- Transmit Active Flag
 						cpu_data_in(4) <= to_std_logic(CPA);    -- Command Processor Active Flag
 						cpu_data_in(5) <= to_std_logic(BOOST);  -- Boost CPU Flag
-					when mmu_cch => 
-						cpu_data_in(cmd_addr_len-9 downto 0) <= cmd_wr_addr(cmd_addr_len-1 downto 8);
-					when mmu_ccl => cpu_data_in <= cmd_wr_addr(7 downto 0);
-					when mmu_idh => cpu_data_in <= std_logic_vector(to_unsigned(device_id / 256,8));
+						cpu_data_in(6) <= CME;                  -- Command Memory Empty
+					when mmu_cm =>
+						cpu_data_in <= cmd_out;
+						CMRD <= to_std_logic(CPUDS);					when mmu_idh => cpu_data_in <= std_logic_vector(to_unsigned(device_id / 256,8));
 					when mmu_idl => cpu_data_in <= std_logic_vector(to_unsigned(device_id rem 256,8));
 				end case;
 			end if;
@@ -500,8 +499,8 @@ begin
 						when mmu_crst => CPRST <= true;
 						when mmu_it1p => int_period_1 <= cpu_data_out;
 						when mmu_it2p => int_period_2 <= cpu_data_out;
---						when mmu_it3p => int_period_3 <= cpu_data_out;
---						when mmu_it4p => int_period_4 <= cpu_data_out;
+						when mmu_it3p => int_period_3 <= cpu_data_out;
+						when mmu_it4p => int_period_4 <= cpu_data_out;
 					end case;
 				end if;
 			end if;
@@ -1176,16 +1175,16 @@ begin
 	end process;
 
 -- Command Memory
-	Command_Memory : entity CMD_RAM port map (
-		Reset => '0', 
+	Command_Memory : entity CMD_FIFO port map (
+		Reset => CMRST, 
+		RPReset => '0',
 		WrClock => not RCK,
-		WrClockEn => '1',
-		WE => CMWR,
-		WrAddress => cmd_wr_addr, 
+		WrEn => CMWR,
 		Data => cmd_in,
-		RdAddress => cmd_rd_addr,
 		RdClock => not CK,
-		RdClockEn => '1',
+		RdEn => CMRD,
+		Empty => CME,
+		AlmostFull => CMF,
 		Q => cmd_out);
 	
 -- This Command Processor detects Inititiate Command (ICMD) and activates the Byte Receiver. 
@@ -1201,26 +1200,28 @@ begin
 		constant idle_s : integer := 0;
 		constant receive_cmd_s : integer := 1;
 		constant store_cmd_s : integer := 2;
-		constant inc_addr_s : integer := 3;
+		constant check_addr_s : integer := 3;
 		constant check_cmd_s : integer := 4;
 		constant complete_s : integer := 5;
 		
 		-- Variables for the Command Processor
 		variable state, next_state : integer range 0 to 31 := 0;
-		variable addr : integer range 0 to cmd_addr_max := 0;
 		
 	begin
 		-- We reset to the idle state on global RESET or the Command Processor
 		-- Reset (CPRST).
 		if (RESET = '1') or CPRST then
 			state := idle_s;
-			addr := 0;
+			CMRST <= '1';
 			
 		-- The Command Processor state machine runs off RCK, which allows it to
 		-- work with the Byte Receiver.
 		elsif rising_edge(RCK) then
-			-- Default next state.
+			-- Default next state and reset value.
 			next_state := idle_s;
+			CMRST <= '0';
+			RBI <= false;
+			CMWR <= '0';
 		
 			-- Idle State.
 			if (state = idle_s) then
@@ -1229,21 +1230,15 @@ begin
 				else 
 					next_state := idle_s;
 				end if;
-				addr := 0;
+				CMRST <= '1';
 			end if;
 			
 			-- Receive a command byte. We assert RBI and wait for RBD. If we see 
-			-- Terminate Command (TCMD), we look at the number of command bytes we have 
-			-- received so far. If we have less than three, we have only the checksum,
-			-- so we go back to the idle state. If we have three or more, we move on.
-			-- Note that the Byte Receiver aborts on TCMD also.
+			-- Terminate Command (TCMD), we move on. Note that the Byte Receiver 
+			-- aborts on TCMD also.
 			if (state = receive_cmd_s) then 
 				if TCMD then 
-					if (addr <= 2) then 
-						next_state := idle_s;
-					else 
-						next_state := check_cmd_s;
-					end if;
+					next_state := check_cmd_s;
 				else 
 					if RBD then 
 						next_state := store_cmd_s;
@@ -1251,25 +1246,24 @@ begin
 						next_state := receive_cmd_s;
 					end if;
 				end if;
+				RBI <= true;
 			end if;
-			RBI <= (state = receive_cmd_s);
 			
 			-- Store the new command byte in the command memory. We assert CMWR.
 			if (state = store_cmd_s) then 
 				if not RBD then 
-					next_state := inc_addr_s;
+					next_state := check_addr_s;
 				else 
 					next_state := store_cmd_s;
 				end if;
+				CMWR <= '1';
 			end if;
-			CMWR <= to_std_logic(state = store_cmd_s);
 			
-			-- Increment the command address. If we have run out of space in the
-			-- Command Memory, we abort our attempt to process the command, and wait
-			-- for the next command.
-			if (state = inc_addr_s) then
-				addr := addr + 1;
-				if (addr = cmd_addr_max) then
+			-- Check if we have run out of space in the Command Memory. If so, we 
+			-- abort our attempt to process the command, and wait for the next 
+			-- command.
+			if (state = check_addr_s) then
+				if (CMF = '1') then
 					next_state := idle_s;
 				else
 					next_state := receive_cmd_s;
@@ -1303,10 +1297,6 @@ begin
 			
 		-- Command Processor Active is true whenever the state is not idle.
 		CPA <= (state /= idle_s);
-			
-		-- The Command Memory Write Address is always equal to the Command Processor's
-		-- addr variable.
-		cmd_wr_addr <= std_logic_vector(to_unsigned(addr,cmd_addr_len));
 	end process;
 
 -- Test Point One appears on P4-1.

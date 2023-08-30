@@ -14,44 +14,49 @@
 ; into the interrupt routine so as to solve accumulating failure 
 ; during stimuli with periods less than 15 ms.
 
+; V1.9: Command memory now a FIFO and timer interrupts 3 and 4 are
+; enabled. Use No3 for user program, to execute every 1 ms. 
+; Dedicate 512 Bytes to user memory above 256-byte stack. Even
+; though we have 2 KBytes user program memory, the existing load
+; program instruction can transfer only 256 bytes.
+
 ; CPU Address Map Boundary Constants
-const mmu_vmem 0x0000 ; Base of Variable Memory
-const mmu_sba  0x0300 ; Stack Base Address
-const mmu_cmem 0x0400 ; Base of Command Memory
-const mmu_ctrl 0x0800 ; Base of Control Space
-const mmu_prog 0x0C00 ; Base of program memory portal
+const mmu_vmem 0x0000 ; Base of Main Program Variable Memory
+const mmu_sba  0x0100 ; Stack Base Address
+const mmu_umem 0x0200 ; Base of User Program Variable Memory
+const mmu_ctrl 0x0400 ; Base of Control Space
+const mmu_prog 0x0800 ; Base of user program memory
 
 ; Program Addres Map
 const prog_usr 0x0800 ; User program location
 
 ; Address Map Locations
-const mmu_sdb  0x0800 ; Sensor Data Byte
-const mmu_scr  0x0801 ; Sensor Control Register
-const mmu_irqb 0x0802 ; Interrupt Request Bits
-const mmu_imsk 0x0803 ; Interrupt Mask Bits
-const mmu_irst 0x0804 ; Interrupt Reset Bits
-const mmu_dva  0x0805 ; Device Active
-const mmu_stc  0x0806 ; Stimulus Current
-const mmu_rst  0x0807 ; System Reset
-const mmu_xhb  0x0808 ; Transmit HI Byte
-const mmu_xlb  0x0809 ; Transmit LO Byte
-const mmu_xcn  0x080A ; Transmit Channel Number
-const mmu_xcr  0x080B ; Transmit Control Register
-const mmu_etc  0x080D ; Enable Transmit Clock
-const mmu_tcf  0x080E ; Transmit Clock Frequency
-const mmu_tcd  0x080F ; Transmit Clock Divider
-const mmu_bcc  0x0810 ; Boost CPU Clock
-const mmu_dfr  0x0811 ; Diagnostic Flag Register
-const mmu_sr   0x0812 ; Status Register
-const mmu_cch  0x0813 ; Command Count HI
-const mmu_ccl  0x0814 ; Command Count LO
-const mmu_cpr  0x0815 ; Command Processor Reset
-const mmu_it1p 0x0816 ; Interrupt Timer One Period
-const mmu_it2p 0x0817 ; Interrupt Timer Two Period
-const mmu_it3p 0x0818 ; Interrupt Timer Three Period
-const mmu_it4p 0x0819 ; Interrupt Timer Four Period
-const mmu_idh  0x081A ; Device ID HI
-const mmu_idl  0x081B ; Device ID LO
+const mmu_sdb  0x0400 ; Sensor Data Byte
+const mmu_scr  0x0401 ; Sensor Control Register
+const mmu_irqb 0x0402 ; Interrupt Request Bits
+const mmu_imsk 0x0403 ; Interrupt Mask Bits
+const mmu_irst 0x0404 ; Interrupt Reset Bits
+const mmu_dva  0x0405 ; Device Active
+const mmu_stc  0x0406 ; Stimulus Current
+const mmu_rst  0x0407 ; System Reset
+const mmu_xhb  0x0408 ; Transmit HI Byte
+const mmu_xlb  0x0409 ; Transmit LO Byte
+const mmu_xcn  0x040A ; Transmit Channel Number
+const mmu_xcr  0x040B ; Transmit Control Register
+const mmu_etc  0x040D ; Enable Transmit Clock
+const mmu_tcf  0x040E ; Transmit Clock Frequency
+const mmu_tcd  0x040F ; Transmit Clock Divider
+const mmu_bcc  0x0410 ; Boost CPU Clock
+const mmu_dfr  0x0411 ; Diagnostic Flag Register
+const mmu_sr   0x0412 ; Status Register
+const mmu_cm   0x0413 ; Command Memory Portal
+const mmu_cpr  0x0415 ; Command Processor Reset
+const mmu_it1p 0x0416 ; Interrupt Timer One Period
+const mmu_it2p 0x0417 ; Interrupt Timer Two Period
+const mmu_it3p 0x0418 ; Interrupt Timer Three Period
+const mmu_it4p 0x0419 ; Interrupt Timer Four Period
+const mmu_idh  0x041A ; Device ID HI
+const mmu_idl  0x041B ; Device ID LO
 
 ; Status Bit Masks, for use with status register.
 const sr_cmdrdy  0x01 ; Command Ready Flag
@@ -60,6 +65,7 @@ const sr_saa     0x04 ; Sensor Access Active Flag
 const sr_txa     0x08 ; Transmit Active Flag
 const sr_cpa     0x10 ; Command Processor Active
 const sr_boost   0x20 ; Boost Flag
+const sr_cme     0x40 ; Command Memory Empty
 
 ; Transmit Control Masks, for use with tansmit control register.
 const tx_txi     0x01 ; Assert transmit initiate.
@@ -86,6 +92,7 @@ const wp_delay     255  ; Warm-up delay for auxiliary messages.
 const num_vars      40  ; Number of vars to clear at start.
 const initial_tcd   15  ; Max possible value of TCK divisor.
 const stim_tick     33  ; Stimulus interrupt period.
+const uprog_tick    33  ; User program interrupt period.
 const xx_delay   32767  ; Transmit Extinguish Delay
 const id_delay      33  ; To pad id delay to 50 TCK periods.
 
@@ -113,31 +120,26 @@ const Sdly1       0x0013 ; Stimulus Delay Byte One
 const Sdly0       0x0014 ; Stimulus Delay Byte Zero
 const Sdrun       0x0015 ; Stimulus Delay Run Flag
 
-; Command Execution Variables
-const cmd_cnt_h   0x0020 ; Command Count, HI
-const cmd_cnt_l   0x0021 ; Command Count, LO
-
 ; Random Number Variabls
-const Rand1       0x0030 ; Random Number Byte One
-const Rand0       0x0031 ; Random Number Byte Zero
+const Rand1       0x0020 ; Random Number Byte One
+const Rand0       0x0021 ; Random Number Byte Zero
 
 ; Transmission Control Variables
-const xmit_p      0x0040 ; Transmit Period
-const xmit_pcn    0x0041 ; Primary Channel Number
-const xxcnt1      0x0042 ; Transmit Extinguish Counter Byte One
-const xxcnt0      0x0043 ; Transmit Extinguish Counter Byte Zero
+const xmit_p      0x0028 ; Transmit Period
+const xmit_pcn    0x0029 ; Primary Channel Number
+const xxcnt1      0x002A ; Transmit Extinguish Counter Byte One
+const xxcnt0      0x002B ; Transmit Extinguish Counter Byte Zero
 
-; User Program Control Variables
-const run_prog    0x0048 ; Run User Program flag
+; User Program Constants
 const ret_code      0x0A ; Return from subrouting instruction
 
 ; Scratch Pad Variables
-const scratch1    0x0050 ; Scratchpad Variable 1
-const scratch2    0x0051 ; Scratchpad Variable 2
-const scratch3    0x0052 ; Scratchpad Variable 3
-const scratch4    0x0053 ; Scratchpad Variable 4
-const scratch5    0x0054 ; Scratchpad Variable 5
-const scratch6    0x0055 ; Scratchpad Variable 6
+const scratch1    0x0040 ; Scratchpad Variable 1
+const scratch2    0x0041 ; Scratchpad Variable 2
+const scratch3    0x0042 ; Scratchpad Variable 3
+const scratch4    0x0043 ; Scratchpad Variable 4
+const scratch5    0x0044 ; Scratchpad Variable 5
+const scratch6    0x0045 ; Scratchpad Variable 6
 
 ; Operation Codes
 const op_stop_stim   0 ; 0 operands
@@ -456,12 +458,6 @@ ld (mmu_xhb),A      ; Write to transmit HI register.
 
 int_xmit_rdy:
 
-ld A,(run_prog)     ; Check the run program flag and if set,
-and A,bit0_mask     ; run the user program. The user program
-jp z,int_done_prog  ; can change the transmit channel number
-call prog_usr       ; and sample value if it wants to.
-int_done_prog:
-
 ld A,tx_txi         ; Load transmit initiate bit
 ld (mmu_xcr),A      ; and write to transmit control register.
 
@@ -491,6 +487,15 @@ ld (xmit_p),A       ; device, preserving our battery.
 
 int_xmit_done:
 
+; On interrupt 2, we call the user program.
+
+int_uprog:
+ld A,(mmu_irqb)     ; Read the interrupt request bits
+and A,bit2_mask     ; and test bit two,
+jp z,int_uprog_done  ; skip user program if not set.
+call prog_usr       ; and sample value if it wants to.
+int_uprog_done:
+
 ; Turn off the transmit clock, move out of boost, restore registers and return 
 ; from interrupt.
 
@@ -508,32 +513,6 @@ pop A               ; Restore A.
 
 rti                 ; Return from interrupt.
 
-; -----------------------------------------------------------
-; Decrement the command count. The decrement does not allow
-; the count to drop below zero. The routine leaves all registers
-; intact.
-
-dec_cmd_cnt:
-
-push F
-push A
-
-ld A,(cmd_cnt_l)
-sub A,1
-ld (cmd_cnt_l),A
-ld A,(cmd_cnt_h)
-sbc A,0
-ld (cmd_cnt_h),A
-jp nc,dec_cmd_cnt_p
-ld A,0
-ld (cmd_cnt_h),A
-ld (cmd_cnt_l),A
-dec_cmd_cnt_p:
-
-pop A
-pop F
-
-ret
 
 ; ------------------------------------------------------------
 ; Transmit an acknowledgement. We have to warm up the VCO before
@@ -757,21 +736,15 @@ push H
 push L
 push IX
 
-; Calculate and store the command count in memory. We read the wr_cmd_addr and subtract
-; two. We will use the dec_cmd_cnt routine to decrement as we increment through the command
-; memory. If the command count is less than zero, we abort.
+; Load IX with the command memory portal to start reading bytes.
 
-ld A,(mmu_ccl)
-sub A,2
-ld (cmd_cnt_l),A
-ld A,(mmu_cch)
-sbc A,0
-ld (cmd_cnt_h),A
-jp c,cmd_done
+ld IX,mmu_cm
 
-; Load IX with the base of the command memory to start reading bytes.
+; Check the almost full flag and abort if it is set.
 
-ld IX,mmu_cmem
+ld A,(mmu_sr)
+and A,sr_cme 
+jp nz,cmd_done
 
 ; Load the device id into HL and the command's device id into DE.
 
@@ -784,13 +757,9 @@ pop L
 ld A,(IX)
 push A
 pop D
-inc IX
-call dec_cmd_cnt
 ld A,(IX)
 push A
 pop E
-inc IX
-call dec_cmd_cnt
 
 ; Check to see if HL = DE. If so, we'll process this command.
 
@@ -831,8 +800,6 @@ check_stop_stim:
 ld A,(IX)
 sub A,op_stop_stim
 jp nz,check_start_stim
-inc IX
-call dec_cmd_cnt
 ld A,0
 ld (Srun),A
 ld (mmu_stc),A
@@ -847,44 +814,24 @@ check_start_stim:
 ld A,(IX)
 sub A,op_start_stim
 jp nz,check_xmit
-inc IX
-call dec_cmd_cnt
 ld A,(IX)           ; Read stimulus current.
 ld (Scurrent),A
-inc IX
-call dec_cmd_cnt
 ld A,(IX)           ; Read pulse length byte one.
 ld (Spulse_1),A
-inc IX
-call dec_cmd_cnt
 ld A,(IX)           ; Read pulse length byte zero.
 ld (Spulse_0),A
-inc IX
-call dec_cmd_cnt
 ld A,(IX)           ; Read interval length byte two.
 ld (Sinterval_2),A
-inc IX
-call dec_cmd_cnt
 ld A,(IX)           ; Read interval length byte one.
 ld (Sinterval_1),A
-inc IX
-call dec_cmd_cnt
 ld A,(IX)           ; Read interval length byte zero.
 ld (Sinterval_0),A
-inc IX
-call dec_cmd_cnt
 ld A,(IX)            ; Read stimulus length byte one.
 ld (Slength_1),A
-inc IX
-call dec_cmd_cnt
 ld A,(IX)            ; Read stimulus length byte zero.
 ld (Slength_0),A
-inc IX
-call dec_cmd_cnt
 ld A,(IX)            ; Read randomization state
 ld (Srandomize),A    ; and write to memory.
-inc IX
-call dec_cmd_cnt
 ld A,0x01            ; Set the
 ld (Srun),A          ; stimulus run
 ld (Sistart),A       ; and stimulus interval start flags.
@@ -908,13 +855,9 @@ check_xmit:
 ld A,(IX)
 sub A,op_xmit
 jp nz,check_ack
-inc IX
-call dec_cmd_cnt
 ld A,(IX)            ; Read transmit period minus one. 
 ld (xmit_p),A        ; Save to memory and
 ld (mmu_it1p),A      ; write to interrupt timer period.
-inc IX
-call dec_cmd_cnt
 add A,0              ; If period = 0 jump forwards
 jp z,xmit_disable    ; to disable.
 ld A,(mmu_imsk)      ; If period > 0 enable xmit
@@ -942,12 +885,8 @@ check_ack:
 ld A,(IX)
 sub A,op_ack
 jp nz,check_battery
-inc IX
-call dec_cmd_cnt
 ld A,(IX)           
 ld (Sack_key),A      
-inc IX             
-call dec_cmd_cnt     
 call xmit_ack        
 jp cmd_loop_end
 
@@ -959,8 +898,6 @@ check_battery:
 ld A,(IX)
 sub A,op_battery
 jp nz,check_identify
-inc IX                
-call dec_cmd_cnt     
 call xmit_batt       
 jp cmd_loop_end
 
@@ -973,8 +910,6 @@ check_identify:
 ld A,(IX)
 sub A,op_identify
 jp nz,check_setpcn
-inc IX                
-call dec_cmd_cnt      
 call xmit_identify    
 jp cmd_loop_end
 
@@ -986,12 +921,8 @@ check_setpcn:
 ld A,(IX)
 sub A,op_setpcn
 jp nz,check_ldprog
-inc IX 
-call dec_cmd_cnt
 ld A,(IX)           
 ld (xmit_pcn),A      
-inc IX               
-call dec_cmd_cnt    
 jp cmd_loop_end   
 
 ; Receive user code and load into user program memory. Instruction
@@ -1002,11 +933,7 @@ check_ldprog:
 ld A,(IX)
 sub A,op_ldprog
 jp nz,check_enprog
-inc IX 
-call dec_cmd_cnt
 ld A,(IX)          ; Get the number of program bytes.
-inc IX              
-call dec_cmd_cnt 
 add A,0            ; If number of bytes is zero,
 jp z,cmd_loop_end  ; we are done with this instruction.
 push A             ; Otherwise, use B to count the
@@ -1015,38 +942,43 @@ ld IY,mmu_prog     ; Load IY with the base of user program memory.
 load_prog:        
 ld A,(IX)          ; Read instruction byte from command memory
 ld (IY),A          ; and write to program memory.
-inc IX
 inc IY
-call dec_cmd_cnt   
 dec B              ; Decrement B, and if not zero, 
 jp nz,load_prog    ; read another byte.
 jp cmd_loop_end    ; Otherwise we are done with this instruction.
 
 ; Turn on and off execution of user code during transmit interrupt.
 ; Instruction takes one operand: zero for disable, one for enable.
+; If enable, start the user program interrupt, otherwise disable.
 
 check_enprog:
 ld A,(IX)
 sub A,op_enprog
 jp nz,cmd_done
-inc IX 
-call dec_cmd_cnt
 ld A,(IX)           
-ld (run_prog),A      
-inc IX               
-call dec_cmd_cnt    
+and A,bit0_mask  
+jp z,cmd_disable_prog
+ld A,uprog_tick
+ld (mmu_it3p),A
+ld A,(mmu_imsk)   
+or A,bit2_mask  
+ld (mmu_imsk),A             
+jp cmd_loop_end
+cmd_disable_prog:
+ld A,0 
+ld (mmu_it3p),A
+ld A,(mmu_imsk)   
+and A,bit2_clr 
+ld (mmu_imsk),A             
 jp cmd_loop_end     
 
-; Check the number of bytes remaining to be read. If greater
-; than zero, jump back to start of loop, otherwise we are done.
+; Check the command memory empty flag, and if not set, jump back to 
+; start of loop, otherwise we are done.
 
 cmd_loop_end:
-ld A,(cmd_cnt_h)
-add A,0
-jp nz,cmd_loop_start
-ld A,(cmd_cnt_l)
-add A,0
-jp nz,cmd_loop_start
+ld A,(mmu_sr)
+and A,sr_cme 
+jp z,cmd_loop_start
 
 ; Now that we are done with command processing, we turn
 ; on device power. It's up to the main loop to turn
@@ -1275,7 +1207,6 @@ jp nz,main_vclr
 
 ld A,0             ; Make sure the stimulus
 ld (mmu_stc),A     ; current is zero.
-ld (run_prog),A    ; Disable user program.
 ld A,ret_code      ; Put a return opcode at first byte
 ld (mmu_prog),A    ; in user program, in case of enable.
 ld A,(mmu_idl)     ; Set the primary channel number to the

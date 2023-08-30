@@ -46,7 +46,7 @@ begin
       WrAddress <= (others => '0') ;
       wait for 100 ns;
       wait until Reset = '0';
-      for i in 0 to 6150 loop
+      for i in 0 to 8198 loop
         wait until WrClock'event and WrClock = '1';
         WrAddress <= WrAddress + '1' after 1 ns;
       end loop;
@@ -59,7 +59,7 @@ begin
       RdAddress <= (others => '0') ;
       wait for 100 ns;
       wait until Reset = '0';
-      for i in 0 to 6150 loop
+      for i in 0 to 8198 loop
         wait until RdClock'event and RdClock = '1';
         RdAddress <= RdAddress + '1' after 1 ns;
       end loop;
@@ -72,7 +72,7 @@ begin
       Data <= (others => '0') ;
       wait for 100 ns;
       wait until Reset = '0';
-      for i in 0 to 3075 loop
+      for i in 0 to 4099 loop
         wait until WrClock'event and WrClock = '1';
         Data <= Data + '1' after 1 ns;
       end loop;
@@ -84,7 +84,7 @@ begin
     begin
       WE <= '0' ;
       wait until Reset = '0';
-      for i in 0 to 3075 loop
+      for i in 0 to 4099 loop
         wait until WrClock'event and WrClock = '1';
         WE <= '1' after 1 ns;
       end loop;
