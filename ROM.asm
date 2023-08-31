@@ -92,8 +92,8 @@ const initial_tcd   15  ; Max possible value of TCK divisor
 const stim_tick     33  ; Stimulus interrupt period
 const uprog_tick    33  ; User program interrupt period
 const id_delay      33  ; To pad id delay to 50 TCK periods
-const min_tx_p      25  ; Minimum transmit period
-const ext_tick       5  ; Decrements sixteen-bit counter each main loop
+const min_int_p     25  ; Minimum transmit period
+const ext_tick       1  ; Decrement to extinguish counter
 
 ; Stimulus Control Variables
 const Scurrent    0x0000 ; Stimulus Current
@@ -316,79 +316,63 @@ pop F
 ret             
 
 ; ------------------------------------------------------------
-; The interrupt routine. Handles data transmission and clock.
-; Runs with CPU in boost to save time.
+; The interrupt handler. Assumes that it interrupts a program
+; running off the slow clock. Boosts as quickly as possible to
+; fast clock, executes, then restores the clock. We handle the
+; user program interrupt, then stimulus interrupt, and finally
+; the transmit interrupt. By this means, when the interrupts
+; are coincident, the user program can affect the stimulus and
+; the stimulus can affect the transmission. The synchronizing
+; signal, for example, will reflect the most recent state of
+; the stimulus.
 
 interrupt:
 
-; Push A onto the stack, boost CPU, push F.
+; Push A onto the stack, boost CPU, push F. We push A before
+; F because we want to move into boost as quickly as possible.
+; Each instruction at 33 kHz takes 150 times longer than at 5 MHz.
 
 push A              ; Save A on stack
 ld A,0x01           ; Set bit zero to one.
 ld (mmu_etc),A      ; Enable the transmit clock, TCK.
 ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
 push F              ; Save the flags onto the stack.
+
+; Drive TP1 high.
 ld A,(mmu_dfr)      ; Load the diagnostic flag register.
 or A,bit0_mask      ; set bit zero and
 ld (mmu_dfr),A      ; write to diagnostic flag register.
+
+; Push all the registers, even if we don't use them in the interrupt
+; code. We want to protect the calling process from the user program.
+push B
+push C
+push D
+push E
 push H
 push L
 
-; Handle the transmit interrupt, if it exists. We won't wait for the transmission
-; to complete because we are certain to follow our transmission with at least one
-; RCK period when we move out of boost. If the user program is enabled, we run it
-; and do nothing else, otherwise we transmit a synchronizing signal.
+; Handle the user program interrupt, in which we call the user program
+; and allow it to execute and return. Because we just pushed all the
+; registers, the user program can do what it likes with all the registers
+; and flags, with the exception of the interrupt flag, which it must
+; handle with care. Right now, the interrupt flag is set, and interrupts
+; are disabled. Clearing the interrupt flag could cause the user program
+; to be interrupted to execute itself in a recursion that overflows the
+; stack.
 
-int_xmit:
+int_uprog:
 
 ld A,(mmu_irqb)     ; Read the interrupt request bits
-and A,bit0_mask     ; and test bit zero,
-jp z,int_xmit_done  ; skip transmit if not set.
+and A,bit2_mask     ; and test bit one,
+jp z,int_uprog_done ; skip if uprog interrupt.
 
-ld A,bit0_mask      ; Reset this interrupt
-ld (mmu_irst),A     ; with the bit zero mask.
+ld A,bit2_mask      ; Reset this interrupt
+ld (mmu_irst),A     ; with the bit two mask.
 
-ld A,(xmit_pcn)     ; Load A with primary channel number
-ld (mmu_xcn),A      ; and write the transmit channel register.
+call prog_usr       ; Call the user program.
 
-; If a not Srun, we will transmit synch_nostim. If Srun but not Sprun,
-; we transmit synch_stim. If Srun we transmit synch_stim + 8*Scurrent.
-; Regardless, the lower byte we transmit will be zero.
-
-ld A,0              ; Load A with zero
-ld (mmu_xlb),A      ; write to transmit LO register.
-
-ld A,(Srun)         ; Load A with Srun
-add A,0             ; check value
-jp nz,int_xmit_stim ; jump if set.
-
-ld A,synch_nostim   ; Load A with synch_nostim and
-ld (mmu_xhb),A      ; write to transmit HI register.
-jp int_xmit_rdy   
-
-int_xmit_stim:
-ld A,(Sprun)        ; Load A with Sprun
-add A,0             ; check value, jump if set.
-jp nz,int_xmit_pulse
-
-ld A,synch_stim     ; Load A with synch_stim and
-ld (mmu_xhb),A      ; write to transmit HI register.
-jp int_xmit_rdy   
-
-int_xmit_pulse:
-ld A,(Scurrent)     ; Load A with Scurrent and
-sla A               ; shift left
-sla A               ; three times to
-sla A               ; multiply by eight
-add A,synch_stim    ; then add synch_stim.
-ld (mmu_xhb),A      ; Write to transmit HI register.
-
-int_xmit_rdy:
-
-ld A,tx_txi         ; Load transmit initiate bit
-ld (mmu_xcr),A      ; and write to transmit control register.
-
-int_xmit_done:
+int_uprog_done:
 
 ; Handle the stimulus interrupt, if it exists. We decrement the stimulus
 ; interval counter and the stimulus pulse counter and set the stimulus 
@@ -474,21 +458,61 @@ ld (Sprun),A        ; and we are done with this interrupt.
 
 int_stim_done:
 
-; Handle the user program interrupt, in which we call the user program
-; and allow it to execute and return.
+; Handle the transmit interrupt, if it exists. We won't wait for the transmission
+; to complete because we are certain to follow our transmission with at least one
+; RCK period when we move out of boost. If the user program is enabled, we run it
+; and do nothing else, otherwise we transmit a synchronizing signal.
 
-int_uprog:
+int_xmit:
 
 ld A,(mmu_irqb)     ; Read the interrupt request bits
-and A,bit2_mask     ; and test bit one,
-jp z,int_uprog_done ; skip if uprog interrupt.
+and A,bit0_mask     ; and test bit zero,
+jp z,int_xmit_done  ; skip transmit if not set.
 
-ld A,bit2_mask      ; Reset this interrupt
-ld (mmu_irst),A     ; with the bit two mask.
+ld A,bit0_mask      ; Reset this interrupt
+ld (mmu_irst),A     ; with the bit zero mask.
 
-call prog_usr       ; Call the user program.
+ld A,(xmit_pcn)     ; Load A with primary channel number
+ld (mmu_xcn),A      ; and write the transmit channel register.
 
-int_uprog_done:
+; If a not Srun, we will transmit synch_nostim. If Srun but not Sprun,
+; we transmit synch_stim. If Srun we transmit synch_stim + 8*Scurrent.
+; Regardless, the lower byte we transmit will be zero.
+
+ld A,0              ; Load A with zero
+ld (mmu_xlb),A      ; write to transmit LO register.
+
+ld A,(Srun)         ; Load A with Srun
+add A,0             ; check value
+jp nz,int_xmit_stim ; jump if set.
+
+ld A,synch_nostim   ; Load A with synch_nostim and
+ld (mmu_xhb),A      ; write to transmit HI register.
+jp int_xmit_rdy   
+
+int_xmit_stim:
+ld A,(Sprun)        ; Load A with Sprun
+add A,0             ; check value, jump if set.
+jp nz,int_xmit_pulse
+
+ld A,synch_stim     ; Load A with synch_stim and
+ld (mmu_xhb),A      ; write to transmit HI register.
+jp int_xmit_rdy   
+
+int_xmit_pulse:
+ld A,(Scurrent)     ; Load A with Scurrent and
+sla A               ; shift left
+sla A               ; three times to
+sla A               ; multiply by eight
+add A,synch_stim    ; then add synch_stim.
+ld (mmu_xhb),A      ; Write to transmit HI register.
+
+int_xmit_rdy:
+
+ld A,tx_txi         ; Load transmit initiate bit
+ld (mmu_xcr),A      ; and write to transmit control register.
+
+int_xmit_done:
 
 ; Turn off the transmit clock, move out of boost, restore registers and return 
 ; from interrupt.
@@ -496,6 +520,10 @@ int_uprog_done:
 int_done:
 pop L
 pop H
+pop E
+pop D
+pop C
+pop B
 ld A,(mmu_dfr)      ; Load the diagnostic flag register.
 and A,bit0_clr      ; Clear bit zero and
 ld (mmu_dfr),A      ; write to diagnostic flag register.
@@ -546,8 +574,8 @@ ld (mmu_xhb),A      ; Write to transmit HI register.
 
 ; Transmit the message.
 
-ld A,tx_txi         ; Initiate transmission 
-ld (mmu_xcr),A      ; with another write to control register.
+ld A,tx_txi         ; Initiate transmission with another write to
+ld (mmu_xcr),A      ; control register, which also turns off the warm-up.
 ld A,tx_delay       ; Wait for a number of TCK periods while 
 dly A               ; the transmit completes.
 
@@ -606,7 +634,7 @@ ld (mmu_xhb),A      ; Write to transmit HI register.
 
 ; Transit the message and wait until complete.
 
-ld A,tx_txi         ; Initiate transmission 
+ld A,tx_txi         ; Initiate transmission and turn off warm-up
 ld (mmu_xcr),A      ; with another write to control register.
 ld A,tx_delay       ; Wait for a number of TCK periods while 
 dly A               ; the transmit completes.
@@ -685,7 +713,7 @@ ld (mmu_xhb),A      ; Write to transmit HI register.
 
 ; Transit the message and wait until complete.
 
-ld A,tx_txi         ; Initiate transmission 
+ld A,tx_txi         ; Initiate transmission and turn off warmup
 ld (mmu_xcr),A      ; with another write to control register.
 ld A,tx_delay       ; Wait for a number of TCK periods while 
 dly A               ; the transmit completes.
@@ -839,6 +867,16 @@ push D
 pop A
 sub A,B
 jp nz,cmd_no_match
+
+; Reset the extinguish counter.
+
+ld A,255           ; Load the extinguish counter with
+ld (extcnt1),A     ; the maximum sixteen-bit
+ld (extcnt0),A     ; integer.
+
+; This is the start of the loop that reads and executes the instructions
+; that make up a single command.
+
 jp cmd_loop_start
 
 ; If HL is the wildcard identifier 0xFFFF, we'll process this command.
@@ -928,7 +966,7 @@ ld A,(ccmdb)
 sub A,op_xmit
 jp nz,check_xmit_end
 call get_cmd_byte    ; Read xmit period minus one. 
-sub A,min_tx_p       ; Subtract the minimum period.
+sub A,min_int_p      ; Subtract the minimum period.
 jp c,xmit_disable    ; If result negative, disable xmit.
 ld A,(ccmdb)         ; Load the period again,
 ld (xmit_p),A        ; save to memory
@@ -1005,7 +1043,9 @@ check_setpcn_end:
 ; by index register IY. If one or more bytes are loaded by this
 ; instruction into the user program memory, we set the user program
 ; run flag so as to keep the device powered up to receive more
-; user program bytes in future commands.
+; user program bytes in future commands. But we disable the user
+; program interrupt to make sure that we don't execute a partially-
+; loaded program.
   
 check_ldprog:
 ld A,(ccmdb)
@@ -1024,6 +1064,11 @@ dec B              ; Decrement B, and if not zero,
 jp nz,load_prog    ; read another byte.
 ld A,0x01          ; Otherwise, we set the
 ld (UPrun),A       ; user program flag to keep the device awake.
+ld (UPinit),A      ; Clear the user program initialization flag.
+ld (mmu_it3p),A    ; Turn off the user program interrupt timer.
+ld A,(mmu_imsk)    ; Disable the
+and A,bit2_clr     ; user program
+ld (mmu_imsk),A    ; interrupt.
 jp cmd_loop_end    ; We are done with this instruction.
 check_ldprog_end:
 
@@ -1285,6 +1330,7 @@ ret                 ; return.
 ; ------------------------------------------------------------
 ; The main program. We begin by initializing the device, which
 ; includes initializing the stack pointer, variables, and interrupts.
+; The main program uses IY to store the user program pointer.
 
 main:
 
@@ -1307,44 +1353,48 @@ inc IX
 dec B
 jp nz,main_var_init_loop
 
-; Configure some registers and variables.
+; Initialize certain variables to values other than zero.
 
-ld A,0             ; Make sure the stimulus
-ld (mmu_stc),A     ; current is zero.
-ld (mmu_dfr),A     ; Set the diagnostic flags to zero.
-ld A,ret_code      ; Put a return opcode at first byte
-ld (mmu_prog),A    ; in user program, in case of enable.
 ld A,(mmu_idl)     ; Set the primary channel number to the
 ld (xmit_pcn),A    ; LO byte of the device identifier.
 ld (Rand0),A       ; Seed the random number generator
 ld A,(mmu_idh)     ; with the LO and HI bytes of the
 ld (Rand1),A       ; device identifier.
-ld IY,mmu_prog     ; The main loop uses IY for the user program pointer.
-ld A,255           ; Load the extinguish
-ld (extcnt1),A     ; maximum sixteen-bit
+ld A,255           ; Load the extinguish counter with
+ld (extcnt1),A     ; the maximum sixteen-bit
 ld (extcnt0),A     ; integer, ready to decrement.
+
+; Configure control space registers.
+
+ld A,0             ; Make sure the stimulus
+ld (mmu_stc),A     ; current is zero.
+ld (mmu_dfr),A     ; Set the diagnostic flags to zero.
+ld A,0x00          ; Load zeros
+ld (mmu_imsk),A    ; and disable all interrupts.
+ld A,0xFF          ; Load A with ones
+ld (mmu_irst),A    ; and reset all interrupts.
+
+; Configure user programming.
+
+ld IY,mmu_prog     ; The main loop uses IY for the user program pointer.
+ld A,ret_code      ; Put a return opcode at first byte
+ld (IY),A          ; in user program, in case of enable.
 
 ; Calibrate the transmit clock.
 
 call calibrate_tck
 
-; Reset and disable all interrupts.
-
-ld A,0xFF            ; Load A with ones
-ld (mmu_irst),A      ; and reset all interrupts.
-ld A,0x00            ; Load zeros
-ld (mmu_imsk),A      ; and disable all interrupts.
-
 ; The main event loop.
 
 main_loop:
 
-; Decrment the extinguish counter. When negative, we will switch off, regardless
+; Decrement the extinguish counter. When negative, we will switch off, regardless
 ; of whatever else is happening. The extinguish counter will be decremented by the
 ; extinguish tick in every main loop. The main loop is between 70 and 100 instructions. 
 ; With a 1-ms interrupt, the main loop runs for around half the time at 33 kHz, so it 
 ; takes around 5 ms to complete. With the ext_tick = 1 the extinguish time will be 
-; around five minutes.
+; around five minutes. The cmd_execute routine resets the counter whenever it receives
+; a command directed at this device.
 
 ld A,(extcnt0)
 sub A,ext_tick
