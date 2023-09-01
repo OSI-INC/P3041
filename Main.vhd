@@ -66,8 +66,7 @@
 -- read in the FIFO, which means we will leave the checksum bytes in the FIFO automatically. We 
 -- assign first KByte of CPU memory to RAM, second KByte to control registers, and final two KByte 
 -- to user program memory. We expand top_bits to include CPU address 8 and increase bottom bits to 
--- include all lower eight bits. These changes to the memory map cause the code size to drop from 
--- 1220 LUTs to 1184 LUTs.
+-- include all lower eight bits. 
 
 
 library ieee;  
@@ -95,8 +94,8 @@ entity main is
 		: out std_logic_vector(4 downto 0));
 
 -- Configuration of Device.
-	constant device_id : integer := 16#7A05#;
-	constant frequency_low : integer := 5;
+	constant device_id : integer := 16#286C#;
+	constant frequency_low : integer := 6;
 	
 -- Configuration of OSR8 CPU.
 	constant prog_addr_len : integer := 12;
