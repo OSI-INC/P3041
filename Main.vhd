@@ -94,7 +94,7 @@ entity main is
 		: out std_logic_vector(4 downto 0));
 
 -- Configuration of Device.
-	constant device_id : integer := 16#286C#;
+	constant device_id : integer := 16#0BE6#;
 	constant frequency_low : integer := 6;
 	
 -- Configuration of OSR8 CPU.
@@ -132,7 +132,7 @@ entity main is
 	constant mmu_bcc  : integer := 16; -- Boost CPU Clock (Write)
 	constant mmu_dfr  : integer := 17; -- Diagnostic Flag Register (Read/Write)
 	constant mmu_sr   : integer := 18; -- Status Register (Read)
-	constant mmu_cm   : integer := 19; -- Command Memory (Read)
+	constant mmu_cmp   : integer := 19; -- Command Memory Portal(Read)
 	constant mmu_crst : integer := 21; -- Command Processor Reset (Write)
 	constant mmu_it1p : integer := 22; -- Interrupt Timer One Period (Write)
 	constant mmu_it2p : integer := 23; -- Interrupt Timer Two Period (Write)
@@ -431,7 +431,7 @@ begin
 						cpu_data_in(4) <= to_std_logic(CPA);    -- Command Processor Active Flag
 						cpu_data_in(5) <= to_std_logic(BOOST);  -- Boost CPU Flag
 						cpu_data_in(6) <= CME;                  -- Command Memory Empty
-					when mmu_cm =>
+					when mmu_cmp =>
 						cpu_data_in <= cmd_out;
 						CMRD <= to_std_logic(CPUDS);					when mmu_idh => cpu_data_in <= std_logic_vector(to_unsigned(device_id / 256,8));
 					when mmu_idl => cpu_data_in <= std_logic_vector(to_unsigned(device_id rem 256,8));
@@ -1294,10 +1294,10 @@ begin
 	end process;
 
 -- Test Point One appears on P4-1.
-	TP1 <= df_reg(0);
+	TP1 <= to_std_logic((df_reg(0)='1') or CPA);
 	
 -- Test Point Two appears on P4-2.
-	TP2 <= df_reg(1);
+	TP2 <= to_std_logic((df_reg(1)='1') or CMDRDY);
 	
 -- Test Point Three appears on P4-3 after the programming connector is removed. When
 -- we set TP3 to df_reg(2), our code fails.

@@ -28,32 +28,32 @@ const mmu_ctrl 0x0400 ; Base of Control Space
 const mmu_prog 0x0800 ; Base of user program memory window
 
 ; Address Map Locations
-const mmu_sdb  0x0400 ; Sensor Data Byte
-const mmu_scr  0x0401 ; Sensor Control Register
-const mmu_irqb 0x0402 ; Interrupt Request Bits
-const mmu_imsk 0x0403 ; Interrupt Mask Bits
-const mmu_irst 0x0404 ; Interrupt Reset Bits
-const mmu_dva  0x0405 ; Device Active
-const mmu_stc  0x0406 ; Stimulus Current
-const mmu_rst  0x0407 ; System Reset
-const mmu_xhb  0x0408 ; Transmit HI Byte
-const mmu_xlb  0x0409 ; Transmit LO Byte
-const mmu_xcn  0x040A ; Transmit Channel Number
-const mmu_xcr  0x040B ; Transmit Control Register
-const mmu_etc  0x040D ; Enable Transmit Clock
-const mmu_tcf  0x040E ; Transmit Clock Frequency
-const mmu_tcd  0x040F ; Transmit Clock Divider
-const mmu_bcc  0x0410 ; Boost CPU Clock
-const mmu_dfr  0x0411 ; Diagnostic Flag Register
-const mmu_sr   0x0412 ; Status Register
-const mmu_cm   0x0413 ; Command Memory Portal
-const mmu_cpr  0x0415 ; Command Processor Reset
-const mmu_it1p 0x0416 ; Interrupt Timer One Period
-const mmu_it2p 0x0417 ; Interrupt Timer Two Period
-const mmu_it3p 0x0418 ; Interrupt Timer Three Period
-const mmu_it4p 0x0419 ; Interrupt Timer Four Period
-const mmu_idh  0x041A ; Device ID HI
-const mmu_idl  0x041B ; Device ID LO
+const mmu_sdb  0x0400 ; Sensor Data Byte (Write)
+const mmu_scr  0x0401 ; Sensor Control Register (Write)
+const mmu_irqb 0x0402 ; Interrupt Request Bits (Read)
+const mmu_imsk 0x0403 ; Interrupt Mask Bits (Read/Write)
+const mmu_irst 0x0404 ; Interrupt Reset Bits (Write)
+const mmu_dva  0x0405 ; Device Active (Write)
+const mmu_stc  0x0406 ; Stimulus Current (Write)
+const mmu_rst  0x0407 ; System Reset (Write)
+const mmu_xhb  0x0408 ; Transmit HI Byte (Write)
+const mmu_xlb  0x0409 ; Transmit LO Byte (Write)
+const mmu_xcn  0x040A ; Transmit Channel Number (Write)
+const mmu_xcr  0x040B ; Transmit Control Register (Write)
+const mmu_etc  0x040D ; Enable Transmit Clock (Write)
+const mmu_tcf  0x040E ; Transmit Clock Frequency (Write)
+const mmu_tcd  0x040F ; Transmit Clock Divider (Write)
+const mmu_bcc  0x0410 ; Boost CPU Clock (Write)
+const mmu_dfr  0x0411 ; Diagnostic Flag Register (Read/Write)
+const mmu_sr   0x0412 ; Status Register (Read)
+const mmu_cmp  0x0413 ; Command Memory Portal (Read)
+const mmu_cpr  0x0415 ; Command Processor Reset (Write)
+const mmu_it1p 0x0416 ; Interrupt Timer One Period (Write)
+const mmu_it2p 0x0417 ; Interrupt Timer Two Period (Write)
+const mmu_it3p 0x0418 ; Interrupt Timer Three Period (Write)
+const mmu_it4p 0x0419 ; Interrupt Timer Four Period (Write)
+const mmu_idh  0x041A ; Device ID HI (Read)
+const mmu_idl  0x041B ; Device ID LO (Read)
 
 ; Status Bit Masks, for use with status register
 const sr_cmdrdy  0x01 ; Command Ready Flag
@@ -458,10 +458,9 @@ ld (Sprun),A        ; and we are done with this interrupt.
 
 int_stim_done:
 
-; Handle the transmit interrupt, if it exists. We won't wait for the transmission
-; to complete because we are certain to follow our transmission with at least one
-; RCK period when we move out of boost. If the user program is enabled, we run it
-; and do nothing else, otherwise we transmit a synchronizing signal.
+; Handle the transmit interrupt, if it exists. We transmit a synchronizing signal.
+; We won't wait for the transmission to complete because we are certain to follow 
+; our transmission with at least one RCK period when we move out of boost. 
 
 int_xmit:
 
@@ -740,7 +739,7 @@ const gcb_nb 11     ; Total number of bits minus start bit.
 
 push F
 
-ld A,(mmu_cm)       ; Read from command FIFO portal. 
+ld A,(mmu_cmp)      ; Read from command FIFO portal. 
 ld (ccmdb),A        ; Store byte in memory.
 ld A,gcb_dsp        ; Check if we should display the byte.
 and A,bit0_mask     ; If not, jump to end
@@ -832,13 +831,16 @@ push H
 push L
 push IX
 
-; Check the empty flag and abort if it is set.
+; Check the empty flag and abort if it is set. We don't want to try
+; to process an empty command. If the empty flag is not set, we
+; expect there to be at least two bytes in the command, for the 
+; target identifier.
 
 ld A,(mmu_sr)
 and A,sr_cme 
 jp nz,cmd_done
 
-; Load the device id into HL and the command's device id into DE.
+; Load the device id into HL and the command target id into DE.
 
 ld A,(mmu_idh)
 push A
@@ -853,20 +855,41 @@ call get_cmd_byte
 push A
 pop E
 
-; Check to see if HL = DE. If so, we'll process this command.
+; Check to see if the device id and target id are equal. If so, we will
+; process the command. If not, we will check if the target id is the
+; wildcard.
 
 push L
 pop B
 push E
 pop A
 sub A,B
-jp nz,cmd_no_match
+jp nz,cmd_wildcard_check
 push H
 pop B
 push D
 pop A
 sub A,B
-jp nz,cmd_no_match
+jp nz,cmd_wildcard_check
+jp cmd_id_matched
+
+; See if the target id is the wildcard. If so, we will process the command.
+; Otherwise we will abort. 
+
+cmd_wildcard_check:
+push E
+pop A
+sub A,0xFF
+jp nz,cmd_done
+push D
+pop A
+sub A,0xFF
+jp nz,cmd_done
+
+; The device and target idendifiers match, so we are going to process this
+; command.
+
+cmd_id_matched:
 
 ; Reset the extinguish counter.
 
@@ -874,26 +897,15 @@ ld A,255           ; Load the extinguish counter with
 ld (extcnt1),A     ; the maximum sixteen-bit
 ld (extcnt0),A     ; integer.
 
-; This is the start of the loop that reads and executes the instructions
-; that make up a single command.
-
-jp cmd_loop_start
-
-; If HL is the wildcard identifier 0xFFFF, we'll process this command.
-
-cmd_no_match:
-push E
-pop A
-sub A,0xFF
-jp nz,cmd_done
-push D
-pop A
-sub A,0xFF
-jp nz,cmd_done
-
 ; The start of our command byte decoding loop. 
 
-cmd_loop_start:
+cmd_loop:
+
+; Check the command memory empty flag, and if set, we are done.
+
+ld A,(mmu_sr)
+and A,sr_cme 
+jp nz,cmd_done
 
 ; The command memory is a first-in first-out buffer, so we read a 
 ; byte and store it in memory and in A with get_cmd_byte. After that, 
@@ -914,7 +926,7 @@ ld (mmu_stc),A
 ld A,(mmu_imsk)
 and A,bit1_clr
 ld (mmu_imsk),A
-jp cmd_loop_end
+jp cmd_loop
 check_stop_stim_end:
 
 ; The stimulus start instruction.
@@ -956,7 +968,7 @@ ld (mmu_it2p),A      ; to the timer register.
 ld A,(mmu_imsk)      ; Load the interrupt mask and
 or A,bit1_mask       ; set bit one to enable the
 ld (mmu_imsk),A      ; stimulus interrupt.
-jp cmd_loop_end
+jp cmd_loop
 check_start_stim_end:
 
 ; Start data transmission.
@@ -974,7 +986,7 @@ ld (mmu_it1p),A      ; and write to interrupt timer period.
 ld A,(mmu_imsk)      ; Enable xmit
 or A,bit0_mask       ; interrupt
 ld (mmu_imsk),A      ; with mask.
-jp cmd_loop_end      
+jp cmd_loop      
 xmit_disable:      
 ld A,0               ; Set the xmit period to zero
 ld (xmit_p),A        ; in memory
@@ -982,7 +994,7 @@ ld (mmu_it1p),A      ; and the interrupt handler.
 ld A,(mmu_imsk)      ; Disable
 and A,bit0_clr       ; the xmit interrupt
 ld (mmu_imsk),A      ; with mask.
-jp cmd_loop_end
+jp cmd_loop
 check_xmit_end:
 
 ; Acknowledgement request instruction. We read the acknowledgement
@@ -996,7 +1008,7 @@ jp nz,check_ack_end
 call get_cmd_byte         
 ld (Sack_key),A      
 call xmit_ack        
-jp cmd_loop_end
+jp cmd_loop
 check_ack_end:
 
 ; Battery voltage measurement request instruction. This instruction
@@ -1008,7 +1020,7 @@ ld A,(ccmdb)
 sub A,op_battery
 jp nz,check_battery_end
 call xmit_batt       
-jp cmd_loop_end
+jp cmd_loop
 check_battery_end:
 
 ; Identification request instruction. This instruction takes no
@@ -1021,7 +1033,7 @@ ld A,(ccmdb)
 sub A,op_identify
 jp nz,check_identify_end
 call xmit_identify    
-jp cmd_loop_end
+jp cmd_loop
 check_identify_end:
 
 ; Set the primary channel number for acknowledgements, battery
@@ -1034,7 +1046,7 @@ sub A,op_setpcn
 jp nz,check_setpcn_end
 call get_cmd_byte           
 ld (xmit_pcn),A      
-jp cmd_loop_end   
+jp cmd_loop   
 check_setpcn_end:
 
 ; Receive user code and load into user program memory. Instruction
@@ -1053,7 +1065,7 @@ sub A,op_ldprog
 jp nz,check_ldprog_end
 call get_cmd_byte  ; Get the number of program bytes.
 add A,0            ; If number of bytes is zero,
-jp z,cmd_loop_end  ; we are done with this instruction.
+jp z,cmd_loop  ; we are done with this instruction.
 push A             ; Otherwise, use B to count the
 pop B              ; program bytes.
 load_prog:        
@@ -1069,7 +1081,7 @@ ld (mmu_it3p),A    ; Turn off the user program interrupt timer.
 ld A,(mmu_imsk)    ; Disable the
 and A,bit2_clr     ; user program
 ld (mmu_imsk),A    ; interrupt.
-jp cmd_loop_end    ; We are done with this instruction.
+jp cmd_loop        ; We are done with this instruction.
 check_ldprog_end:
 
 ; Turn on and off execution of user code during transmit interrupt.
@@ -1091,7 +1103,7 @@ ld (mmu_it3p),A
 ld A,(mmu_imsk)   
 or A,bit2_mask  
 ld (mmu_imsk),A             
-jp cmd_loop_end
+jp cmd_loop
 cmd_disable_prog:
 ld A,0x00
 ld (UPrun),A
@@ -1100,7 +1112,7 @@ ld (mmu_it3p),A
 ld A,(mmu_imsk)   
 and A,bit2_clr 
 ld (mmu_imsk),A             
-jp cmd_loop_end
+jp cmd_loop
 check_enprog_end:
 
 ; Reset the user program pointer to point to the first byte in user
@@ -1111,20 +1123,12 @@ ld A,(ccmdb)
 sub A,op_rstpp
 jp nz,check_rstpp_end
 ld IY,mmu_prog
-jp cmd_loop_end
+jp cmd_loop
 check_rstpp_end:
 
 ; If we get here, the opcode is not valid, so abandon the command.
 
 jp cmd_done     
-
-; Check the command memory empty flag, and if not set, jump back to 
-; start of loop, otherwise we are done.
-
-cmd_loop_end:
-ld A,(mmu_sr)
-and A,sr_cme 
-jp z,cmd_loop_start
 
 ; Now that we are done with command processing, we turn
 ; on device power. It's up to the main loop to turn
@@ -1337,6 +1341,21 @@ main:
 ; Initialize the stack pointer.
 ld HL,mmu_sba
 ld SP,HL
+
+; Initialize registers.
+ld A,0
+push A
+pop B
+push A
+pop C
+push A
+pop D
+push A
+pop E
+push A
+pop H
+push A
+pop L
 
 ; Initialize variable locations to zero. This activity also serves
 ; as a boot-up delay to let the power supply settle before we
