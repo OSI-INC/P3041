@@ -140,6 +140,7 @@ entity main is
 	constant mmu_it4p : integer := 25; -- Interrupt Timer Four Period (Write)
 	constant mmu_idh  : integer := 26; -- Identifier HI Byte (Read)
 	constant mmu_idl  : integer := 27; -- Identifier LO Byte (Read)
+	constant mmu_it1ph : integer := 28; -- Interrupt Timer One Period High (Write)
 end;
 
 architecture behavior of main is
@@ -222,7 +223,7 @@ architecture behavior of main is
 
 -- Interrupt Handler signals.
 	signal int_mask, int_bits, int_rst, int_set : std_logic_vector(7 downto 0);
-	signal int_period_1, int_period_2, int_period_3, int_period_4 : std_logic_vector(7 downto 0);
+	signal int_period_1, int_period_1h, int_period_2, int_period_3, int_period_4 : std_logic_vector(7 downto 0);
 	signal INTZ1, INTZ2, INTZ3, INTZ4 : boolean; -- Interrupt Counter Zero Flag
 	
 -- Byte Receiver
@@ -497,6 +498,7 @@ begin
 						when mmu_it2p => int_period_2 <= cpu_data_out;
 						when mmu_it3p => int_period_3 <= cpu_data_out;
 						when mmu_it4p => int_period_4 <= cpu_data_out;
+						when mmu_it1ph => int_period_1h <= cpu_data_out;
 					end case;
 				end if;
 			end if;
@@ -580,7 +582,8 @@ begin
 	-- The Interrupt_Controller provides the interrupt signal to the CPU in response to
 	-- sensor and timer events. By default, at power-up, all interrupts are masked.
 	Interrupt_Controller : process (RCK,CK,RESET) is
-	variable counter_1, counter_2, counter_3, counter_4 : integer range 0 to 255;
+	variable counter_2, counter_3, counter_4 : integer range 0 to 255;
+	variable counter_1 : integer range 0 to 65535;
 	begin
 	
 		-- The interrupt timers, counting down from their interrupt period to zero 
@@ -599,7 +602,8 @@ begin
 			counter_4 := 0;
 		elsif falling_edge(RCK) then
 			if (counter_1 = 0) then
-				counter_1 := to_integer(unsigned(int_period_1));
+				counter_1 := to_integer(unsigned(int_period_1)) + 
+					256 * to_integer(unsigned(int_period_1h));
 			else
 				counter_1 := counter_1 - 1;
 			end if;
