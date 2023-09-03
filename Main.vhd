@@ -225,9 +225,9 @@ architecture behavior of main is
 	signal CPUSIG : std_logic_vector(2 downto 0); -- Signals for debugging.
 
 -- Interrupt Handler signals.
-	signal int_mask, int_bits, int_rst, int_set : std_logic_vector(7 downto 0);
-	signal int_period_1, int_period_2 : std_logic_vector(15 downto 0);
-	signal int_period_3, int_period_4 : std_logic_vector(7 downto 0);
+	signal int_mask, int_bits, int_rst : std_logic_vector(7 downto 0) := (others => '0');
+	signal int_period_1, int_period_2 : std_logic_vector(15 downto 0) := (others => '0');
+	signal int_period_3, int_period_4 : std_logic_vector(7 downto 0) := (others => '0');
 	signal INTZ1, INTZ2, INTZ3, INTZ4 : boolean; -- Interrupt Counter Zero Flag
 	
 -- Byte Receiver
@@ -585,12 +585,20 @@ begin
 	end process;
 
 	-- The Interrupt_Controller provides the interrupt signal to the CPU in response to
-	-- sensor and timer events. By default, at power-up, all interrupts are masked.
+	-- sensor and timer events. By default, at power-up, all interrupts are masked, and
+	-- the timers are disbled by virtue of their periods begin initialized to zero. There
+	-- are two sixteen-bit delay timers. These we reset to their interrupt period values
+	-- when we reset their interrupt flags, so they will generate an interrupt a known 
+	-- time later. There are two eight-bit repeating timers. These never reset except by
+	-- counting down to zero, so they will generate an interrupt with a known period.
 	Interrupt_Controller : process (RCK,CK,RESET) is
 	variable counter_1, counter_2 : integer range 0 to 65535;
 	variable counter_3, counter_4 : integer range 0 to 255;
 
 	begin
+	
+		-- The first of two sixteen-bit delay timers, generating interrupt bit zero
+		-- we call it Interrupt Timer One.
 		if (int_rst(0) = '1') then
 			counter_1 := 0;
 		elsif rising_edge(RCK) then
@@ -601,17 +609,20 @@ begin
 			end if;
 		end if;
 
+		-- The second of two sixteen-bit delay timers, generating interrupt bit one
+		-- we call it Interrupt Timer Two.
 		if (int_rst(1) = '1') then
 			counter_2 := 0;
 		elsif rising_edge(RCK) then
 			if (counter_2 = 0) then
 				counter_2 := to_integer(unsigned(int_period_2));
-
 			else
 				counter_2 := counter_2 - 1;
 			end if;
 		end if;
 		
+		-- The first of two eight-bit repeating timers, generating interrupt bit two
+		-- we call it Interrupt Timer Three.
 		if rising_edge(RCK) then
 			if (counter_3 = 0) then
 				counter_3 := to_integer(unsigned(int_period_3));
@@ -620,6 +631,8 @@ begin
 			end if;
 		end if;
 
+		-- The second of two eight-bit repeating timers, generating interrupt bit three
+		-- we call it Interrupt Timer Four.
 		if rising_edge(RCK) then
 			if (counter_4 = 0) then
 				counter_4 := to_integer(unsigned(int_period_4));
@@ -681,8 +694,11 @@ begin
 			end loop;			
 		end if;
 
-		-- We generate an interrupt if any one interrupt bit is 
-		-- set and unmasked.
+		-- We generate an interrupt if any one interrupt bit is set
+		-- set and its corresponding mask bit is set also. But note
+		-- that clearing the mask bit does not disable the interrupt.
+		-- To disable an interrupt we must take an additional step,
+		-- such as setting the period of an interrupt timer to zero.
 		CPUIRQ <= (int_bits and int_mask) /= "00000000";
 	end process;
 

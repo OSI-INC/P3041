@@ -15,11 +15,15 @@
 ; during stimuli with periods less than 15 ms.
 
 ; V1.9: Command memory now a FIFO. Interrupt timers 1 and 2 are
-; both sixteen-bit. We dedicate these to stimulus control. Timers
-; 3 and 4 are each eight-bit. We dedicate 3 to user program control
-; and 4 to data transmission. Dedicate 512 Bytes of RAM to user
-; memory. Top two kilobytes of CPU memory are a portal into the
-; top two kilobytes of program memory.
+; each sixteen-bit. When we clear their flags, they begin a delay
+; countdown. We dedicate Timer One to stimulus intervals and Timer
+; Two to random delay and stimulus pulse generation. Timers 3 and 4 
+; are each eight-bit. They run continuosly, generating an interrupt
+; with a fixed period. We dedicate Timer Three to user program 
+; execution and Timer Four to data transmission. We allocate 256
+; bytes of RAM to main program variables, 256 bytes to the stack
+; and 512 bytes to user program variables. We have 1 KB for 
+; control registers and 2 KB for user program instructions.
 
 ; CPU Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Main Program Variable Memory
@@ -105,13 +109,17 @@ const Sinterval_1 0x0004 ; Interval Length, HI
 const Sinterval_0 0x0005 ; Interval Length, LO
 const Slength_1   0x0006 ; Stimulus Length, HI
 const Slength_0   0x0007 ; Stimulus Length, LO
-const Srandom     0x0008 ; Random pulse timing
+const Srand       0x0008 ; Enable Random pulse timing
 const Srun        0x0009 ; Run stimulus
 const Spulse      0x000A ; Stimulus Pulse Run Flag
 const Sack_key    0x000B ; Acknowledgement key
 const Sdly1       0x000C ; Stimulus Delay Byte One
 const Sdly0       0x000D ; Stimulus Delay Byte Zero
 const Sdelay      0x000E ; Stimulus Delay Run Flag
+const rand_dly_1  0x000F ; Random Delay, HI
+const rand_dly_0  0x0010 ; Random Delay, LO
+const max_dly_1   0x0011 ; Max Delay, HI
+const max_dly_0   0x0012 ; Max Delay, LO
 
 ; Command Decode Variables
 const ccmdb       0x0016 ; Copy of Command Byte
@@ -121,8 +129,8 @@ const extcnt1     0x0019 ; Counter Byte One
 const extcnt0     0x001A ; Counter Byte Zero
 
 ; Random Number Variabls
-const Rand1       0x0020 ; Random Number Byte One
-const Rand0       0x0021 ; Random Number Byte Zero
+const rand_1      0x0020 ; Random Number Byte One
+const rand_0      0x0021 ; Random Number Byte Zero
 
 ; User Program Control Variables
 const UPrun       0x0022 ; Running
@@ -268,6 +276,123 @@ pop F
 ret
 
 ; ------------------------------------------------------------
+; The random number generator updates rand_0 and rand_1 with a 
+; sixteen-bit linear feedback shift register.
+
+rand:
+
+push F
+push A
+
+ld A,(rand_1)     ; Rotate rand_1 to the right,
+srl A             ; filling top bit with zero,
+ld (rand_1),A     ; and placing bottom bit in carry.
+ld A,(rand_0)     ; Rotate rand_0 to the right,
+rr A              ; filling top bit with carry,
+ld (rand_0),A     ; and placing bottom bit in carry.
+
+ld A,(rand_1)     ; Load A with rand_1 again.
+jp nc,rand_tz     ; If carry is set, perform the XOR
+xor A,rand_taps   ; operation on tap bits and
+ld (rand_1),A     ; save to memory.
+rand_tz:
+
+pop A
+pop F
+ret
+
+; ------------------------------------------------------------
+; Generate a number that we can use to delay a pulse within a
+; stimulus interval. The minimum delay is zero and the maximum
+; is the interval length minus the pulse length. We write the 
+; delay bytes to rand_dly_0 and rand_dly_1.
+;
+
+rand_dly:
+
+push F
+push A
+push B
+push C
+push D
+push E
+push H
+push L
+
+; Copy the stimulus interval length into the scratch pad
+; and subtract the pulse length. The result is our maximum 
+; delay for randomized pulses. If this value is negative, 
+; set to zero.
+
+ld A,(Spulse_0)      ; Load pulse length byte
+push A               ; zero into B
+pop B                ; and interval length
+ld A,(Sinterval_0)   ; byte zero into A.
+sub A,B              ; Subtract to get
+ld (max_dly_0),A     ; max delay byte zero.
+ld A,(Spulse_1)      ; Load pulse length
+push A               ; byte one into 
+pop B                ; B and
+ld A,(Sinterval_1)   ; interval lengt byte one
+sbc A,B              ; into A and subtract with
+ld (max_dly_1),A     ; carry to get max delay byte one.
+jp nc,rand_delay_ds  ; If not negative, move on.
+ld A,0               ; Otherwise
+ld (rand_dly_1),A    ; set delay to 
+ld (rand_dly_0),A    ; zero.
+jp rand_delay_done
+rand_delay_ds:
+
+; Get a random number and place it in D. This is one of our
+; product terms. The other is the maximum delay for randomized
+; pulses, which is currently in the scratch pad.
+
+call rand           ; Update the random number.
+ld A,(rand_0)       ; Load the random number
+push A              ; and move to B
+pop B               ; for multiplication.
+push A              ; Also store in D for 
+pop D               ; later.
+
+; Multiply the maximum delay by the random number and store the
+; top two bytes of the twenty-four bit product in D and E.
+
+ld A,(max_dly_0)    ; Load LO byte zero of max delay
+push A              ; and place in C for
+pop C               ; multiplication.
+call multiply       ; Let BC := B * C.
+push B              ; Store HI byte in E for later.
+pop E               ; Won't be using LO byte.
+push D              ; Bring back our random
+pop B               ; number.
+ld A,(max_dly_1)    ; Put byte one of max delay
+push A              ; in C
+pop C               ; for multiplication
+call multiply       ; Let BC := B * C.
+push B              ; The HI byte is our random
+pop A               ; delay byte one, so store
+ld (rand_dly_1),A     ; now in timer byte one.
+push C              ; Move LO byte from     
+pop B               ; C to B. 
+push E              ; Move HI byte of first product
+pop A               ; from E to A.
+add A,B             ; Add bytes, never generates carry.
+ld (rand_dly_0),A   ; Put delay byte zero in timer.
+
+rand_delay_done:
+
+pop L
+pop H
+pop E
+pop D
+pop C
+pop B
+pop A 
+pop F
+ret                 ; return.
+
+
+; ------------------------------------------------------------
 ; Calibrate the transmit clock frequency. We take the CPU out
 ; of boost, turn off the transmit clock, and repeat a cycle of
 ; setting the transmit clock divisor and running the transmit
@@ -401,16 +526,20 @@ ld (mmu_imsk),A     ; interrupt.
 jp int_sii_rst
 
 int_sii_do:
-ld A,(Srandom)      ; Check the random flag
+ld A,(Srand)        ; Check the random flag
 add A,0             ; and if zero, start pulse
 jp z,int_sii_p      ; otherwise start delay.
 
 int_sii_r:
-ld A,1
-ld (Sdelay),A
-ld A,0
-ld (Spulse),A
-; Random code coming soon.
+call rand_dly       ; Generate delay.
+ld A,(rand_dly_0)   ; Fetch delay from rand_dly_0
+ld (mmu_i2pl),A     ; and rand_dly_1. Store in low and high
+ld A,(rand_dly_1)   ; bytes of timer two
+ld (mmu_i2ph),A     ; period respectively.
+ld A,1              ; Set the delay flag.
+ld (Sdelay),A       ; for subsequent pulse interrupt.
+ld A,0              ; Clear the pulse 
+ld (Spulse),A       ; flag.
 jp int_sii_rst
 
 int_sii_p:
@@ -435,15 +564,35 @@ ld (mmu_irst),A     ; its interrupt bit and reloads its timer.
 
 int_sii_done:
 
-;
-; Handle the delay and pulse interrupt. 
-;
+; Handle the delay and pulse interrupt, which is generated by 
+; Timer Two. The Sdelay flag tells us if the interrupt marks
+; the end of a delay or the end of a pulse. We either start
+; a pulse or end a pulse.
 
 int_sdp:
 
 ld A,(mmu_irqb)     ; Read the interrupt request bits
 and A,bit1_mask     ; and test bit one,
 jp z,int_sdp_done   ; skip if not delay and pulse interrupt.
+
+ld A,(Sdelay)       ; Check delay flag
+add A,0             ; and if set, end delay and start pulse
+jp z,int_sdp_pulse  ; otherwise end pulse.
+
+int_sdp_delay:
+ld A,(Scurrent)     ; Turn on the 
+ld (mmu_stc),A      ; stimulus current.
+ld A,(Spulse_1)     ; Load timer two
+ld (mmu_i2ph),A     ; with the
+ld A,(Spulse_0)     ; pulse 
+ld (mmu_i2pl),A     ; length.
+ld A,0              ; Clear delay
+ld (Sdelay),A       ; flag.
+ld A,1              ; Set
+ld (Spulse),A       ; pulse flag.
+jp int_sdp_rst
+
+int_sdp_pulse:
 
 ld A,0              ; Stop the
 ld (mmu_stc),A      ; stimulus pulse.
@@ -960,7 +1109,7 @@ ld (Slength_1),A     ; and write to memory.
 call get_cmd_byte    ; Read stimulus length byte zero,
 ld (Slength_0),A     ; and write to memory.
 call get_cmd_byte    ; Read randomization state
-ld (Srandom),A       ; and write to memory.
+ld (Srand),A         ; and write to memory.
 ld A,0x01            ; Set the
 ld (Srun),A          ; stimulus run flag.
 ld A,0               ; Load zero so we can
@@ -1161,32 +1310,6 @@ pop A
 pop F               
 ret                 
 
-; ------------------------------------------------------------
-; The random number generator updates Rand0 and Rand1 with a 
-; sixteen-bit linear feedback shift register.
-
-random:
-
-push F
-push A
-
-ld A,(Rand1)      ; Rotate Rand1 to the right,
-srl A             ; filling top bit with zero,
-ld (Rand1),A      ; and placing bottom bit in carry.
-ld A,(Rand0)      ; Rotate Rand0 to the right,
-rr A              ; filling top bit with carry,
-ld (Rand0),A      ; and placing bottom bit in carry.
-
-ld A,(Rand1)      ; Load A with Rand1 again.
-jp nc,rand_tz     ; If carry is set, perform the XOR
-xor A,rand_taps   ; operation on tap bits and
-ld (Rand1),A      ; save to memory.
-rand_tz:
-
-pop A
-pop F
-ret
-
 
 ; ------------------------------------------------------------
 ; The main program. We begin by initializing the device, which
@@ -1198,21 +1321,6 @@ main:
 ; Initialize the stack pointer.
 ld HL,mmu_sba
 ld SP,HL
-
-; Initialize registers.
-ld A,0
-push A
-pop B
-push A
-pop C
-push A
-pop D
-push A
-pop E
-push A
-pop H
-push A
-pop L
 
 ; Initialize variable locations to zero. This activity also serves
 ; as a boot-up delay to let the power supply settle before we
@@ -1233,14 +1341,16 @@ jp nz,main_var_init_loop
 
 ld A,(mmu_idl)     ; Set the primary channel number to the
 ld (xmit_pcn),A    ; LO byte of the device identifier.
-ld (Rand0),A       ; Seed the random number generator
+ld (rand_0),A      ; Seed the random number generator
 ld A,(mmu_idh)     ; with the LO and HI bytes of the
-ld (Rand1),A       ; device identifier.
+ld (rand_1),A      ; device identifier.
 ld A,255           ; Load the extinguish counter with
 ld (extcnt1),A     ; the maximum sixteen-bit
 ld (extcnt0),A     ; integer, ready to decrement.
 
-; Configure control space registers.
+; Configure control space registers. There are configured correctly
+; after power-up, but if we are re-booting without powering down,
+; we had best make sure they are at their reset values.
 
 ld A,0             ; Make sure the stimulus
 ld (mmu_stc),A     ; current is zero.
