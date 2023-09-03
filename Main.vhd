@@ -60,13 +60,15 @@
 -- identifier and radio-frequency center frequency into VHDL and add locations to allow the
 -- software to read both bytes of the ID. 
 
--- V1.9, 29-AUG-23: Convert command memory into 2-KByte FIFO. This frees up logic with elimination
+-- V1.9, 02-SEP-23: Convert command memory into 2-KByte FIFO. This frees up logic with elimination
 -- of command address. Enable timer interrupts 3 and 4. Expand program memory to 4 KByte, top two
 -- are user-memory. CPU reads command memory through one location and checks empty with its nearly-- empty flag. We configure the nearly empty flag to assert when there are only two bytes left to
 -- read in the FIFO, which means we will leave the checksum bytes in the FIFO automatically. We 
 -- assign first KByte of CPU memory to RAM, second KByte to control registers, and final two KByte 
 -- to user program memory. We expand top_bits to include CPU address 8 and increase bottom bits to 
--- include all lower eight bits. 
+-- include all lower eight bits. Add CPA and CMDRDY to test points. Increase interrupt timers one
+-- and two to sixteen bits and make them reset to zero when we reset the interrupt. This way, we
+-- can force the timer to the stored period value when we reset the interrupt.
 
 
 library ieee;  
@@ -94,7 +96,7 @@ entity main is
 		: out std_logic_vector(4 downto 0));
 
 -- Configuration of Device.
-	constant device_id : integer := 16#0BE6#;
+	constant device_id : integer := 16#286C#;
 	constant frequency_low : integer := 6;
 	
 -- Configuration of OSR8 CPU.
@@ -132,14 +134,16 @@ entity main is
 	constant mmu_bcc  : integer := 16; -- Boost CPU Clock (Write)
 	constant mmu_dfr  : integer := 17; -- Diagnostic Flag Register (Read/Write)
 	constant mmu_sr   : integer := 18; -- Status Register (Read)
-	constant mmu_cmp   : integer := 19; -- Command Memory Portal(Read)
+	constant mmu_cmp  : integer := 19; -- Command Memory Portal(Read)
 	constant mmu_crst : integer := 21; -- Command Processor Reset (Write)
-	constant mmu_it1p : integer := 22; -- Interrupt Timer One Period (Write)
-	constant mmu_it2p : integer := 23; -- Interrupt Timer Two Period (Write)
-	constant mmu_it3p : integer := 24; -- Interrupt Timer Three Period (Write)
-	constant mmu_it4p : integer := 25; -- Interrupt Timer Four Period (Write)
-	constant mmu_idh  : integer := 26; -- Identifier HI Byte (Read)
-	constant mmu_idl  : integer := 27; -- Identifier LO Byte (Read)
+	constant mmu_i1ph : integer := 22; -- Interrupt Timer One Period MSB (Write)
+	constant mmu_i1pl : integer := 23; -- Interrupt Timer One Period LSB (Write)
+	constant mmu_i2ph : integer := 24; -- Interrupt Timer Two Period MSB (Write)
+	constant mmu_i2pl : integer := 25; -- Interrupt Timer Two Period LSB (Write)
+	constant mmu_i3p  : integer := 26; -- Interrupt Timer Three Period MSB (Write)
+	constant mmu_i4p  : integer := 27; -- Interrupt Timer Four Period MSB (Write)
+	constant mmu_idh  : integer := 28; -- Identifier HI Byte (Read)
+	constant mmu_idl  : integer := 29; -- Identifier LO Byte (Read)
 end;
 
 architecture behavior of main is
@@ -222,7 +226,8 @@ architecture behavior of main is
 
 -- Interrupt Handler signals.
 	signal int_mask, int_bits, int_rst, int_set : std_logic_vector(7 downto 0);
-	signal int_period_1, int_period_2, int_period_3, int_period_4 : std_logic_vector(7 downto 0);
+	signal int_period_1, int_period_2 : std_logic_vector(15 downto 0);
+	signal int_period_3, int_period_4 : std_logic_vector(7 downto 0);
 	signal INTZ1, INTZ2, INTZ3, INTZ4 : boolean; -- Interrupt Counter Zero Flag
 	
 -- Byte Receiver
@@ -476,27 +481,29 @@ begin
 			if CPUDS and CPUWR then 
 				if (all_bits >= ctrl_bot) and (all_bits <= ctrl_top) then
 					case bottom_bits is
-						when mmu_scr => SAI <= true;
-						when mmu_xlb => xmit_bits(7 downto 0) <= cpu_data_out;
-						when mmu_xhb => xmit_bits(15 downto 8) <= cpu_data_out;
-						when mmu_xcn => tx_channel <= to_integer(unsigned(cpu_data_out));
-						when mmu_xcr => 
+						when mmu_scr  => SAI <= true;
+						when mmu_xlb  => xmit_bits(7 downto 0) <= cpu_data_out;
+						when mmu_xhb  => xmit_bits(15 downto 8) <= cpu_data_out;
+						when mmu_xcn  => tx_channel <= to_integer(unsigned(cpu_data_out));
+						when mmu_xcr  => 
 							TXI <= (cpu_data_out(0) = '1');
 							TXWP <= (cpu_data_out(1) = '1');
 						when mmu_imsk => int_mask <= cpu_data_out;
 						when mmu_irst => int_rst <= cpu_data_out;
 						when mmu_dact => DACTIVE <= (cpu_data_out(0) = '1');
-						when mmu_stc => stimulus_current <= to_integer(unsigned(cpu_data_out));
-						when mmu_rst => SWRST <= (cpu_data_out(0) = '1');
-						when mmu_etc => ENTCK <= (cpu_data_out(0) = '1');
-						when mmu_tcd => tck_divisor <= to_integer(unsigned(cpu_data_out));
-						when mmu_bcc => BOOST <= (cpu_data_out(0) = '1');
-						when mmu_dfr => df_reg <= cpu_data_out(3 downto 0);
+						when mmu_stc  => stimulus_current <= to_integer(unsigned(cpu_data_out));
+						when mmu_rst  => SWRST <= (cpu_data_out(0) = '1');
+						when mmu_etc  => ENTCK <= (cpu_data_out(0) = '1');
+						when mmu_tcd  => tck_divisor <= to_integer(unsigned(cpu_data_out));
+						when mmu_bcc  => BOOST <= (cpu_data_out(0) = '1');
+						when mmu_dfr  => df_reg <= cpu_data_out(3 downto 0);
 						when mmu_crst => CPRST <= true;
-						when mmu_it1p => int_period_1 <= cpu_data_out;
-						when mmu_it2p => int_period_2 <= cpu_data_out;
-						when mmu_it3p => int_period_3 <= cpu_data_out;
-						when mmu_it4p => int_period_4 <= cpu_data_out;
+						when mmu_i1ph => int_period_1(15 downto 8) <= cpu_data_out;
+						when mmu_i1pl => int_period_1(7 downto 0) <= cpu_data_out;
+						when mmu_i2ph => int_period_2(15 downto 8) <= cpu_data_out;
+						when mmu_i2pl => int_period_2(7 downto 0) <= cpu_data_out;
+						when mmu_i3p  => int_period_3(7 downto 0) <= cpu_data_out;
+						when mmu_i4p  => int_period_4(7 downto 0) <= cpu_data_out;
 					end case;
 				end if;
 			end if;
@@ -580,39 +587,66 @@ begin
 	-- The Interrupt_Controller provides the interrupt signal to the CPU in response to
 	-- sensor and timer events. By default, at power-up, all interrupts are masked.
 	Interrupt_Controller : process (RCK,CK,RESET) is
-	variable counter_1, counter_2, counter_3, counter_4 : integer range 0 to 255;
-	begin
+	variable counter_1, counter_2 : integer range 0 to 65535;
+	variable counter_3, counter_4 : integer range 0 to 255;
+	variable mcnt : integer range 0 to 31;
 	
-		-- The interrupt timers, counting down from their interrupt period to zero 
-		-- running off RCK. We stop a timer by writing a zero to its interrupt period
-		-- register. Otherwise, they never stop counting down, reloading the period
-		-- value and counting down again. The period register should be loaded with 
-		-- the desired interrupt period minus one, because the count-down includes 
-		-- zero. So 0xFF (255) for the register gives a period of 256 RCK periods. 
-		-- We use the falling edge of RCK to count down or else the compiler can become
-		-- confused when generating our delayed zero signal in the next section, where 
-		-- CK is the clock.
-		if (RESET = '1') then
+	begin
+		-- Millisecond counter divides 32.768 kHz by 32 to give 1.024 kHz, period
+		-- is 0.977 ms, which is close enough to one millisecond for our purposes.
+		if falling_edge(RCK) then
+			if mcnt = 31 then
+				mcnt := 0;
+			else
+				mcnt := mcnt + 1;
+			end if;
+		end if;
+	
+		-- The first of two sixteen-bit delay timers, generating interrupt bit zero
+		-- we call it Interrupt Timer One. Counts milliseconds.
+		if (int_rst(0) = '1') then
 			counter_1 := 0;
+		elsif rising_edge(RCK) then
+			if (mcnt = 0) then
+				if (counter_1 = 0) then
+					counter_1 := to_integer(unsigned(int_period_1));
+				else
+					counter_1 := counter_1 - 1;
+				end if;
+			else
+				counter_1 := counter_1;
+			end if;
+		end if;
+
+		-- The second of two sixteen-bit delay timers, generating interrupt bit one
+		-- we call it Interrupt Timer Two. Counts milliseconds.
+		if (int_rst(1) = '1') then
 			counter_2 := 0;
-			counter_3 := 0;
-			counter_4 := 0;
-		elsif falling_edge(RCK) then
-			if (counter_1 = 0) then
-				counter_1 := to_integer(unsigned(int_period_1));
+		elsif rising_edge(RCK) then
+			if (mcnt = 0) then
+				if (counter_2 = 0) then
+					counter_2 := to_integer(unsigned(int_period_2));
+				else
+					counter_2 := counter_2 - 1;
+				end if;
 			else
-				counter_1 := counter_1 - 1;
+				counter_2 := counter_2;
 			end if;
-			if (counter_2 = 0) then
-				counter_2 := to_integer(unsigned(int_period_2));
-			else
-				counter_2 := counter_2 - 1;
-			end if;
+		end if;
+		
+		-- The first of two eight-bit repeating timers, generating interrupt bit two
+		-- we call it Interrupt Timer Three.
+		if rising_edge(RCK) then
 			if (counter_3 = 0) then
 				counter_3 := to_integer(unsigned(int_period_3));
 			else
 				counter_3 := counter_3 - 1;
 			end if;
+		end if;
+
+		-- The second of two eight-bit repeating timers, generating interrupt bit three
+		-- we call it Interrupt Timer Four.
+		if rising_edge(RCK) then
 			if (counter_4 = 0) then
 				counter_4 := to_integer(unsigned(int_period_4));
 			else
@@ -633,8 +667,9 @@ begin
 		elsif rising_edge(CK) then
 		
 			-- The timer one interrupt is set when counter_1 goes from value
-			-- one to value zero, and at no other time. We reset when we write 
-			-- 1 to int_rst(0). The timer generates an interrupt on bit zero.
+			-- one to value zero while this interrupt is enabled by the interrupt
+			-- mask. We reset when we write 1 to int_rst(0). The timer generates 
+			-- an interrupt on bit zero.
 			INTZ1 <= (counter_1 = 0);
 			if (int_rst(0) = '1') then
 				int_bits(0) <= '0';
@@ -1299,8 +1334,7 @@ begin
 -- Test Point Two appears on P4-2.
 	TP2 <= to_std_logic((df_reg(1)='1') or CMDRDY);
 	
--- Test Point Three appears on P4-3 after the programming connector is removed. When
--- we set TP3 to df_reg(2), our code fails.
+-- Test Point Three appears on P4-3 after the programming connector is removed.
 	TP3 <= RCK;
 
 -- Test point Four appears on P4-4 after the programming connector is removed. 

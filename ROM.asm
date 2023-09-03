@@ -3,23 +3,6 @@
 
 ; This code runs in the OSR8V3 microprocessor of the A3041A.
 
-; V1.8: Device ID and radio center frequency now defined in the
-; VHDL code. We read the ID from the control space. No modificatin
-; of this code is required as we move from one IST to the next.
-; Add support for user programs by mapping top kilobyte of program 
-; memory into top kilobyte of CPU memory. Add command interface
-; instruction that writes byte to the program memory. Add another
-; instruction that enables calling the user program as a routine
-; during synch transmission. Move all stimulus current control
-; into the interrupt routine so as to solve accumulating failure 
-; during stimuli with periods less than 15 ms.
-
-; V1.9: Command memory now a FIFO and timer interrupts 3 and 4 are
-; enabled. Use No3 for user program, to execute every 1 ms. 
-; Dedicate 512 Bytes to user memory above 256-byte stack. Even
-; though we have 2 KBytes user program memory, the existing load
-; program instruction can transfer only 256 bytes.
-
 ; CPU Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Main Program Variable Memory
 const mmu_sba  0x0100 ; Stack Base Address
@@ -48,12 +31,14 @@ const mmu_dfr  0x0411 ; Diagnostic Flag Register (Read/Write)
 const mmu_sr   0x0412 ; Status Register (Read)
 const mmu_cmp  0x0413 ; Command Memory Portal (Read)
 const mmu_cpr  0x0415 ; Command Processor Reset (Write)
-const mmu_it1p 0x0416 ; Interrupt Timer One Period (Write)
-const mmu_it2p 0x0417 ; Interrupt Timer Two Period (Write)
-const mmu_it3p 0x0418 ; Interrupt Timer Three Period (Write)
-const mmu_it4p 0x0419 ; Interrupt Timer Four Period (Write)
-const mmu_idh  0x041A ; Device ID HI (Read)
-const mmu_idl  0x041B ; Device ID LO (Read)
+const mmu_i1ph 0x0416 ; Interrupt Timer One Period HI (Write)
+const mmu_i1pl 0x0417 ; Interrupt Timer One Period LO (Write)
+const mmu_i2ph 0x0418 ; Interrupt Timer Two Period HI (Write)
+const mmu_i2pl 0x0419 ; Interrupt Timer Two Period LO (Write)
+const mmu_i3p  0x041A ; Interrupt Timer Three Period (Write)
+const mmu_i4p  0x041B ; Interrupt Timer Four Period (Write)
+const mmu_idh  0x041C ; Device ID HI (Read)
+const mmu_idl  0x041D ; Device ID LO (Read)
 
 ; Status Bit Masks, for use with status register
 const sr_cmdrdy  0x01 ; Command Ready Flag
@@ -89,35 +74,28 @@ const sa_delay      30  ; Wait time for sensor access, TCK periods
 const wp_delay     255  ; Warm-up delay for auxiliary messages
 const num_vars      64  ; Number of vars to clear at start
 const initial_tcd   15  ; Max possible value of TCK divisor
-const stim_tick     33  ; Stimulus interrupt period
-const uprog_tick    33  ; User program interrupt period
+const uprog_tick   165  ; User program interrupt period
 const id_delay      33  ; To pad id delay to 50 TCK periods
 const min_int_p     25  ; Minimum transmit period
 const ext_tick       1  ; Decrement to extinguish counter
 
 ; Stimulus Control Variables
 const Scurrent    0x0000 ; Stimulus Current
-const Spulse_1    0x0001 ; Pulse Length, HI
-const Spulse_0    0x0002 ; Pulse Length, LO
-const Sinterval_2 0x0003 ; Interval Length, HI
-const Sinterval_1 0x0004 ; Interval Length, MID
-const Sinterval_0 0x0005 ; Interval Length, LO
-const Slength_1   0x0006 ; Stimulus Length, HI
-const Slength_0   0x0007 ; Stimulus Length, LO
-const Srandomize  0x0008 ; Randomise
-const Srun        0x0009 ; Run stimulus
-const Sprun       0x000A ; Stimulus Pulse Run Flag
-const Sack_key    0x000B ; Acknowledgement key
-const Spcnt1      0x000C ; Stimulus Pulse Counter Byte One
-const Spcnt0      0x000D ; Stimulus Pulse Counter Byte Zero
-const Sicnt2      0x000E ; Stimulus Interval Counter Byte Two
-const Sicnt1      0x000F ; Stimulus Interval Counter Byte One
-const Sicnt0      0x0010 ; Stimulus Interval Counter Byte Zero
-const Sistart     0x0011 ; Stimulus Interval Start
-const Sdly2       0x0012 ; Stimulus Delay Byte Two
-const Sdly1       0x0013 ; Stimulus Delay Byte One
-const Sdly0       0x0014 ; Stimulus Delay Byte Zero
-const Sdrun       0x0015 ; Stimulus Delay Run Flag
+const Spulse1     0x0001 ; Pulse Length, HI
+const Spulse0     0x0002 ; Pulse Length, LO
+const Sint1       0x0003 ; Interval Length, HI
+const Sint0       0x0004 ; Interval Length, LO
+const Slen1       0x0005 ; Stimulus Length, HI
+const Slen0       0x0006 ; Stimulus Length, LO
+const Srand       0x0007 ; Random pulse timing
+const Srun        0x0008 ; Run stimulus
+const Spulse      0x0009 ; Stimulus Pulse Run Flag
+const Sack_key    0x000A ; Acknowledgement key
+const Sdly1       0x000B ; Stimulus Delay Byte One
+const Sdly0       0x000C ; Stimulus Delay Byte Zero
+const Sdelay      0x000D ; Stimulus Delay Run Flag
+const Smaxdly1    0x000E ; Max Delay, HI
+const Smaxdly0    0x000F ; Max Delay, LO
 
 ; Command Decode Variables
 const ccmdb       0x0016 ; Copy of Command Byte
@@ -127,8 +105,8 @@ const extcnt1     0x0019 ; Counter Byte One
 const extcnt0     0x001A ; Counter Byte Zero
 
 ; Random Number Variabls
-const Rand1       0x0020 ; Random Number Byte One
-const Rand0       0x0021 ; Random Number Byte Zero
+const rand_1      0x0020 ; Random Number Byte One
+const rand_0      0x0021 ; Random Number Byte Zero
 
 ; User Program Control Variables
 const UPrun       0x0022 ; Running
@@ -141,14 +119,6 @@ const xmit_pcn    0x0029 ; Primary Channel Number
 ; User Program Constants
 const prog_usr    0x0800 ; User program location
 const ret_code      0x0A ; Return from subrouting instruction
-
-; Scratch Pad Variables
-const scratch1    0x0040 ; Scratchpad Variable 1
-const scratch2    0x0041 ; Scratchpad Variable 2
-const scratch3    0x0042 ; Scratchpad Variable 3
-const scratch4    0x0043 ; Scratchpad Variable 4
-const scratch5    0x0044 ; Scratchpad Variable 5
-const scratch6    0x0045 ; Scratchpad Variable 6
 
 ; Operation Codes
 const op_stop_stim   0 ; 0 operands
@@ -274,6 +244,123 @@ pop F
 ret
 
 ; ------------------------------------------------------------
+; The random number generator updates rand_0 and rand_1 with a 
+; sixteen-bit linear feedback shift register.
+
+rand:
+
+push F
+push A
+
+ld A,(rand_1)     ; Rotate rand_1 to the right,
+srl A             ; filling top bit with zero,
+ld (rand_1),A     ; and placing bottom bit in carry.
+ld A,(rand_0)     ; Rotate rand_0 to the right,
+rr A              ; filling top bit with carry,
+ld (rand_0),A     ; and placing bottom bit in carry.
+
+ld A,(rand_1)     ; Load A with rand_1 again.
+jp nc,rand_tz     ; If carry is set, perform the XOR
+xor A,rand_taps   ; operation on tap bits and
+ld (rand_1),A     ; save to memory.
+rand_tz:
+
+pop A
+pop F
+ret
+
+; ------------------------------------------------------------
+; Generate a number that we can use to delay a pulse within a
+; stimulus interval. The minimum delay is zero and the maximum
+; is the interval length minus the pulse length. We write the 
+; delay bytes to Sdly0 and Sdly1.
+;
+
+rand_dly:
+
+push F
+push A
+push B
+push C
+push D
+push E
+push H
+push L
+
+; Copy the stimulus interval length into the scratch pad
+; and subtract the pulse length. The result is our maximum 
+; delay for randomized pulses. If this value is negative, 
+; set to zero.
+
+ld A,(Spulse0)       ; Load pulse length byte
+push A               ; zero into B
+pop B                ; and interval length
+ld A,(Sint0)         ; byte zero into A.
+sub A,B              ; Subtract to get
+ld (Smaxdly0),A      ; max delay byte zero.
+ld A,(Spulse1)       ; Load pulse length
+push A               ; byte one into 
+pop B                ; B and
+ld A,(Sint1)         ; interval lengt byte one
+sbc A,B              ; into A and subtract with
+ld (Smaxdly1),A      ; carry to get max delay byte one.
+jp nc,rand_delay_ds  ; If not negative, move on.
+ld A,0               ; Otherwise
+ld (Sdly1),A         ; set delay to 
+ld (Sdly0),A         ; zero.
+jp rand_delay_done
+rand_delay_ds:
+
+; Get a random number and place it in D. This is one of our
+; product terms. The other is the maximum delay for randomized
+; pulses, which is currently in the scratch pad.
+
+call rand           ; Update the random number.
+ld A,(rand_0)       ; Load the random number
+push A              ; and move to B
+pop B               ; for multiplication.
+push A              ; Also store in D for 
+pop D               ; later.
+
+; Multiply the maximum delay by the random number and store the
+; top two bytes of the twenty-four bit product in D and E.
+
+ld A,(Smaxdly0)     ; Load LO byte zero of max delay
+push A              ; and place in C for
+pop C               ; multiplication.
+call multiply       ; Let BC := B * C.
+push B              ; Store HI byte in E for later.
+pop E               ; Won't be using LO byte.
+push D              ; Bring back our random
+pop B               ; number.
+ld A,(Smaxdly1)     ; Put byte one of max delay
+push A              ; in C
+pop C               ; for multiplication
+call multiply       ; Let BC := B * C.
+push B              ; The HI byte is our random
+pop A               ; delay byte one, so store
+ld (Sdly1),A        ; now in timer byte one.
+push C              ; Move LO byte from     
+pop B               ; C to B. 
+push E              ; Move HI byte of first product
+pop A               ; from E to A.
+add A,B             ; Add bytes, never generates carry.
+ld (Sdly0),A        ; Put delay byte zero in timer.
+
+rand_delay_done:
+
+pop L
+pop H
+pop E
+pop D
+pop C
+pop B
+pop A 
+pop F
+ret                
+
+
+; ------------------------------------------------------------
 ; Calibrate the transmit clock frequency. We take the CPU out
 ; of boost, turn off the transmit clock, and repeat a cycle of
 ; setting the transmit clock divisor and running the transmit
@@ -351,6 +438,8 @@ push D
 push E
 push H
 push L
+push IX
+push IY
 
 ; Handle the user program interrupt, in which we call the user program
 ; and allow it to execute and return. Because we just pushed all the
@@ -374,89 +463,139 @@ call prog_usr       ; Call the user program.
 
 int_uprog_done:
 
-; Handle the stimulus interrupt, if it exists. We decrement the stimulus
-; interval counter and the stimulus pulse counter and set the stimulus 
-; interval start and stimulus pulse run flags for the main program to use.
+; Handle the stimulus interval interrupt. We decrement the stimulus
+; interval counter. We start a delay or a pulse using interrupt timer
+; two. We set and clear the stimulus delay, pulse, and run flags. The
+; first interval of a stimulus should start immediately after reception
+; of command, so the initial value of the interrupt period is one. We
+; correct this value in the handler.
 
-int_stim:
+int_sii:
+
+ld A,(mmu_irqb)     ; Read the interrupt request bits
+and A,bit0_mask     ; and test bit zero.
+jp z,int_sii_done   ; If not set, skip this interrupt.
+
+ld A,(Srun)         ; Check the Srun flag. 
+add A,0             ; If it's been cleared,
+jp z,int_sii_done   ; we do nothing.
+
+ld A,(Sint1)        ; Set the stimulus interval delay to
+ld (mmu_i1ph),A     ; the value specified by the most 
+ld A,(Sint0)        ; recent command, or adapt to value written
+ld (mmu_i1pl),A     ; by user program to interval length locations.
+
+ld A,(Slen0)        ; Load LO byte of stimulus length counter.
+sub A,1             ; decrement
+ld (Slen0),A        ; save,
+ld A,(Slen1)        ; Load HI byte,
+sbc A,0             ; apply carry bit
+ld (Slen1),A        ; and save.
+jp nc,int_sii_do    ; If >=0, start a delay or a pulse.
+
+ld A,0              ; If <0, 
+ld (mmu_stc),A      ; turn off the stimulus current.
+ld (Srun),A         ; Clear the Srun,
+ld (Spulse),A       ; Spulse,
+ld (Sdelay),A       ; and Sdelay flags.
+ld (mmu_i1ph),A     ; Disable the interrupt
+ld (mmu_i1pl),A     ; timer.
+ld A,(mmu_imsk)     ; Mask the the 
+and A,bit0_clr      ; timer
+ld (mmu_imsk),A     ; interrupt.
+jp int_sii_rst
+
+int_sii_do:
+ld A,(Srand)        ; Check the random flag
+add A,0             ; and if zero, start pulse
+jp z,int_sii_p      ; otherwise start delay.
+
+int_sii_r:
+call rand_dly       ; Get a random Sdly.
+ld A,(Sdly0)        ; Fetch delay 
+ld (mmu_i2pl),A     ; bytes from Sdly.
+ld A,(Sdly1)        ; Write them to
+ld (mmu_i2ph),A     ; Timer Two period.
+ld A,1              ; Set the
+ld (Sdelay),A       ; delay flag.
+ld A,0              ; Clear the
+ld (Spulse),A       ; pulse flag.
+ld (mmu_stc),A      ; Turn off the stimulus.
+ld A,(mmu_imsk)     ; Unmask
+or A,bit1_mask      ; Timer Two
+ld (mmu_imsk),A     ; interrupt.
+ld A,bit1_mask      ; Reset
+ld (mmu_irst),A     ; Timer Two.
+jp int_sii_rst
+
+int_sii_p:
+ld A,1              ; Set the
+ld (Spulse),A       ; pulse flag.
+ld A,0              ; Clear the delay
+ld (Sdelay),A       ; flag.
+ld A,(Scurrent)     ; Load stimulus current and
+ld (mmu_stc),A      ; turn on the stimulus.
+ld A,(Spulse1)      ; Set interrupt timer 
+ld (mmu_i2ph),A     ; two period to the
+ld A,(Spulse0)      ; pulse
+ld (mmu_i2pl),A     ; length.
+ld A,(mmu_imsk)     ; Unmask 
+or A,bit1_mask      ; Timer Two
+ld (mmu_imsk),A     ; interrupt.
+ld A,bit1_mask      ; Reset
+ld (mmu_irst),A     ; Timer Two
+jp int_sii_rst
+
+int_sii_rst:
+ld A,bit0_mask      ; Reset interrupt timer one, which clears
+ld (mmu_irst),A     ; its interrupt bit and reloads its timer.
+
+int_sii_done:
+
+; Handle the delay and pulse interrupt, which is generated by 
+; Timer Two. The Sdelay flag tells us if the interrupt marks
+; the end of a delay or the end of a pulse. We either start
+; a pulse or end a pulse.
+
+int_sdp:
 
 ld A,(mmu_irqb)     ; Read the interrupt request bits
 and A,bit1_mask     ; and test bit one,
-jp z,int_stim_done  ; skip this is not the stimulus interrupt.
+jp z,int_sdp_done   ; skip if not delay and pulse interrupt.
 
-ld A,bit1_mask      ; Reset this interrupt
-ld (mmu_irst),A     ; with the bit one mask.
+ld A,(Sdelay)       ; Check delay flag
+add A,0             ; and if set, end delay and start pulse
+jp z,int_sdp_pulse  ; otherwise end pulse.
 
-ld A,(Sicnt0)       ; Load stimulus count byte zero,
-sub A,stim_tick     ; decremement by the stimulus tick,
-ld (Sicnt0),A       ; and write to memory.
-ld A,(Sicnt1)       ; Load byte one,
-sbc A,0             ; continue subtraction with carry,
-ld (Sicnt1),A       ; and write to memory.
-ld A,(Sicnt2)       ; Load byte two,
-sbc A,0             ; continue subtraction with carry,
-ld (Sicnt2),A       ; and write to memory.
-jp nc,int_Spulse    ; If the result is >=0, jump,
-ld A,1              ; but if <0, set Sistart and
-ld (Sistart),A      ; reload stimulus counter.
+int_sdp_delay:
+ld A,(Scurrent)     ; Turn on the 
+ld (mmu_stc),A      ; stimulus current.
+ld A,(Spulse1)      ; Load timer two
+ld (mmu_i2ph),A     ; with the
+ld A,(Spulse0)      ; pulse 
+ld (mmu_i2pl),A     ; length.
+ld A,0              ; Clear the
+ld (Sdelay),A       ; delay flag.
+ld A,1              ; Set the
+ld (Spulse),A       ; pulse flag.
+jp int_sdp_rst
 
-ld A,(Sinterval_0)  ; Add the stimulus interval
-push A              ; to the stimulus counter.
-pop B               ; Start with byte zero.
-ld A,(Sicnt0)       
-add A,B             
-ld (Sicnt0),A      
-ld A,(Sinterval_1)  ; Then byte one. We add with carry
-push A              ; to account for overflow from the
-pop B               ; first byte.
-ld A,(Sicnt1)
-adc A,B
-ld (Sicnt1),A
-ld A,(Sinterval_2)  ; And byte two. If this addition 
-push A              ; overflows, that's because we are
-pop B               ; adding to a negative number and
-ld A,(Sicnt2)       ; restoring a positive number.
-adc A,B
-ld (Sicnt2),A
+int_sdp_pulse:
+ld A,0              ; Stop the
+ld (mmu_stc),A      ; stimulus pulse.
+ld (Spulse),A       ; Clear pulse flag.
+ld (Sdelay),A       ; And the delay flag.
+ld (mmu_i2ph),A     ; Disable the timer two
+ld (mmu_i2pl),A     ; interrupt.
+ld A,(mmu_imsk)     ; Mask 
+and A,bit1_clr      ; interrupt
+ld (mmu_imsk),A     ; two.
 
-int_Spulse:
-ld A,(Sprun)        ; Check the stimulus pulse flag
-add A,0             ; and if it is zero,
-jp z,int_Sdly       ; jump forward to stimulus delay check.
-ld A,(Scurrent)     ; Turn on the stimulus current, or just
-ld (mmu_stc),A      ; make sure it is turned on.
-ld A,(Spcnt0)       ; Load stimulus pulse counter byte zero,
-sub A,stim_tick     ; subtract the stimulus tick,
-ld (Spcnt0),A       ; and write the result to memory.
-ld A,(Spcnt1)       ; Load counter byte one,
-sbc A,0             ; continue subtraction with carry,
-ld (Spcnt1),A       ; and write to memory.
-jp nc,int_stim_done ; If result >=0, done with interrupt,
-ld A,0              ; but if <0,
-ld (mmu_stc),A      ; turn off the stimulus current,
-ld (Sprun),A        ; clear the pulse flag and now
-jp int_stim_done    ; we are done with this interrupt.
+int_sdp_rst:
+ld A,bit1_mask      ; Reset Timer Two, which loads the
+ld (mmu_irst),A     ; the current period into its counter.
 
-int_Sdly:
-ld A,(Sdrun)        ; If the stimulus delay flag is
-add A,0             ; set, we decrement delay counter,
-jp z,int_stim_done  ; otherwise done with this interrupt.
-ld A,(Sdly0)        ; Load the counter zero byte,
-sub A,stim_tick     ; subtract the stimulus tick
-ld (Sdly0),A        ; and write result to memory.
-ld A,(Sdly1)        ; Extend the 
-sbc A,0             ; subtraction
-ld (Sdly1),A        ; all the
-ld A,(Sdly2)        ; way up
-sbc A,0             ; through the second
-ld (Sdly2),A        ; delay byte.
-jp nc,int_stim_done ; If counter positive, done with this interrupt.
-ld A,0              ; But if negative,
-ld (Sdrun),A        ; clear the delay flag,
-ld A,1              ; set the pulse flag
-ld (Sprun),A        ; and we are done with this interrupt.
-
-int_stim_done:
+int_sdp_done:
 
 ; Handle the transmit interrupt, if it exists. We transmit a synchronizing signal.
 ; We won't wait for the transmission to complete because we are certain to follow 
@@ -465,16 +604,16 @@ int_stim_done:
 int_xmit:
 
 ld A,(mmu_irqb)     ; Read the interrupt request bits
-and A,bit0_mask     ; and test bit zero,
+and A,bit3_mask     ; and test bit three,
 jp z,int_xmit_done  ; skip transmit if not set.
 
-ld A,bit0_mask      ; Reset this interrupt
-ld (mmu_irst),A     ; with the bit zero mask.
+ld A,bit3_mask      ; Reset this interrupt
+ld (mmu_irst),A     ; with the bit three mask.
 
 ld A,(xmit_pcn)     ; Load A with primary channel number
 ld (mmu_xcn),A      ; and write the transmit channel register.
 
-; If a not Srun, we will transmit synch_nostim. If Srun but not Sprun,
+; If a not Srun, we will transmit synch_nostim. If Srun but not Spulse,
 ; we transmit synch_stim. If Srun we transmit synch_stim + 8*Scurrent.
 ; Regardless, the lower byte we transmit will be zero.
 
@@ -490,8 +629,8 @@ ld (mmu_xhb),A      ; write to transmit HI register.
 jp int_xmit_rdy   
 
 int_xmit_stim:
-ld A,(Sprun)        ; Load A with Sprun
-add A,0             ; check value, jump if set.
+ld A,(Spulse)        ; Load A with Spulse
+add A,0              ; check value, jump if set.
 jp nz,int_xmit_pulse
 
 ld A,synch_stim     ; Load A with synch_stim and
@@ -517,6 +656,8 @@ int_xmit_done:
 ; from interrupt.
 
 int_done:
+pop IY
+pop IX
 pop L
 pop H
 pop E
@@ -920,12 +1061,14 @@ check_stop_stim:
 ld A,(ccmdb)
 sub A,op_stop_stim
 jp nz,check_stop_stim_end
-ld A,0
-ld (Srun),A
-ld (mmu_stc),A
-ld A,(mmu_imsk)
-and A,bit1_clr
-ld (mmu_imsk),A
+ld A,0                ; Clear
+ld (Srun),A           ; run flag
+ld (mmu_stc),A        ; stop stimulus
+ld (mmu_i1ph),A       ; and disable the
+ld (mmu_i1pl),A       ; timer one interrupt.
+ld A,(mmu_imsk)       ; Mask
+and A,bit0_clr        ; interrupt one
+ld (mmu_imsk),A       ; to stop stimulus.
 jp cmd_loop
 check_stop_stim_end:
 
@@ -936,38 +1079,34 @@ ld A,(ccmdb)
 sub A,op_start_stim
 jp nz,check_start_stim_end
 call get_cmd_byte    ; Read stimulus current.
-ld (Scurrent),A
-call get_cmd_byte    ; Read pulse length byte one.
-ld (Spulse_1),A
-call get_cmd_byte    ; Read pulse length byte zero.
-ld (Spulse_0),A
-call get_cmd_byte    ; Read interval length byte two.
-ld (Sinterval_2),A
-call get_cmd_byte    ; Read interval length byte one.
-ld (Sinterval_1),A
-call get_cmd_byte    ; Read interval length byte zero.
-ld (Sinterval_0),A
-call get_cmd_byte    ; Read stimulus length byte one.
-ld (Slength_1),A
-call get_cmd_byte    ; Read stimulus length byte zero.
-ld (Slength_0),A
-call get_cmd_byte    ; Read randomization state
-ld (Srandomize),A    ; and write to memory.
+ld (Scurrent),A      ; and store in memory.
+call get_cmd_byte    ; Read pulse length byte one
+ld (Spulse1),A       ; and store to memory.
+call get_cmd_byte    ; Read pulse length byte zero
+ld (Spulse0),A       ; and store in memory.
+call get_cmd_byte    ; Read interval length byte one,
+ld (Sint1),A         ; store in memory.
+call get_cmd_byte    ; Read interval length byte zero,
+ld (Sint0),A         ; store in memory,
+call get_cmd_byte    ; Read stimulus length byte one,
+ld (Slen1),A         ; and write to memory.
+call get_cmd_byte    ; Read stimulus length byte zero,
+ld (Slen0),A         ; and write to memory.
+call get_cmd_byte    ; Read randomization byte
+ld (Srand),A         ; and write to memory.
 ld A,0x01            ; Set the
-ld (Srun),A          ; stimulus run
-ld (Sistart),A       ; and stimulus interval start flags.
-ld A,0               ; Load zero so we can
-ld (Sicnt0),A        ; set the stimulus interval
-ld (Sicnt1),A        ; counter to
-ld (Sicnt2),A        ; zero.
-ld (Sprun),A         ; Clear the pulse run flag
-ld (Sdrun),A         ; and the delay flag.  
-ld A,stim_tick       ; Set stimulus interrupt period by loading
-dec A                ; the period, subtracting one, and writing
-ld (mmu_it2p),A      ; to the timer register.
+ld (Srun),A          ; stimulus run flag.
+ld A,0               ; Clear the 
+ld (Spulse),A        ; pulse and
+ld (Sdelay),A        ; delay flags.  
+ld (mmu_i1ph),A      ; Set the Timer One period to
+ld A,1               ; one, so that our first interval
+ld (mmu_i1pl),A      ; will begin within a millisecond.
+ld A,bit0_mask       ; Reset Timer One interrupt to load
+ld (mmu_irst),A      ; our value of one into its counter.
 ld A,(mmu_imsk)      ; Load the interrupt mask and
-or A,bit1_mask       ; set bit one to enable the
-ld (mmu_imsk),A      ; stimulus interrupt.
+or A,bit0_mask       ; set bit zero to enable
+ld (mmu_imsk),A      ; interrupt timer one.
 jp cmd_loop
 check_start_stim_end:
 
@@ -981,19 +1120,19 @@ call get_cmd_byte    ; Read xmit period minus one.
 sub A,min_int_p      ; Subtract the minimum period.
 jp c,xmit_disable    ; If result negative, disable xmit.
 ld A,(ccmdb)         ; Load the period again,
-ld (xmit_p),A        ; save to memory
-ld (mmu_it1p),A      ; and write to interrupt timer period.
-ld A,(mmu_imsk)      ; Enable xmit
-or A,bit0_mask       ; interrupt
-ld (mmu_imsk),A      ; with mask.
+ld (xmit_p),A        ; save to memory and write to
+ld (mmu_i4p),A       ; interrupt timer four period.
+ld A,(mmu_imsk)      ; Enable interrupt timer four
+or A,bit3_mask       ; with bit three of interrupt
+ld (mmu_imsk),A      ; mask.
 jp cmd_loop      
 xmit_disable:      
 ld A,0               ; Set the xmit period to zero
-ld (xmit_p),A        ; in memory
-ld (mmu_it1p),A      ; and the interrupt handler.
-ld A,(mmu_imsk)      ; Disable
-and A,bit0_clr       ; the xmit interrupt
-ld (mmu_imsk),A      ; with mask.
+ld (xmit_p),A        ; in memory, which acts as a flag.
+ld (mmu_i4p),A       ; Disable timer interrupt.
+ld A,(mmu_imsk)      ; Mask timer interrupt
+and A,bit3_clr       ; with bit three of
+ld (mmu_imsk),A      ; interrupt mask.
 jp cmd_loop
 check_xmit_end:
 
@@ -1065,7 +1204,7 @@ sub A,op_ldprog
 jp nz,check_ldprog_end
 call get_cmd_byte  ; Get the number of program bytes.
 add A,0            ; If number of bytes is zero,
-jp z,cmd_loop  ; we are done with this instruction.
+jp z,cmd_loop      ; we are done with this instruction.
 push A             ; Otherwise, use B to count the
 pop B              ; program bytes.
 load_prog:        
@@ -1077,10 +1216,11 @@ jp nz,load_prog    ; read another byte.
 ld A,0x01          ; Otherwise, we set the
 ld (UPrun),A       ; user program flag to keep the device awake.
 ld (UPinit),A      ; Clear the user program initialization flag.
-ld (mmu_it3p),A    ; Turn off the user program interrupt timer.
-ld A,(mmu_imsk)    ; Disable the
-and A,bit2_clr     ; user program
-ld (mmu_imsk),A    ; interrupt.
+ld A,0             ; Load interrupt three timer with zero
+ld (mmu_i3p),A     ; to disable the interrupt.
+ld A,(mmu_imsk)    ; Mask interrupt number
+and A,bit2_clr     ; three with bit two in the 
+ld (mmu_imsk),A    ; interrupt mask.
 jp cmd_loop        ; We are done with this instruction.
 check_ldprog_end:
 
@@ -1092,26 +1232,27 @@ check_enprog:
 ld A,(ccmdb)
 sub A,op_enprog
 jp nz,check_enprog_end
-call get_cmd_byte       
-and A,bit0_mask  
+call get_cmd_byte       ; Read the enable value
+and A,bit0_mask         ; and check.
 jp z,cmd_disable_prog
-ld A,0x01
-ld (UPrun),A
-ld (UPinit),A
-ld A,uprog_tick
-ld (mmu_it3p),A
-ld A,(mmu_imsk)   
-or A,bit2_mask  
-ld (mmu_imsk),A             
+ld A,0x01               ; If true,
+ld (UPrun),A            ; set user program run flag
+ld (UPinit),A           ; and user program initialization flag.
+ld A,uprog_tick         ; Set interrupt timer three to 
+ld (mmu_i3p),A          ; the uprog_tick period
+ld A,(mmu_imsk)         ; and enable interrupt timer
+or A,bit2_mask          ; three with bit two of 
+ld (mmu_imsk),A         ; the interrupt mask.
 jp cmd_loop
-cmd_disable_prog:
-ld A,0x00
-ld (UPrun),A
-ld (UPinit),A
-ld (mmu_it3p),A
-ld A,(mmu_imsk)   
-and A,bit2_clr 
-ld (mmu_imsk),A             
+cmd_disable_prog:    
+ld A,0x00               ; If false,
+ld (UPrun),A            ; clear run flag
+ld (UPinit),A           ; and initialization flag.
+ld A,0                  ; Load interrupt three timer with zero
+ld (mmu_i3p),A          ; to disable the interrupt.
+ld A,(mmu_imsk)         ; Mask interrupt timer three
+and A,bit2_clr          ; with bit
+ld (mmu_imsk),A         ; two of interrupt mask
 jp cmd_loop
 check_enprog_end:
 
@@ -1122,8 +1263,8 @@ check_rstpp:
 ld A,(ccmdb)
 sub A,op_rstpp
 jp nz,check_rstpp_end
-ld IY,mmu_prog
-jp cmd_loop
+ld IY,mmu_prog          ; Load IY with the base of
+jp cmd_loop             ; user program memory.
 check_rstpp_end:
 
 ; If we get here, the opcode is not valid, so abandon the command.
@@ -1157,179 +1298,6 @@ ld (mmu_etc),A
 pop A               
 pop F               
 ret                 
-
-; ------------------------------------------------------------
-; The random number generator updates Rand0 and Rand1 with a 
-; sixteen-bit linear feedback shift register.
-
-random:
-
-push F
-push A
-
-ld A,(Rand1)      ; Rotate Rand1 to the right,
-srl A             ; filling top bit with zero,
-ld (Rand1),A      ; and placing bottom bit in carry.
-ld A,(Rand0)      ; Rotate Rand0 to the right,
-rr A              ; filling top bit with carry,
-ld (Rand0),A      ; and placing bottom bit in carry.
-
-ld A,(Rand1)      ; Load A with Rand1 again.
-jp nc,rand_tz     ; If carry is set, perform the XOR
-xor A,rand_taps   ; operation on tap bits and
-ld (Rand1),A      ; save to memory.
-rand_tz:
-
-pop A
-pop F
-ret
-
-
-; ------------------------------------------------------------
-; Initiate a pulse, leaving the termination of the pulse to the
-; interrupt routine. A pulse consists of a delay, light turning
-; on, another delay, and the light turning off.
-
-start_pulse:
-
-push F
-push A
-
-; Disable interrupts so we can boost the CPU and read the
-; interval counter without risking the interrupt routine
-; changing its value while we are reading.
-
-seti
-ld A,0x01           ; Set bit zero to one.
-ld (mmu_etc),A      ; Enable the transmit clock, TCK.
-ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
-
-; Push registers onto the stack.
-
-push B
-push C
-push D
-push E
-push H
-push L
-
-; Refresh the pulse counter.
-
-ld A,(Spulse_0)   
-ld (Spcnt0),A   
-ld A,(Spulse_1)  
-ld (Spcnt1),A  
-
-; Check the randomize flag.
-
-pulse_check_rand:
-ld A,(Srandomize)
-add A,0
-jp z,stp_nr
-
-; Copy the stimulus interval length into the scratch pad
-; and subtract the pulse length. The result is our maximum 
-; delay for randomized pulses.
-
-ld A,(Spulse_0)
-push A
-pop B
-ld A,(Sinterval_0)
-sub A,B
-ld (scratch1),A
-ld A,(Spulse_1)
-push A
-pop B
-ld A,(Sinterval_1)
-sbc A,B
-ld (scratch2),A
-ld A,(Sinterval_2)
-sbc A,0
-ld (scratch3),A
-
-; Get a random number and place it in D. This is one of our
-; product terms. The other is the maximum delay for randomizede
-; pulses, which is currently in the scratch pad.
-
-call random         ; Update the random number.
-ld A,(Rand0)        ; Load the random number
-push A              ; and move to B
-pop B               ; for multiplication.
-push A              ; Also store in D for 
-pop D               ; later.
-
-; Multiply the maximum delay by the random number and
-; store that top three bytes of the thirty-two bit product
-; in the stimulus delay register.
-
-ld A,(scratch1)     ; Load LO byte of max delay
-push A              ; and place in C for
-pop C               ; multiplication.
-call multiply       ; Let BC := B * C.
-push B              ; Store B (first carry byte) in
-pop E               ; E for later.
-push D              ; Bring back our random
-pop B               ; number
-ld A,(scratch2)     ; and put MID byte of max delay
-push A              ; in
-pop C               ; C for multiplication
-call multiply       ; Let BC := B * C.
-push B              ; Store B (second carry byte) in
-pop H               ; H for later.
-push C              ; Move C (product byte two)          
-pop B               ; to B.
-push E              ; Bring first carry out
-pop A               ; of E and
-add A,B             ; add to obtain delay byte zero,
-ld (Sdly0),A        ; this addition never generates a carry.
-push D              ; Bring back our random
-pop B               ; number
-ld A,(scratch3)     ; and put HI byte of max delay
-push A              ; in
-pop C               ; C for multiplication
-call multiply       ; Let BC := B * C.
-push B              ; Store B (third carry byte) in
-pop E               ; E for later.
-push C              ; Move C (product byte three)
-pop B               ; to B.
-push H              ; Bring second carry out
-pop A               ; of H and
-add A,B             ; add to obtain delay byte one,
-ld (Sdly1),A        ; this addition never generates a carry.
-push E              ; Bring back third carry byte
-pop A               ; and use as
-ld (Sdly2),A        ; delay byte two.
-
-; Set the delay run flag, make sure pulse run is clear.
-
-ld A,1
-ld (Sdrun),A
-ld A,0
-ld (Sprun),A
-jp stp_done
-
-; Without randomization, we start the pulse right away.
-
-stp_nr:
-ld A,1              ; Set the
-ld (Sprun),A        ; pulse run flag.
-ld A,0              ; Clear the
-ld (Sdrun),A        ; delay run flag.
-
-stp_done:
-
-pop L
-pop H
-pop E
-pop D
-pop C
-pop B
-ld A,0x00           ; Load a zero and use it to
-ld (mmu_bcc),A      ; move CPU out of boost and
-ld (mmu_etc),A      ; stop the transmit clock.
-pop A 
-pop F
-ret                 ; return.
 
 ; ------------------------------------------------------------
 ; The main program. We begin by initializing the device, which
@@ -1376,9 +1344,9 @@ jp nz,main_var_init_loop
 
 ld A,(mmu_idl)     ; Set the primary channel number to the
 ld (xmit_pcn),A    ; LO byte of the device identifier.
-ld (Rand0),A       ; Seed the random number generator
+ld (rand_0),A      ; Seed the random number generator
 ld A,(mmu_idh)     ; with the LO and HI bytes of the
-ld (Rand1),A       ; device identifier.
+ld (rand_1),A      ; device identifier.
 ld A,255           ; Load the extinguish counter with
 ld (extcnt1),A     ; the maximum sixteen-bit
 ld (extcnt0),A     ; integer, ready to decrement.
@@ -1388,8 +1356,13 @@ ld (extcnt0),A     ; integer, ready to decrement.
 ld A,0             ; Make sure the stimulus
 ld (mmu_stc),A     ; current is zero.
 ld (mmu_dfr),A     ; Set the diagnostic flags to zero.
-ld A,0x00          ; Load zeros
-ld (mmu_imsk),A    ; and disable all interrupts.
+ld (mmu_i1ph),A    ; Set all the 
+ld (mmu_i1pl),A    ; interrupt timer
+ld (mmu_i2ph),A    ; periods to zero,
+ld (mmu_i2pl),A    ; which disables
+ld (mmu_i3p),A     ; their interrupt
+ld (mmu_i4p),A     ; generation.
+ld (mmu_imsk),A    ; Mask all interrupts.
 ld A,0xFF          ; Load A with ones
 ld (mmu_irst),A    ; and reset all interrupts.
 
@@ -1407,13 +1380,18 @@ call calibrate_tck
 
 main_loop:
 
+; Deal with any pending commands.
+
+ld A,(mmu_sr)       ; Fetch status register.
+and A,sr_cmdrdy     ; Check the command ready bit.
+jp z,main_nocmd     ; Jump if it's clear,
+call cmd_execute    ; execute command if it's set.
+main_nocmd:
+
 ; Decrement the extinguish counter. When negative, we will switch off, regardless
 ; of whatever else is happening. The extinguish counter will be decremented by the
-; extinguish tick in every main loop. The main loop is between 70 and 100 instructions. 
-; With a 1-ms interrupt, the main loop runs for around half the time at 33 kHz, so it 
-; takes around 5 ms to complete. With the ext_tick = 1 the extinguish time will be 
-; around five minutes. The cmd_execute routine resets the counter whenever it receives
-; a command directed at this device.
+; extinguish tick in every main loop. The cmd_execute routine resets the counter 
+; whenever it receives a command directed at this device.
 
 ld A,(extcnt0)
 sub A,ext_tick
@@ -1423,61 +1401,9 @@ sbc A,0
 ld (extcnt1),A
 jp c,main_extinguish
 
-; Deal with any pending commands.
-
-ld A,(mmu_sr)       ; Fetch status register.
-and A,sr_cmdrdy     ; Check the command ready bit.
-jp z,main_nocmd     ; Jump if it's clear,
-call cmd_execute    ; execute command if it's set.
-main_nocmd:
-
-; Check to see if the stimulus is running, and if we are at the
-; start of an interval we will decrement the stimulus length 
-; counter and see if we are done with our stimulus.
-
-ld A,(Srun)
-and A,0x01
-jp z,main_nostim
-ld A,(Sistart)
-and A,0x01
-jp z,main_nostim
-
-; Clear the stimulus start flag, which must be set for us to get here.
-
-ld A,0x00  
-ld (Sistart),A
-
-; Decrement the stimulus length counter, which is the number of pulses
-; that remain in the stimulus. Jump forwards if it is still positive.
-
-ld A,(Slength_0)
-sub A,1
-ld (Slength_0),A
-ld A,(Slength_1)
-sbc A,0
-ld (Slength_1),A
-jp nc,main_pulse
-
-; The stimulus is complete. We disable the stimulus clock interrupt,
-; we set Srun to zero.
-
-ld A,(mmu_imsk)      
-and A,bit1_clr      
-ld (mmu_imsk),A      
-ld A,0
-ld (mmu_it2p),A   
-ld (Srun),A
-jp main_nostim
-
-; Start a new stimulus pulse.
-
-main_pulse:
-call start_pulse
-
 ; Check to see if we should still be running. If so, repeat the
 ; main loop. 
 
-main_nostim:
 ld A,(xmit_p)
 add A,0
 jp nz,main_loop
