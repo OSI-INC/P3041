@@ -77,7 +77,7 @@ const initial_tcd   15  ; Max possible value of TCK divisor
 const uprog_tick   165  ; User program interrupt period
 const id_delay      33  ; To pad id delay to 50 TCK periods
 const min_int_p     25  ; Minimum transmit period
-const ext_tick       1  ; Decrement to extinguish counter
+const ext_reset    250  ; Extinguish counter reset value.
 
 ; Stimulus Control Variables
 const Scurrent    0x0000 ; Stimulus Current
@@ -323,7 +323,7 @@ push A              ; Also store in D for
 pop D               ; later.
 
 ; Multiply the maximum delay by the random number and store the
-; top two bytes of the twenty-four bit product in D and E.
+; top two bytes of the twenty-four bit product in memory.
 
 ld A,(Smaxdly0)     ; Load LO byte zero of max delay
 push A              ; and place in C for
@@ -511,16 +511,24 @@ add A,0             ; and if zero, start pulse
 jp z,int_sii_p      ; otherwise start delay.
 
 int_sii_r:
-call rand_dly       ; Get a random Sdly.
-ld A,(Sdly0)        ; Fetch delay 
-ld (mmu_i2pl),A     ; bytes from Sdly.
-ld A,(Sdly1)        ; Write them to
-ld (mmu_i2ph),A     ; Timer Two period.
+call rand_dly       ; Generate random delay.
+ld A,(Sdly0)        ; If the delay
+add A,0             ; is zero
+jp nz,int_sii_rd    ; we skip the
+ld A,(Sdly1)        ; delay and
+add A,0             ; start our pulse
+jp z,int_sii_p      ; immediately.
+
+int_sii_rd:
+ld A,(Sdly0)        ; Copy random
+ld (mmu_i2pl),A     ; delay to the
+ld A,(Sdly1)        ; Timer Two
+ld (mmu_i2ph),A     ; period.
 ld A,1              ; Set the
 ld (Sdelay),A       ; delay flag.
 ld A,0              ; Clear the
 ld (Spulse),A       ; pulse flag.
-ld (mmu_stc),A      ; Turn off the stimulus.
+ld (mmu_stc),A      ; Turn off stimulu
 ld A,(mmu_imsk)     ; Unmask
 or A,bit1_mask      ; Timer Two
 ld (mmu_imsk),A     ; interrupt.
@@ -1347,9 +1355,9 @@ ld (xmit_pcn),A    ; LO byte of the device identifier.
 ld (rand_0),A      ; Seed the random number generator
 ld A,(mmu_idh)     ; with the LO and HI bytes of the
 ld (rand_1),A      ; device identifier.
-ld A,255           ; Load the extinguish counter with
-ld (extcnt1),A     ; the maximum sixteen-bit
-ld (extcnt0),A     ; integer, ready to decrement.
+ld A,ext_reset     ; Load the extinguish counter with
+ld (extcnt1),A     ; the reset value,
+ld (extcnt0),A     ; ready to decrement.
 
 ; Configure control space registers.
 
@@ -1388,26 +1396,34 @@ jp z,main_nocmd     ; Jump if it's clear,
 call cmd_execute    ; execute command if it's set.
 main_nocmd:
 
-; Decrement the extinguish counter. When negative, we will switch off, regardless
-; of whatever else is happening. The extinguish counter will be decremented by the
-; extinguish tick in every main loop. The cmd_execute routine resets the counter 
-; whenever it receives a command directed at this device.
+; If the stimulus flag is set, reset extinguish counter and call main loop
+; again. 
 
+ld A,(Srun)
+add A,0
+jp z,main_ext_dec
+ld A,ext_reset
+ld (extcnt0),A
+ld (extcnt1),A
+jp main_loop
+
+; Decrement the extinguish counter. When negative, we will switch off. The extinguish 
+; counter will be decremented by the extinguish tick in every main loop. The cmd_execute 
+; routine resets the counter whenever it receives a command directed at this device.
+
+main_ext_dec:
 ld A,(extcnt0)
-sub A,ext_tick
+sub A,1
 ld (extcnt0),A
 ld A,(extcnt1)
 sbc A,0
 ld (extcnt1),A
 jp c,main_extinguish
 
-; Check to see if we should still be running. If so, repeat the
-; main loop. 
+; Check to see if we are transmitting or running a user program, and if so we will
+; call the main loop again.
 
 ld A,(xmit_p)
-add A,0
-jp nz,main_loop
-ld A,(Srun)
 add A,0
 jp nz,main_loop
 ld A,(UPrun)
