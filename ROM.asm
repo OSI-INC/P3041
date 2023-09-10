@@ -52,9 +52,13 @@ const sr_cme     0x40 ; Command Memory Empty
 ; Transmit Control Masks, for use with tansmit control register
 const tx_txi     0x01 ; Assert transmit initiate
 const tx_txwp    0x02 ; Assert transmit warm-up
-const id_at         0 ; Auxiliary type for identification
-const ack_at        1 ; Auxiliary type for acknowledgements
-const batt_at       2 ; Auxiliary type for battery measurement
+
+; Auxiliary message types.
+const at_id         0 ; Identification
+const at_ack        1 ; Acknowledgements
+const at_batt       2 ; Battery Measurement
+const at_sync       3 ; Synchronizing Mark
+const at_conf       4 ; Confirmation
 
 ; Bit Masks
 const bit0_mask  0x01 ; Bit Zero Mask
@@ -717,7 +721,7 @@ sla A               ; Shift A
 sla A               ; left
 sla A               ; four
 sla A               ; times.
-or A,ack_at         ; Set the auxiliary type to acknowledgement.
+or A,at_ack         ; Set the auxiliary type to acknowledgement.
 ld (mmu_xhb),A      ; Write to transmit HI register.
 
 ; Transmit the message.
@@ -777,7 +781,7 @@ sla A               ; Shift A
 sla A               ; left
 sla A               ; four
 sla A               ; times.
-or A,batt_at        ; The battery type code for auxiliary message.
+or A,at_batt        ; The battery type code for auxiliary message.
 ld (mmu_xhb),A      ; Write to transmit HI register.
 
 ; Transit the message and wait until complete.
@@ -793,8 +797,10 @@ pop F
 ret
 
 ; ------------------------------------------------------------
-; Transmit an identification message. We assume interrupts are 
-; disabled and the CPU is running on the boost clock. 
+; Transmits an identification message pair. The first message 
+; is the identifier message, the second is a confirmation message.
+; We assume interrupts are disabled and the CPU is running on 
+; the boost clock.
 
 xmit_identify:
 
@@ -840,15 +846,12 @@ ld (mmu_xcr),A      ; let the battery recover
 ld A,wp_delay       ; before we 
 dly A               ; transmit.
 
-; Load the HI byte of the device identifier into the transmit LO byte.
-
-ld A,(mmu_idh)      ; Load HI byte into A and
-ld (mmu_xlb),A      ; write to transmit LO register.
-
 ; Prepare the auiliary message. We use the LO byte of the device identifier
 ; as the primary channel number for an auxiliary message. 
 
-ld A,(mmu_idl)      ; Load LO byte into A,
+ld A,(mmu_idh)      ; Load HI byte id identifier into A and
+ld (mmu_xlb),A      ; write to transmit LO register.
+ld A,(mmu_idl)      ; Load LO byte of identifier into A,
 or A,0x0F           ; set lower four bits to one and
 ld (mmu_xcn),A      ; write to the transmit channel register.
 ld A,(mmu_idl)      ; Load LO byte into A again,
@@ -856,7 +859,9 @@ sla A               ; shift A
 sla A               ; left
 sla A               ; four
 sla A               ; times.
-or A,id_at          ; The identify type code for auxiliary message.
+push A              ; Save shifted A
+pop B               ; in B for later.
+or A,at_id          ; The identify type code for auxiliary message.
 ld (mmu_xhb),A      ; Write to transmit HI register.
 
 ; Transit the message and wait until complete.
@@ -865,6 +870,18 @@ ld A,tx_txi         ; Initiate transmission and turn off warmup
 ld (mmu_xcr),A      ; with another write to control register.
 ld A,tx_delay       ; Wait for a number of TCK periods while 
 dly A               ; the transmit completes.
+
+; Transmit the confirmation message.
+
+push B
+pop A
+or A,at_conf
+ld (mmu_xhb),A
+ld A,tx_txi         ; Initiate transmission and turn off warmup
+ld (mmu_xcr),A      ; with another write to control register.
+ld A,tx_delay       ; Wait for a number of TCK periods while 
+dly A               ; the transmit completes.
+
 
 pop L
 pop H
