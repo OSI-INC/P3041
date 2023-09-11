@@ -54,11 +54,11 @@ const tx_txi     0x01 ; Assert transmit initiate
 const tx_txwp    0x02 ; Assert transmit warm-up
 
 ; Auxiliary message types.
-const at_id         0 ; Identification
-const at_ack        1 ; Acknowledgements
-const at_batt       2 ; Battery Measurement
-const at_sync       3 ; Synchronizing Mark
-const at_conf       4 ; Confirmation
+const at_id         1 ; Identification
+const at_ack        2 ; Acknowledgements
+const at_batt       3 ; Battery Measurement
+const at_sync       4 ; Synchronizing Mark
+const at_conf       5 ; Confirmation
 
 ; Bit Masks
 const bit0_mask  0x01 ; Bit Zero Mask
