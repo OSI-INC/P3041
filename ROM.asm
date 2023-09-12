@@ -21,7 +21,7 @@ const mmu_stc  0x0406 ; Stimulus Current (Write)
 const mmu_rst  0x0407 ; System Reset (Write)
 const mmu_xhb  0x0408 ; Transmit HI Byte (Write)
 const mmu_xlb  0x0409 ; Transmit LO Byte (Write)
-const mmu_xcn  0x040A ; Transmit Channel Number (Write)
+const mmu_xch  0x040A ; Transmit Channel Number (Write)
 const mmu_xcr  0x040B ; Transmit Control Register (Write)
 const mmu_etc  0x040D ; Enable Transmit Clock (Write)
 const mmu_tcf  0x040E ; Transmit Clock Frequency (Write)
@@ -57,8 +57,7 @@ const tx_txwp    0x02 ; Assert transmit warm-up
 const at_id         1 ; Identification
 const at_ack        2 ; Acknowledgements
 const at_batt       3 ; Battery Measurement
-const at_sync       4 ; Synchronizing Mark
-const at_conf       5 ; Confirmation
+const at_conf       4 ; Confirmation
 
 ; Bit Masks
 const bit0_mask  0x01 ; Bit Zero Mask
@@ -81,7 +80,7 @@ const initial_tcd   15  ; Max possible value of TCK divisor
 const uprog_tick   165  ; User program interrupt period
 const id_delay      33  ; To pad id delay to 50 TCK periods
 const min_int_p     25  ; Minimum transmit period
-const ext_reset    250  ; Extinguish counter reset value.
+const shdn_rst     250 ; Shutdown counter reset value.
 
 ; Stimulus Control Variables
 const Scurrent    0x0000 ; Stimulus Current
@@ -104,9 +103,9 @@ const Smaxdly0    0x000F ; Max Delay, LO
 ; Command Decode Variables
 const ccmdb       0x0016 ; Copy of Command Byte
 
-; Extinguish Variables
-const extcnt1     0x0019 ; Counter Byte One
-const extcnt0     0x001A ; Counter Byte Zero
+; Shutdown counter.
+const shdncnt1    0x0019 ; Counter Byte One
+const shdncnt0    0x001A ; Counter Byte Zero
 
 ; Random Number Variabls
 const rand_1      0x0020 ; Random Number Byte One
@@ -118,23 +117,24 @@ const UPinit      0x0023 ; Initialize
 
 ; Transmission Control Variables
 const xmit_p      0x0028 ; Transmit Period
-const xmit_pcn    0x0029 ; Primary Channel Number
+const xmit_ch     0x0029 ; Telemetry Channel Number
 
 ; User Program Constants
 const prog_usr    0x0800 ; User program location
 const ret_code      0x0A ; Return from subrouting instruction
 
 ; Operation Codes
-const op_stop_stim   0 ; 0 operands
-const op_start_stim  1 ; 8 operands
-const op_xmit        2 ; 1 operand
-const op_ack         3 ; 1 operand
-const op_battery     4 ; 0 operand
-const op_identify    5 ; 0 operands
-const op_setpcn      6 ; 1 operand
-const op_ldprog      7 ; 1 operand, variable data
-const op_enprog      8 ; 1 operand
-const op_rstpp       9 ; 0 operands
+const op_stop        0 ; 0 operands
+const op_start       1 ; 8 operands
+const op_xon         2 ; 2 operand
+const op_xoff        3 ; 0 operands
+const op_batt        4 ; 0 operands
+const op_id          5 ; 0 operands
+const op_pgld        6 ; 1 operand, variable data
+const op_pgon        7 ; 0 operands
+const op_pgoff       8 ; 0 operands
+const op_pgrst       9 ; 0 operands
+const op_shdn       10 ; 0 operands
 
 ; Synchronization.
 const synch_nostim  32 ; 
@@ -507,6 +507,9 @@ ld (mmu_i1pl),A     ; timer.
 ld A,(mmu_imsk)     ; Mask the the 
 and A,bit0_clr      ; timer
 ld (mmu_imsk),A     ; interrupt.
+ld A,op_stop        ; Transmit a stimulus stop
+ld (Sack_key),A     ; acknowledgement
+call xmit_ack       ; to mark stimulus end.
 jp int_sii_rst
 
 int_sii_do:
@@ -622,8 +625,8 @@ jp z,int_xmit_done  ; skip transmit if not set.
 ld A,bit3_mask      ; Reset this interrupt
 ld (mmu_irst),A     ; with the bit three mask.
 
-ld A,(xmit_pcn)     ; Load A with primary channel number
-ld (mmu_xcn),A      ; and write the transmit channel register.
+ld A,(xmit_ch)      ; Load A with telemetry channel number
+ld (mmu_xch),A      ; and write the transmit channel register.
 
 ; If a not Srun, we will transmit synch_nostim. If Srun but not Spulse,
 ; we transmit synch_stim. If Srun we transmit synch_stim + 8*Scurrent.
@@ -688,6 +691,40 @@ rti                 ; Return from interrupt.
 
 
 ; ------------------------------------------------------------
+; Transmit an confirmation. The confirmation always follows the
+; transmission of some other auxiliary message, so we do not have
+; to warm up the VCO, we simply load the transmit registers and
+; transmit. We assume interrupts are disabled and the CPU is
+; running on the fast clock.
+
+xmit_conf:
+
+push F
+push A
+
+ld A,(mmu_idh)      ; Load HI byte id identifier into A and
+ld (mmu_xlb),A      ; write to transmit LO register.
+ld A,(mmu_idl)      ; Load LO byte of identifier into A,
+or A,0x0F           ; set lower four bits to one and
+ld (mmu_xch),A      ; write to the transmit channel register.
+ld A,(mmu_idl)      ; Load LO byte into A again,
+sla A               ; shift A 
+sla A               ; left
+sla A               ; four
+sla A               ; times.
+or A,at_conf        ; The confirmation type code.
+ld (mmu_xhb),A      ; Write to transmit HI register.
+ld A,tx_txi         ; Initiate transmission with a write to the transmit
+ld (mmu_xcr),A      ; control register.
+ld A,tx_delay       ; Wait for confirmation
+dly A               ; transmition to complete.
+
+pop A
+pop F
+ret
+
+
+; ------------------------------------------------------------
 ; Transmit an acknowledgement. We have to warm up the VCO before
 ; the transmit, or its frequency will be wrong. The routine assumes
 ; we are running in boost with the interrupts disabled.
@@ -708,15 +745,15 @@ ld (mmu_xcr),A      ; let the battery recover
 ld A,wp_delay       ; before we 
 dly A               ; transmit.
 
-; Prepare the auxiliary message: auxiliary channel number, top four bits of
-; primary channel number, auxiliary type, and acknowledgement key.
+; Prepare the auxiliary message. We use the low byte of the identifier
+; as the channel number. We use the key we received as the data.
 
-ld A,(xmit_pcn)     ; Load A with primary channel number
+ld A,(mmu_idl)      ; Load LO byte of identifier into A,
 or A,0x0F           ; set lower four bits to one
-ld (mmu_xcn),A      ; and write the transmit channel register.
+ld (mmu_xch),A      ; and write the transmit channel register.
 ld A,(Sack_key)     ; Load the acknowledgement key
 ld (mmu_xlb),A      ; and write to transmit LO register.
-ld A,(xmit_pcn)     ; Load A with primary channel number again
+ld A,(mmu_idl)      ; Load LO byte of identifier again.
 sla A               ; Shift A 
 sla A               ; left
 sla A               ; four
@@ -730,6 +767,10 @@ ld A,tx_txi         ; Initiate transmission with another write to
 ld (mmu_xcr),A      ; control register, which also turns off the warm-up.
 ld A,tx_delay       ; Wait for a number of TCK periods while 
 dly A               ; the transmit completes.
+
+; Transmit confirmation.
+
+call xmit_conf
 
 pop A
 pop F
@@ -770,17 +811,20 @@ dly A               ; again
 ld A,(mmu_sdb)      ; and get battery measurement.
 ld (mmu_xlb),A      ; Write the to transmit LO register.
 
-; Prepare the auxiliary message: auxiliary channel number, top four bits of
-; primary channel number, and auxiliary type.
+; Prepare the battery measurement auxiliary message. We use the LO 
+; byte of the device identifier as the channel number. We use the 
+; battery voltage measurement as the data.
 
-ld A,(xmit_pcn)     ; Load A with primary channel number
+ld A,(mmu_idl)      ; Load LO byte of identifier into A,
 or A,0x0F           ; set lower four bits to one
-ld (mmu_xcn),A      ; and write the transmit channel register.
-ld A,(xmit_pcn)     ; Load A with primary channel number again
+ld (mmu_xch),A      ; and write the transmit channel register.
+ld A,(mmu_idl)      ; Load LO byte of identifier into A.
 sla A               ; Shift A 
 sla A               ; left
 sla A               ; four
 sla A               ; times.
+push A              ; Save in B
+pop B               ; for confirmation message.
 or A,at_batt        ; The battery type code for auxiliary message.
 ld (mmu_xhb),A      ; Write to transmit HI register.
 
@@ -791,9 +835,14 @@ ld (mmu_xcr),A      ; with another write to control register.
 ld A,tx_delay       ; Wait for a number of TCK periods while 
 dly A               ; the transmit completes.
 
+; Transmit the confirmation message.
+
+call xmit_conf
+
+; Return.
+
 pop A
 pop F
-
 ret
 
 ; ------------------------------------------------------------
@@ -846,14 +895,15 @@ ld (mmu_xcr),A      ; let the battery recover
 ld A,wp_delay       ; before we 
 dly A               ; transmit.
 
-; Prepare the auiliary message. We use the LO byte of the device identifier
-; as the primary channel number for an auxiliary message. 
+; Prepare the auxiliary message. We use the LO byte of the device identifier
+; as the channel number for an auxiliary message. We use the HI byte for
+; the data.
 
 ld A,(mmu_idh)      ; Load HI byte id identifier into A and
 ld (mmu_xlb),A      ; write to transmit LO register.
 ld A,(mmu_idl)      ; Load LO byte of identifier into A,
 or A,0x0F           ; set lower four bits to one and
-ld (mmu_xcn),A      ; write to the transmit channel register.
+ld (mmu_xch),A      ; write to the transmit channel register.
 ld A,(mmu_idl)      ; Load LO byte into A again,
 sla A               ; shift A 
 sla A               ; left
@@ -871,17 +921,11 @@ ld (mmu_xcr),A      ; with another write to control register.
 ld A,tx_delay       ; Wait for a number of TCK periods while 
 dly A               ; the transmit completes.
 
-; Transmit the confirmation message.
+; Transmit a confirmation message.
 
-push B
-pop A
-or A,at_conf
-ld (mmu_xhb),A
-ld A,tx_txi         ; Initiate transmission and turn off warmup
-ld (mmu_xcr),A      ; with another write to control register.
-ld A,tx_delay       ; Wait for a number of TCK periods while 
-dly A               ; the transmit completes.
+call xmit_conf
 
+; Return.
 
 pop L
 pop H
@@ -889,6 +933,7 @@ pop A
 pop F
 
 ret
+
 
 ; ------------------------------------------------------------
 ; Read a byte out of the command memory portal and store in a
@@ -1057,11 +1102,11 @@ jp nz,cmd_done
 
 cmd_id_matched:
 
-; Reset the extinguish counter.
+; Reset the shutdown counter.
 
-ld A,255           ; Load the extinguish counter with
-ld (extcnt1),A     ; the maximum sixteen-bit
-ld (extcnt0),A     ; integer.
+ld A,shdn_rst      ; Load the extinguish counter with
+ld (shdncnt1),A    ; the maximum sixteen-bit
+ld (shdncnt0),A    ; integer.
 
 ; The start of our command byte decoding loop. 
 
@@ -1080,11 +1125,16 @@ jp nz,cmd_done
 
 call get_cmd_byte
 
+; We acknowledge instructions that start and stop long-lasting
+; processes. We store the opcode now, in case we need it.
+
+ld (Sack_key),A
+
 ; The stimulus stop instruction.
 
 check_stop_stim:
 ld A,(ccmdb)
-sub A,op_stop_stim
+sub A,op_stop
 jp nz,check_stop_stim_end
 ld A,0                ; Clear
 ld (Srun),A           ; run flag
@@ -1094,15 +1144,16 @@ ld (mmu_i1pl),A       ; timer one interrupt.
 ld A,(mmu_imsk)       ; Mask
 and A,bit0_clr        ; interrupt one
 ld (mmu_imsk),A       ; to stop stimulus.
+call xmit_ack         ; Acknowledge the stop.
 jp cmd_loop
 check_stop_stim_end:
 
 ; The stimulus start instruction.
 
-check_start_stim:
+check_start:
 ld A,(ccmdb)
-sub A,op_start_stim
-jp nz,check_start_stim_end
+sub A,op_start
+jp nz,check_start_end
 call get_cmd_byte    ; Read stimulus current.
 ld (Scurrent),A      ; and store in memory.
 call get_cmd_byte    ; Read pulse length byte one
@@ -1132,56 +1183,54 @@ ld (mmu_irst),A      ; our value of one into its counter.
 ld A,(mmu_imsk)      ; Load the interrupt mask and
 or A,bit0_mask       ; set bit zero to enable
 ld (mmu_imsk),A      ; interrupt timer one.
+call xmit_ack        ; Acknowledge the start.
 jp cmd_loop
-check_start_stim_end:
+check_start_end:
 
 ; Start data transmission.
 
-check_xmit:
+check_xon:
 ld A,(ccmdb)
-sub A,op_xmit
-jp nz,check_xmit_end
+sub A,op_xon
+jp nz,check_xon_end
+call get_cmd_byte    ; Read the telemetry channel number
+ld (xmit_ch),A       ; and save in memory.
 call get_cmd_byte    ; Read xmit period minus one. 
 sub A,min_int_p      ; Subtract the minimum period.
-jp c,xmit_disable    ; If result negative, disable xmit.
+jp c,check_xon_end   ; If result negative, we ignore.
 ld A,(ccmdb)         ; Load the period again,
 ld (xmit_p),A        ; save to memory and write to
 ld (mmu_i4p),A       ; interrupt timer four period.
 ld A,(mmu_imsk)      ; Enable interrupt timer four
 or A,bit3_mask       ; with bit three of interrupt
 ld (mmu_imsk),A      ; mask.
-jp cmd_loop      
-xmit_disable:      
+call xmit_ack        ; Acknowledge xon.
+check_xon_end:
+
+; Stop data transmission.
+
+check_xoff:
+ld A,(ccmdb)
+sub A,op_xoff
+jp nz,check_xoff_end
 ld A,0               ; Set the xmit period to zero
 ld (xmit_p),A        ; in memory, which acts as a flag.
 ld (mmu_i4p),A       ; Disable timer interrupt.
 ld A,(mmu_imsk)      ; Mask timer interrupt
 and A,bit3_clr       ; with bit three of
 ld (mmu_imsk),A      ; interrupt mask.
-jp cmd_loop
-check_xmit_end:
-
-; Acknowledgement request instruction. We read the acknowledgement
-; key that will serve as a verification code and call the acknowledgement
-; transmit routine, which will take about fifty microseconds.
-
-check_ack:
-ld A,(ccmdb)
-sub A,op_ack
-jp nz,check_ack_end
-call get_cmd_byte         
-ld (Sack_key),A      
-call xmit_ack        
-jp cmd_loop
-check_ack_end:
+call xmit_ack        ; Acknowledge xoff.
+check_xoff_end:
 
 ; Battery voltage measurement request instruction. This instruction
 ; takes no parameters. We call the battery measurement routine
-; immediately, which will take about fifty microseconds.
+; immediately, which will take about fifty microseconds. Battery 
+; measurements are their own acknowledgement, so we do not transmit
+; an acknowledgement.
 
 check_battery:
 ld A,(ccmdb)
-sub A,op_battery
+sub A,op_batt
 jp nz,check_battery_end
 call xmit_batt       
 jp cmd_loop
@@ -1190,28 +1239,16 @@ check_battery_end:
 ; Identification request instruction. This instruction takes no
 ; operands. We call the identification transmission routine, which
 ; will occupy the CPU for up to 650 ms before transmitting a single
-; message that gives the device id to any listeners.
+; message that gives the device id to any listeners. The identity 
+; broadcast is its own acknowledgement.
 
 check_identify:
 ld A,(ccmdb)
-sub A,op_identify
+sub A,op_id
 jp nz,check_identify_end
 call xmit_identify    
 jp cmd_loop
 check_identify_end:
-
-; Set the primary channel number for acknowledgements, battery
-; measurements and synchronizing signal transmission. We read
-; the primary channel number and write to memory.
-
-check_setpcn:
-ld A,(ccmdb)
-sub A,op_setpcn
-jp nz,check_setpcn_end
-call get_cmd_byte           
-ld (xmit_pcn),A      
-jp cmd_loop   
-check_setpcn_end:
 
 ; Receive user code and load into user program memory. Instruction
 ; takes one operand: the number of program bytes that follow the
@@ -1221,12 +1258,13 @@ check_setpcn_end:
 ; run flag so as to keep the device powered up to receive more
 ; user program bytes in future commands. But we disable the user
 ; program interrupt to make sure that we don't execute a partially-
-; loaded program.
+; loaded program. We do not acknowledge the upload because the
+; upload itself does not cause any action.
   
-check_ldprog:
+check_pgld:
 ld A,(ccmdb)
-sub A,op_ldprog
-jp nz,check_ldprog_end
+sub A,op_pgld
+jp nz,check_pgld_end
 call get_cmd_byte  ; Get the number of program bytes.
 add A,0            ; If number of bytes is zero,
 jp z,cmd_loop      ; we are done with this instruction.
@@ -1247,50 +1285,70 @@ ld A,(mmu_imsk)    ; Mask interrupt number
 and A,bit2_clr     ; three with bit two in the 
 ld (mmu_imsk),A    ; interrupt mask.
 jp cmd_loop        ; We are done with this instruction.
-check_ldprog_end:
+check_pgld_end:
 
-; Turn on and off execution of user code during transmit interrupt.
-; Instruction takes one operand: zero for disable, one for enable.
-; If enable, start the user program interrupt, otherwise disable.
+; Turn on execution of user code during transmit interrupt.
 
-check_enprog:
+check_pgon:
 ld A,(ccmdb)
-sub A,op_enprog
-jp nz,check_enprog_end
-call get_cmd_byte       ; Read the enable value
-and A,bit0_mask         ; and check.
-jp z,cmd_disable_prog
-ld A,0x01               ; If true,
-ld (UPrun),A            ; set user program run flag
-ld (UPinit),A           ; and user program initialization flag.
+sub A,op_pgon
+jp nz,check_pgon_end
+ld A,0x01               ; Set the the user program
+ld (UPrun),A            ; run and
+ld (UPinit),A           ; initialization flags.
 ld A,uprog_tick         ; Set interrupt timer three to 
 ld (mmu_i3p),A          ; the uprog_tick period
 ld A,(mmu_imsk)         ; and enable interrupt timer
 or A,bit2_mask          ; three with bit two of 
 ld (mmu_imsk),A         ; the interrupt mask.
+call xmit_ack           ; Acknowledge enable program.
 jp cmd_loop
-cmd_disable_prog:    
-ld A,0x00               ; If false,
-ld (UPrun),A            ; clear run flag
-ld (UPinit),A           ; and initialization flag.
+check_pgon_end:
+
+; Turn off execution of user code, disable user code interrupt.
+
+check_pgoff:
+ld A,(ccmdb)
+sub A,op_pgoff
+jp nz,check_pgoff_end
+ld A,0x00               ; Clear the user program 
+ld (UPrun),A            ; run and
+ld (UPinit),A           ; initialization flags.
 ld A,0                  ; Load interrupt three timer with zero
 ld (mmu_i3p),A          ; to disable the interrupt.
 ld A,(mmu_imsk)         ; Mask interrupt timer three
 and A,bit2_clr          ; with bit
 ld (mmu_imsk),A         ; two of interrupt mask
+call xmit_ack           ; Acknowledge disable program.
 jp cmd_loop
-check_enprog_end:
+check_pgoff_end:
 
 ; Reset the user program pointer to point to the first byte in user
-; program memory.
+; program memory. We don't acknowledge this instruction.
 
-check_rstpp:
+check_pgrst:
 ld A,(ccmdb)
-sub A,op_rstpp
-jp nz,check_rstpp_end
+sub A,op_pgrst
+jp nz,check_pgrst_end
 ld IY,mmu_prog          ; Load IY with the base of
 jp cmd_loop             ; user program memory.
-check_rstpp_end:
+check_pgrst_end:
+
+; Shut down the device. We do this by clearing the transmit, user program
+; and stimulus run flags. We acknowledge the shutdown command. The main loop 
+; will then shut down the device for us.
+
+check_shdn:
+ld A,(ccmdb)
+sub A,op_shdn
+jp nz,check_shdn_end 
+ld A,0x00            ; Clear the 
+ld (xmit_p),A        ; transmit enable,
+ld (UPrun),A         ; user program run,
+ld (Srun),A          ; and stimulus run flags
+call xmit_ack        ; Acknowledge shutdown command.
+jp cmd_loop
+check_shdn_end:
 
 ; If we get here, the opcode is not valid, so abandon the command.
 
@@ -1368,13 +1426,13 @@ jp nz,main_var_init_loop
 ; Initialize certain variables to values other than zero.
 
 ld A,(mmu_idl)     ; Set the primary channel number to the
-ld (xmit_pcn),A    ; LO byte of the device identifier.
+ld (xmit_ch),A     ; LO byte of the device identifier.
 ld (rand_0),A      ; Seed the random number generator
 ld A,(mmu_idh)     ; with the LO and HI bytes of the
 ld (rand_1),A      ; device identifier.
-ld A,ext_reset     ; Load the extinguish counter with
-ld (extcnt1),A     ; the reset value,
-ld (extcnt0),A     ; ready to decrement.
+ld A,shdn_rst      ; Load the extinguish counter with
+ld (shdncnt1),A    ; the reset value,
+ld (shdncnt0),A    ; ready to decrement.
 
 ; Configure control space registers.
 
@@ -1416,30 +1474,54 @@ main_nocmd:
 ; If the stimulus flag is set, reset extinguish counter and call main loop
 ; again. 
 
+main_check_srun:
 ld A,(Srun)
 add A,0
-jp z,main_ext_dec
-ld A,ext_reset
-ld (extcnt0),A
-ld (extcnt1),A
+jp z,main_shdn_dec
+ld A,shdn_rst
+ld (shdncnt0),A
+ld (shdncnt1),A
 jp main_loop
 
-; Decrement the extinguish counter. When negative, we will switch off. The extinguish 
-; counter will be decremented by the extinguish tick in every main loop. The cmd_execute 
+; Decrement the shutdown counter. When negative, we will switch off. The shutdown
+; counter will be decremented by the one in every main loop. The cmd_execute 
 ; routine resets the counter whenever it receives a command directed at this device.
 
-main_ext_dec:
-ld A,(extcnt0)
+main_shdn_dec:
+ld A,(shdncnt0)
 sub A,1
-ld (extcnt0),A
-ld A,(extcnt1)
+ld (shdncnt0),A
+ld A,(shdncnt1)
 sbc A,0
-ld (extcnt1),A
-jp c,main_extinguish
+ld (shdncnt1),A
+jp nc,main_check_flags
 
-; Check to see if we are transmitting or running a user program, and if so we will
-; call the main loop again.
+; We are going to switch off, but first we disable interrupts, boost CPU and transmit
+; a shutdown acknowledgement, and move back to the slow clock. After that, we jump to 
+; the main shutdown. Our purpose is to advertise the implending shutdown. Even if the
+; shutdown takes a little while to complete, as the power supplies drop, the shutdown
+; counter won't be negative again for at least a minute, so we won't see repeated
+; acknowledgements.
 
+main_shdn_ack:
+seti
+ld A,0x01       
+ld (mmu_etc),A      
+ld (mmu_bcc),A      
+ld A,op_shdn
+ld (Sack_key),A
+call xmit_ack
+ld A,0x00           
+ld (mmu_bcc),A      
+ld (mmu_etc),A
+clri
+jp main_shdn
+
+; Check to see f we are transmitting or running a user program, and if so we will
+; call the main loop again. Here we are assuming that whenever the transmit or
+; program run flags are clear, an acknowledgement has been sent already.
+
+main_check_flags:
 ld A,(xmit_p)
 add A,0
 jp nz,main_loop
@@ -1447,11 +1529,14 @@ ld A,(UPrun)
 add A,0
 jp nz,main_loop
 
-; Switch off. We could wait here, but jumping back to the start
-; of the loop makes the code more robust: if something goes wrong
-; with the turn-off, the device is still watching for commands.
+; We get here when the device is first powering up, in which case our effort to 
+; turn off the device will not take effect because the device is being kept awake
+; by a command incoming flag. We must be sure to execute the main loop again.
+; Or we get here because it's time to shut down after commands have been executed
+; or the shutdown timer has expired. In that case, we still continue to execute 
+; the main loop after we shut down, but shutdown will still take place.
 
-main_extinguish:
+main_shdn:
 ld A,0
 ld (mmu_dva),A
 jp main_loop

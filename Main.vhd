@@ -126,7 +126,7 @@ entity main is
 	constant mmu_rst  : integer := 7;  -- System Reset (Write)
 	constant mmu_xhb  : integer := 8;  -- Transmit HI Byte (Write)
 	constant mmu_xlb  : integer := 9;  -- Transmit LO Byte (Write)
-	constant mmu_xcn  : integer := 10; -- Transmit Channel Number (Write)
+	constant mmu_xch  : integer := 10; -- Transmit Channel Number (Write)
 	constant mmu_xcr  : integer := 11; -- Transmit Control Register (Write)
 	constant mmu_etc  : integer := 13; -- Enable Transmit Clock (Write)
 	constant mmu_tcf  : integer := 14; -- Transmit Clock Frequency (Write)
@@ -484,7 +484,7 @@ begin
 						when mmu_scr  => SAI <= true;
 						when mmu_xlb  => xmit_bits(7 downto 0) <= cpu_data_out;
 						when mmu_xhb  => xmit_bits(15 downto 8) <= cpu_data_out;
-						when mmu_xcn  => tx_channel <= to_integer(unsigned(cpu_data_out));
+						when mmu_xch  => tx_channel <= to_integer(unsigned(cpu_data_out));
 						when mmu_xcr  => 
 							TXI <= (cpu_data_out(0) = '1');
 							TXWP <= (cpu_data_out(1) = '1');
