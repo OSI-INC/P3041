@@ -97,6 +97,7 @@ entity main is
 
 -- Configuration of Device.
 	constant device_id : integer := 16#286C#;
+	constant device_ver : integer := 21;
 	constant frequency_low : integer := 6;
 	
 -- Configuration of OSR8 CPU.
@@ -144,6 +145,7 @@ entity main is
 	constant mmu_i4p  : integer := 27; -- Interrupt Timer Four Period MSB (Write)
 	constant mmu_idh  : integer := 28; -- Identifier HI Byte (Read)
 	constant mmu_idl  : integer := 29; -- Identifier LO Byte (Read)
+	constant mmu_ver  : integer := 30; -- Version Byte (Read)
 end;
 
 architecture behavior of main is

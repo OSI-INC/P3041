@@ -39,6 +39,7 @@ const mmu_i3p  0x041A ; Interrupt Timer Three Period (Write)
 const mmu_i4p  0x041B ; Interrupt Timer Four Period (Write)
 const mmu_idh  0x041C ; Device ID HI (Read)
 const mmu_idl  0x041D ; Device ID LO (Read)
+const mmu_ver  0x014E ; Version (Read)
 
 ; Status Bit Masks, for use with status register
 const sr_cmdrdy  0x01 ; Command Ready Flag
@@ -58,6 +59,7 @@ const at_id         1 ; Identification
 const at_ack        2 ; Acknowledgements
 const at_batt       3 ; Battery Measurement
 const at_conf       4 ; Confirmation
+const at_ver        5 ; Version
 
 ; Bit Masks
 const bit0_mask  0x01 ; Bit Zero Mask
@@ -135,6 +137,7 @@ const op_pgon        7 ; 0 operands
 const op_pgoff       8 ; 0 operands
 const op_pgrst       9 ; 0 operands
 const op_shdn       10 ; 0 operands
+const op_ver        11 ; 0 operands
 
 ; Synchronization.
 const synch_nostim  32 ; 
@@ -509,7 +512,7 @@ and A,bit0_clr      ; timer
 ld (mmu_imsk),A     ; interrupt.
 ld A,op_stop        ; Transmit a stimulus stop
 ld (Sack_key),A     ; acknowledgement
-call xmit_ack       ; to mark stimulus end.
+call annc_ack       ; to mark stimulus end.
 jp int_sii_rst
 
 int_sii_do:
@@ -698,7 +701,7 @@ rti                 ; Return from interrupt.
 ; in register B. The routine assumes we are running in boost with 
 ; the interrupts disabled.
 
-xmit_ann:
+xmit_annc:
 
 push F
 push A
@@ -776,7 +779,7 @@ ret
 ; A and the acknowledgement key in B, then call our auxiliary
 ; message routine.
 
-xmit_ack:
+annc_ack:
 
 push F
 push A
@@ -786,7 +789,7 @@ ld A,(Sack_key)
 push A
 pop B
 ld A,at_ack
-call xmit_ann
+call xmit_annc
 
 pop B
 pop A
@@ -800,7 +803,7 @@ ret
 ; VBAT = 1.2 V * 256 / batt_meas. We must access twice to acquire 
 ; and convert.
 
-xmit_batt:
+annc_batt:
 
 push F
 push A
@@ -816,7 +819,7 @@ ld A,(mmu_sdb)      ; and get battery measurement.
 push A              ; Store battery voltage 
 pop B               ; in B.
 ld A,at_batt        ; The battery type code.
-call xmit_ann       ; Transmit auxiliary message.
+call xmit_annc      ; Transmit announcement.
 
 pop B
 pop A
@@ -824,12 +827,32 @@ pop F
 ret
 
 ; ------------------------------------------------------------
-; Transmits an identification message pair. The first message 
-; is the identifier message, the second is a confirmation message.
-; We assume interrupts are disabled and the CPU is running on 
-; the boost clock.
+; Announce the version number. We use A and B to pass the 
+; version message identifier and the version number itself.
 
-xmit_identify:
+annc_ver:
+
+push F
+push A
+push B
+
+ld A,(mmu_ver)      ; and get battery measurement.
+push A              ; Store battery voltage 
+pop B               ; in B.
+ld A,at_ver         ; The battery type code.
+call xmit_annc      ; Transmit annoucement.
+
+pop B
+pop A
+pop F
+ret
+
+; ------------------------------------------------------------
+; Announce the device identifier. We wait for time and then
+; transmit the identifier and confirmation messages that 
+; make up the announcement.
+
+annc_id:
 
 push F
 push A
@@ -866,13 +889,13 @@ push A
 pop H
 jp nc,identify_delay
 
-; Prepare A and B for call to xmit_ann.
+; Prepare A and B for call to xmit_annc.
 
 ld A,(mmu_idh)      ; Load HI byte id identifier 
 push A              ; into A and
 pop B               ; store in B.
 ld A,at_id          ; Load the identify type code into A.
-call xmit_ann       ; Transmit auxiliary message.
+call xmit_annc      ; Transmit annoucement.
 
 ; Return.
 
@@ -1094,7 +1117,7 @@ ld (mmu_i1pl),A       ; timer one interrupt.
 ld A,(mmu_imsk)       ; Mask
 and A,bit0_clr        ; interrupt one
 ld (mmu_imsk),A       ; to stop stimulus.
-call xmit_ack         ; Acknowledge the stop.
+call annc_ack         ; Acknowledge the stop.
 jp cmd_loop
 check_stop_stim_end:
 
@@ -1133,7 +1156,7 @@ ld (mmu_irst),A      ; our value of one into its counter.
 ld A,(mmu_imsk)      ; Load the interrupt mask and
 or A,bit0_mask       ; set bit zero to enable
 ld (mmu_imsk),A      ; interrupt timer one.
-call xmit_ack        ; Acknowledge the start.
+call annc_ack        ; Acknowledge the start.
 jp cmd_loop
 check_start_end:
 
@@ -1154,7 +1177,7 @@ ld (mmu_i4p),A       ; interrupt timer four period.
 ld A,(mmu_imsk)      ; Enable interrupt timer four
 or A,bit3_mask       ; with bit three of interrupt
 ld (mmu_imsk),A      ; mask.
-call xmit_ack        ; Acknowledge xon.
+call annc_ack        ; Acknowledge xon.
 check_xon_end:
 
 ; Stop data transmission.
@@ -1169,7 +1192,7 @@ ld (mmu_i4p),A       ; Disable timer interrupt.
 ld A,(mmu_imsk)      ; Mask timer interrupt
 and A,bit3_clr       ; with bit three of
 ld (mmu_imsk),A      ; interrupt mask.
-call xmit_ack        ; Acknowledge xoff.
+call annc_ack        ; Acknowledge xoff.
 check_xoff_end:
 
 ; Battery voltage measurement request instruction. This instruction
@@ -1182,7 +1205,7 @@ check_battery:
 ld A,(ccmdb)
 sub A,op_batt
 jp nz,check_battery_end
-call xmit_batt       
+call annc_batt       
 jp cmd_loop
 check_battery_end:
 
@@ -1196,7 +1219,7 @@ check_identify:
 ld A,(ccmdb)
 sub A,op_id
 jp nz,check_identify_end
-call xmit_identify    
+call annc_id    
 jp cmd_loop
 check_identify_end:
 
@@ -1251,7 +1274,7 @@ ld (mmu_i3p),A          ; the uprog_tick period
 ld A,(mmu_imsk)         ; and enable interrupt timer
 or A,bit2_mask          ; three with bit two of 
 ld (mmu_imsk),A         ; the interrupt mask.
-call xmit_ack           ; Acknowledge enable program.
+call annc_ack           ; Acknowledge enable program.
 jp cmd_loop
 check_pgon_end:
 
@@ -1269,7 +1292,7 @@ ld (mmu_i3p),A          ; to disable the interrupt.
 ld A,(mmu_imsk)         ; Mask interrupt timer three
 and A,bit2_clr          ; with bit
 ld (mmu_imsk),A         ; two of interrupt mask
-call xmit_ack           ; Acknowledge disable program.
+call annc_ack           ; Acknowledge disable program.
 jp cmd_loop
 check_pgoff_end:
 
@@ -1296,9 +1319,20 @@ ld A,0x00            ; Clear the
 ld (xmit_p),A        ; transmit enable,
 ld (UPrun),A         ; user program run,
 ld (Srun),A          ; and stimulus run flags
-call xmit_ack        ; Acknowledge shutdown command.
+call annc_ack        ; Acknowledge shutdown command.
 jp cmd_loop
 check_shdn_end:
+
+; Version request instruction. This instruction takes no
+; operands. We call the version transmit routine.
+
+check_ver:
+ld A,(ccmdb)
+sub A,op_ver
+jp nz,check_ver_end
+call annc_ver 
+jp cmd_loop
+check_ver_end:
 
 ; If we get here, the opcode is not valid, so abandon the command.
 
@@ -1458,7 +1492,7 @@ ld (mmu_etc),A
 ld (mmu_bcc),A      
 ld A,op_shdn
 ld (Sack_key),A
-call xmit_ack
+call annc_ack
 ld A,0x00           
 ld (mmu_bcc),A      
 ld (mmu_etc),A
