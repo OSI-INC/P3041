@@ -858,10 +858,13 @@ push A
 push H
 push L
 
-; Delay for 50 clock cycles multiplied by numeric value of 
-; the device id. By this means, each device transmits its
-; identifying message at a different time, up to 656 ms from
-; the time of the command.
+; Delay for id_delay clock cycles multiplied by numeric value 
+; of the device id. By this means, each device transmits its
+; identifying message at a different time. With id_delay set
+; to 2*tx_delay, no two ISTs will collide, but we may have to
+; wait 1.4 s for all our answers. Using tx_delay, two ISTs will
+; collide only if their IDs are consecutive, and we will wait
+; only 0.7 s. 
 
 ld A,(mmu_idh)
 push A
@@ -1382,7 +1385,7 @@ pop A
 pop F               
 ret                 
 
-; ------------------------------------------------------------
+; -----------------------------------------------------------------
 ; The main program. We begin by initializing the device, which
 ; includes initializing the stack pointer, variables, and interrupts.
 ; The main program uses IY to store the user program pointer.
@@ -1496,12 +1499,10 @@ sbc A,0
 ld (shdncnt1),A
 jp nc,main_check_flags
 
-; We are going to switch off, but first we disable interrupts, boost CPU and transmit
-; a shutdown acknowledgement, and move back to the slow clock. After that, we jump to 
-; the main shutdown. Our purpose is to advertise the implending shutdown. Even if the
-; shutdown takes a little while to complete, as the power supplies drop, the shutdown
-; counter won't be negative again for at least a minute, so we won't see repeated
-; acknowledgements.
+; We are going to shut down. We announce the shutdown once, when the shutdown counter
+; reaches zero. We will keep running the main loop, but because the shutdown counter 
+; will start counting down from 0xFFF, it will not reach zero again before the device
+; powers off.
 
 main_shdn_ack:
 seti
@@ -1517,9 +1518,8 @@ ld (mmu_etc),A
 clri
 jp main_shdn
 
-; Check to see f we are transmitting or running a user program, and if so we will
-; call the main loop again. Here we are assuming that whenever the transmit or
-; program run flags are clear, an acknowledgement has been sent already.
+; Check to see if we are transmitting our synchronizing signal or perhaps running
+; a user program. If so, we continue running.
 
 main_check_flags:
 ld A,(xmit_p)
@@ -1531,10 +1531,10 @@ jp nz,main_loop
 
 ; We get here when the device is first powering up, in which case our effort to 
 ; turn off the device will not take effect because the device is being kept awake
-; by a command incoming flag. We must be sure to execute the main loop again.
-; Or we get here because it's time to shut down after commands have been executed
-; or the shutdown timer has expired. In that case, we still continue to execute 
-; the main loop after we shut down, but shutdown will still take place.
+; by a command incoming flag. We keep executing the main loop. We also get here
+; when it is time to shut down after commands have been executed or the shutdown 
+; counter has run down. We turn off device power, but continue executing the main
+; loop until the logic turns off.
 
 main_shdn:
 ld A,0
