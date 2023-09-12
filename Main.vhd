@@ -60,7 +60,7 @@
 -- identifier and radio-frequency center frequency into VHDL and add locations to allow the
 -- software to read both bytes of the ID. 
 
--- V1.9, 02-SEP-23: Convert command memory into 2-KByte FIFO. This frees up logic with elimination
+-- V1.9, 11-SEP-23: Convert command memory into 2-KByte FIFO. This frees up logic with elimination
 -- of command address. Enable timer interrupts 3 and 4. Expand program memory to 4 KByte, top two
 -- are user-memory. CPU reads command memory through one location and checks empty with its nearly-- empty flag. We configure the nearly empty flag to assert when there are only two bytes left to
 -- read in the FIFO, which means we will leave the checksum bytes in the FIFO automatically. We 

@@ -77,7 +77,7 @@ const sa_delay      30  ; Wait time for sensor access, TCK periods
 const wp_delay     255  ; Warm-up delay for auxiliary messages
 const num_vars      64  ; Number of vars to clear at start
 const initial_tcd   15  ; Max possible value of TCK divisor
-const uprog_tick   165  ; User program interrupt period
+const uprog_tick   163  ; User program interrupt period
 const id_delay      33  ; To pad id delay to 50 TCK periods
 const min_int_p     25  ; Minimum transmit period
 const shdn_rst     250 ; Shutdown counter reset value.
@@ -689,18 +689,65 @@ pop F               ; Restore the flags.
 pop A               ; Restore A.
 rti                 ; Return from interrupt.
 
-
 ; ------------------------------------------------------------
-; Transmit an confirmation. The confirmation always follows the
-; transmission of some other auxiliary message, so we do not have
-; to warm up the VCO, we simply load the transmit registers and
-; transmit. We assume interrupts are disabled and the CPU is
-; running on the fast clock.
+; Transmit an annoucement, which consists of two auxiliary 
+; messages: one with data and another a confirmation immediately
+; following. The two messages allow us to receive the annoucement
+; and identify the device, as well as eliminate noise announcements.
+; We pass the auxiliary type in register A and the auxiliary data 
+; in register B. The routine assumes we are running in boost with 
+; the interrupts disabled.
 
-xmit_conf:
+xmit_ann:
 
 push F
 push A
+
+; Prepare the VCO for message transmission. We must warm it up or
+; else its frequency will be wrong at tranmission time.
+
+ld A,tx_txwp        ; Turn on the VCO by writing the 
+ld (mmu_xcr),A      ; warm-up bit to the transmit control register.
+ld A,wp_delay       ; Wait for a number of TCK periods while 
+dly A               ; the VCO warms up.
+ld A,0              ; Turn off the VCO and
+ld (mmu_xcr),A      ; let the battery recover
+ld A,wp_delay       ; before we 
+dly A               ; transmit.
+
+; Prepare the auxiliary message. For the channel number, we must 
+; set the bottom nibble to 0xF in order to identify this message
+; as auxiliary. The top nibble is the top niblle of the device
+; identifier's low byte. Within the auxiliary message, we begin with
+; the bottom nibble of the device identifier's low byte. We follow
+; with a nibble containing the auxiliary type, which has been 
+; passed in A. The second byte consists of the data in register B.
+
+ld A,(mmu_idl)      ; Load LO byte of identifier into A,
+or A,0x0F           ; set lower four bits to one
+ld (mmu_xch),A      ; and write the transmit channel register.
+push B              ; Transfer the data byte from
+pop A               ; B into A
+ld (mmu_xlb),A      ; and write to transmit LO register.
+pop B               ; Pop auxiliary type into B.
+ld A,(mmu_idl)      ; Load LO byte of identifier again.
+sla A               ; Shift A 
+sla A               ; left
+sla A               ; four
+sla A               ; times.
+or A,B              ; Set the auxiliary type to acknowledgement.
+ld (mmu_xhb),A      ; Write to transmit HI register.
+
+; Transmit the message.
+
+ld A,tx_txi         ; Initiate transmission with another write to
+ld (mmu_xcr),A      ; control register, which also turns off the warm-up.
+ld A,tx_delay       ; Wait for a number of TCK periods while 
+dly A               ; the transmit completes.
+
+; Transmit a confirmation to complete the announcement. The auxilliary
+; type of a confirmation is always at_conf and the data byte is always
+; the high byte of the device identifier.
 
 ld A,(mmu_idh)      ; Load HI byte id identifier into A and
 ld (mmu_xlb),A      ; write to transmit LO register.
@@ -719,88 +766,45 @@ ld (mmu_xcr),A      ; control register.
 ld A,tx_delay       ; Wait for confirmation
 dly A               ; transmition to complete.
 
-pop A
 pop F
+
 ret
 
 
 ; ------------------------------------------------------------
-; Transmit an acknowledgement. We have to warm up the VCO before
-; the transmit, or its frequency will be wrong. The routine assumes
-; we are running in boost with the interrupts disabled.
+; Transmit an acknowledgement. We put the auxiliary type in
+; A and the acknowledgement key in B, then call our auxiliary
+; message routine.
 
 xmit_ack:
 
 push F
 push A
+push B
 
-; Prepare the VCO for message transmission.
+ld A,(Sack_key)
+push A
+pop B
+ld A,at_ack
+call xmit_ann
 
-ld A,tx_txwp        ; Turn on the VCO by writing the 
-ld (mmu_xcr),A      ; warm-up bit to the transmit control register.
-ld A,wp_delay       ; Wait for a number of TCK periods while 
-dly A               ; the VCO warms up.
-ld A,0              ; Turn off the VCO and
-ld (mmu_xcr),A      ; let the battery recover
-ld A,wp_delay       ; before we 
-dly A               ; transmit.
-
-; Prepare the auxiliary message. We use the low byte of the identifier
-; as the channel number. We use the key we received as the data.
-
-ld A,(mmu_idl)      ; Load LO byte of identifier into A,
-or A,0x0F           ; set lower four bits to one
-ld (mmu_xch),A      ; and write the transmit channel register.
-ld A,(Sack_key)     ; Load the acknowledgement key
-ld (mmu_xlb),A      ; and write to transmit LO register.
-ld A,(mmu_idl)      ; Load LO byte of identifier again.
-sla A               ; Shift A 
-sla A               ; left
-sla A               ; four
-sla A               ; times.
-or A,at_ack         ; Set the auxiliary type to acknowledgement.
-ld (mmu_xhb),A      ; Write to transmit HI register.
-
-; Transmit the message.
-
-ld A,tx_txi         ; Initiate transmission with another write to
-ld (mmu_xcr),A      ; control register, which also turns off the warm-up.
-ld A,tx_delay       ; Wait for a number of TCK periods while 
-dly A               ; the transmit completes.
-
-; Transmit confirmation.
-
-call xmit_conf
-
+pop B
 pop A
 pop F
 
 ret
 
 ; ------------------------------------------------------------
-; Transmit a battery measurement. We assume interrupts are disabled and
-; the CPU is boosted. The battery  measurement is inversely proportional 
-; to the battery voltage. We have: VBAT = 1.2 V * 256 / batt_meas. We 
-; must access twice to acquire and convert.
+; Transmit a battery measurement. The battery  measurement is 
+; inversely proportional to the battery voltage. We have: 
+; VBAT = 1.2 V * 256 / batt_meas. We must access twice to acquire 
+; and convert.
 
 xmit_batt:
 
 push F
 push A
-
-; Prepare the VCO for a transmission.
-
-ld A,tx_txwp        ; Turn on the VCO by writing the 
-ld (mmu_xcr),A      ; warm-up bit to the transmit control register.
-ld A,wp_delay       ; Wait for a number of TCK periods while 
-dly A               ; the VCO warms up.
-ld A,0              ; Turn off the VCO and
-ld (mmu_xcr),A      ; let the battery recover
-ld A,wp_delay       ; before we 
-dly A               ; transmit.
-
-; Load the most recent battery measurement from memory and use as
-; the auxiliary message data byte. 
+push B
 
 ld (mmu_scr),A      ; Initiate conversion of battery voltage.
 ld A,sa_delay       ; Load sensor delay,
@@ -809,38 +813,12 @@ ld (mmu_scr),A      ; convert again,
 ld A,sa_delay       ; wait
 dly A               ; again
 ld A,(mmu_sdb)      ; and get battery measurement.
-ld (mmu_xlb),A      ; Write the to transmit LO register.
+push A              ; Store battery voltage 
+pop B               ; in B.
+ld A,at_batt        ; The battery type code.
+call xmit_ann       ; Transmit auxiliary message.
 
-; Prepare the battery measurement auxiliary message. We use the LO 
-; byte of the device identifier as the channel number. We use the 
-; battery voltage measurement as the data.
-
-ld A,(mmu_idl)      ; Load LO byte of identifier into A,
-or A,0x0F           ; set lower four bits to one
-ld (mmu_xch),A      ; and write the transmit channel register.
-ld A,(mmu_idl)      ; Load LO byte of identifier into A.
-sla A               ; Shift A 
-sla A               ; left
-sla A               ; four
-sla A               ; times.
-push A              ; Save in B
-pop B               ; for confirmation message.
-or A,at_batt        ; The battery type code for auxiliary message.
-ld (mmu_xhb),A      ; Write to transmit HI register.
-
-; Transit the message and wait until complete.
-
-ld A,tx_txi         ; Initiate transmission and turn off warm-up
-ld (mmu_xcr),A      ; with another write to control register.
-ld A,tx_delay       ; Wait for a number of TCK periods while 
-dly A               ; the transmit completes.
-
-; Transmit the confirmation message.
-
-call xmit_conf
-
-; Return.
-
+pop B
 pop A
 pop F
 ret
@@ -855,6 +833,7 @@ xmit_identify:
 
 push F
 push A
+push B
 push H
 push L
 
@@ -887,51 +866,19 @@ push A
 pop H
 jp nc,identify_delay
 
-; Prepare the VCO for a transmission.
+; Prepare A and B for call to xmit_ann.
 
-ld A,tx_txwp        ; Turn on the VCO by writing the 
-ld (mmu_xcr),A      ; warm-up bit to the transmit control register.
-ld A,wp_delay       ; Wait for a number of TCK periods while 
-dly A               ; the VCO warms up.
-ld A,0              ; Turn off the VCO and
-ld (mmu_xcr),A      ; let the battery recover
-ld A,wp_delay       ; before we 
-dly A               ; transmit.
-
-; Prepare the auxiliary message. We use the LO byte of the device identifier
-; as the channel number for an auxiliary message. We use the HI byte for
-; the data.
-
-ld A,(mmu_idh)      ; Load HI byte id identifier into A and
-ld (mmu_xlb),A      ; write to transmit LO register.
-ld A,(mmu_idl)      ; Load LO byte of identifier into A,
-or A,0x0F           ; set lower four bits to one and
-ld (mmu_xch),A      ; write to the transmit channel register.
-ld A,(mmu_idl)      ; Load LO byte into A again,
-sla A               ; shift A 
-sla A               ; left
-sla A               ; four
-sla A               ; times.
-push A              ; Save shifted A
-pop B               ; in B for later.
-or A,at_id          ; The identify type code for auxiliary message.
-ld (mmu_xhb),A      ; Write to transmit HI register.
-
-; Transit the message and wait until complete.
-
-ld A,tx_txi         ; Initiate transmission and turn off warmup
-ld (mmu_xcr),A      ; with another write to control register.
-ld A,tx_delay       ; Wait for a number of TCK periods while 
-dly A               ; the transmit completes.
-
-; Transmit a confirmation message.
-
-call xmit_conf
+ld A,(mmu_idh)      ; Load HI byte id identifier 
+push A              ; into A and
+pop B               ; store in B.
+ld A,at_id          ; Load the identify type code into A.
+call xmit_ann       ; Transmit auxiliary message.
 
 ; Return.
 
 pop L
 pop H
+pop B
 pop A
 pop F
 
