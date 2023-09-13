@@ -70,6 +70,19 @@
 -- and two to sixteen bits and make them reset to zero when we reset the interrupt. This way, we
 -- can force the timer to the stored period value when we reset the interrupt.
 
+-- V2.0, 12-SEP-23: Try to add device version byte, but the MMU stops working when we do. We 
+-- add an "others" line to complete the control space case statement. Now code won't fit. As it
+-- is, the code returns version number zero at the version location.
+
+-- V2.1, 13-SEP-23: The VHDL compile of our code, without "others" clauses, is unstable. Changes
+-- in readback constants cause it to fail. Version 2.0, for example, compiles perfectly for 
+-- device identifier 0x286C, but fails to provide a working memory map for 0x4E35. We move the
+-- device identifier, radio frequency calibration, and device version constants out of the VHDL
+-- and into the OSR8 code. Provided our VHDL compile works for one device, it will work for all.
+-- Even without the constants, the MMU read register map is unstable. We reduce the length of
+-- "bottom_bits" to five. Now we can include an "others" clause in the control space case 
+-- statement. We find we must include an "others" statement in the register write case statement.
+
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -94,12 +107,11 @@ entity main is
 		: inout std_logic;
 		xdac -- Transmit DAC Output, to set data transmit frequency
 		: out std_logic_vector(4 downto 0));
+		
+-- Default Configuration of Device.
+	constant default_frequency_low : integer := 5;
+	constant tx_channel_default : integer := 1;
 
--- Configuration of Device.
-	constant device_id : integer := 16#286C#;
-	constant device_ver : integer := 21;
-	constant frequency_low : integer := 6;
-	
 -- Configuration of OSR8 CPU.
 	constant prog_addr_len : integer := 12;
 	constant cpu_addr_len : integer := 12;
@@ -108,7 +120,7 @@ entity main is
 	constant ram_addr_len : integer := 10;
 	constant cmd_addr_len : integer := 10;
 
--- Memory Map Constants, sizes and base addresses in units of 256 Bytes.
+-- Memory Map Constants, sizes and base addresses.
 	constant ram_bot : integer  := 16#0000#;
 	constant ram_top : integer  := 16#03FF#;
 	constant ctrl_bot : integer := 16#0400#;
@@ -129,6 +141,7 @@ entity main is
 	constant mmu_xlb  : integer := 9;  -- Transmit LO Byte (Write)
 	constant mmu_xch  : integer := 10; -- Transmit Channel Number (Write)
 	constant mmu_xcr  : integer := 11; -- Transmit Control Register (Write)
+	constant mmu_rfc  : integer := 12; -- Radio Frequency Calibration (Write)	
 	constant mmu_etc  : integer := 13; -- Enable Transmit Clock (Write)
 	constant mmu_tcf  : integer := 14; -- Transmit Clock Frequency (Write)
 	constant mmu_tcd  : integer := 15; -- Transmit Clock Divider (Write)
@@ -143,9 +156,6 @@ entity main is
 	constant mmu_i2pl : integer := 25; -- Interrupt Timer Two Period LSB (Write)
 	constant mmu_i3p  : integer := 26; -- Interrupt Timer Three Period MSB (Write)
 	constant mmu_i4p  : integer := 27; -- Interrupt Timer Four Period MSB (Write)
-	constant mmu_idh  : integer := 28; -- Identifier HI Byte (Read)
-	constant mmu_idl  : integer := 29; -- Identifier LO Byte (Read)
-	constant mmu_ver  : integer := 30; -- Version Byte (Read)
 end;
 
 architecture behavior of main is
@@ -176,9 +186,9 @@ architecture behavior of main is
 	attribute syn_keep of TXI, TXA : signal is true;
 	attribute nomerge of TXI, TXA : signal is "";  
 	signal xmit_bits : std_logic_vector(15 downto 0) := (others => '0');
-	constant tx_channel_default : integer := device_id rem 256;
-	signal tx_channel : integer range 0 to 255 := tx_channel_default; 
+	signal tx_channel : integer range 0 to 255 := tx_channel_default;
 	constant frequency_step : integer := 1; 
+	signal frequency_low : integer range 0 to 31 := default_frequency_low;
 		
 -- Sensor Controller
 	signal CS : boolean; -- Chip Select for DAC
@@ -389,7 +399,7 @@ begin
 -- (most significant byte at lower address). 
 	MMU : process (CK,RESET) is
 		variable all_bits : integer range 0 to 4096;
-		variable bottom_bits : integer range 0 to 255;
+		variable bottom_bits : integer range 0 to 31;
 	begin		
 		-- By default, don't write to RAM or PROG memories, nor do we read from
 		-- the command memory FIFO.
@@ -440,8 +450,11 @@ begin
 						cpu_data_in(6) <= CME;                  -- Command Memory Empty
 					when mmu_cmp =>
 						cpu_data_in <= cmd_out;
-						CMRD <= to_std_logic(CPUDS);					when mmu_idh => cpu_data_in <= std_logic_vector(to_unsigned(device_id / 256,8));
-					when mmu_idl => cpu_data_in <= std_logic_vector(to_unsigned(device_id rem 256,8));
+						CMRD <= to_std_logic(CPUDS);
+					-- This others statement stabilizes the code. I also has the
+					-- effect of making the non-existent register read return a zero.
+					when others => 
+						cpu_data_in <= (others => '0');
 				end case;
 			end if;
 		when prog_bot to prog_top =>
@@ -471,6 +484,7 @@ begin
 			int_mask <= (others => '0');
 			CPRST <= true;
 			DACTIVE <= false;
+			frequency_low <= default_frequency_low;
 		-- We use the falling edge of RCK to write to registers and to initiate sensor 
 		-- and transmit activity. Some signals we assert only for one CK period, and 
 		-- these we assert as false by default.
@@ -490,6 +504,7 @@ begin
 						when mmu_xcr  => 
 							TXI <= (cpu_data_out(0) = '1');
 							TXWP <= (cpu_data_out(1) = '1');
+						when mmu_rfc  => frequency_low <= to_integer(unsigned(cpu_data_out));
 						when mmu_imsk => int_mask <= cpu_data_out;
 						when mmu_irst => int_rst <= cpu_data_out;
 						when mmu_dact => DACTIVE <= (cpu_data_out(0) = '1');
@@ -506,6 +521,9 @@ begin
 						when mmu_i2pl => int_period_2(7 downto 0) <= cpu_data_out;
 						when mmu_i3p  => int_period_3(7 downto 0) <= cpu_data_out;
 						when mmu_i4p  => int_period_4(7 downto 0) <= cpu_data_out;
+						-- The following others statement stabilizes the compile but
+						-- otherwise does nothing.
+						when others   => df_reg <= df_reg;
 					end case;
 				end if;
 			end if;

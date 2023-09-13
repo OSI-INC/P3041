@@ -3,6 +3,12 @@
 
 ; This code runs in the OSR8V3 microprocessor of the A3041A.
 
+; Configuration Constants.
+const version         21 ; The firmwarwe version.
+const identifier_hi 0x28 ; High byte of identifier.
+const identifier_lo 0x6C ; Low byte of identifier.
+const frequency_low    5 ; Radio frequency calibration.
+
 ; CPU Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Main Program Variable Memory
 const mmu_sba  0x0100 ; Stack Base Address
@@ -23,6 +29,7 @@ const mmu_xhb  0x0408 ; Transmit HI Byte (Write)
 const mmu_xlb  0x0409 ; Transmit LO Byte (Write)
 const mmu_xch  0x040A ; Transmit Channel Number (Write)
 const mmu_xcr  0x040B ; Transmit Control Register (Write)
+const mmu_rfc  0x040C ; Radio Frequency Calibration (Write)
 const mmu_etc  0x040D ; Enable Transmit Clock (Write)
 const mmu_tcf  0x040E ; Transmit Clock Frequency (Write)
 const mmu_tcd  0x040F ; Transmit Clock Divider (Write)
@@ -37,9 +44,6 @@ const mmu_i2ph 0x0418 ; Interrupt Timer Two Period HI (Write)
 const mmu_i2pl 0x0419 ; Interrupt Timer Two Period LO (Write)
 const mmu_i3p  0x041A ; Interrupt Timer Three Period (Write)
 const mmu_i4p  0x041B ; Interrupt Timer Four Period (Write)
-const mmu_idh  0x041C ; Device ID HI (Read)
-const mmu_idl  0x041D ; Device ID LO (Read)
-const mmu_ver  0x014E ; Version (Read)
 
 ; Status Bit Masks, for use with status register
 const sr_cmdrdy  0x01 ; Command Ready Flag
@@ -726,14 +730,14 @@ dly A               ; transmit.
 ; with a nibble containing the auxiliary type, which has been 
 ; passed in A. The second byte consists of the data in register B.
 
-ld A,(mmu_idl)      ; Load LO byte of identifier into A,
+ld A,identifier_lo  ; Load LO byte of identifier into A,
 or A,0x0F           ; set lower four bits to one
 ld (mmu_xch),A      ; and write the transmit channel register.
 push B              ; Transfer the data byte from
 pop A               ; B into A
 ld (mmu_xlb),A      ; and write to transmit LO register.
 pop B               ; Pop auxiliary type into B.
-ld A,(mmu_idl)      ; Load LO byte of identifier again.
+ld A,identifier_lo  ; Load LO byte of identifier again.
 sla A               ; Shift A 
 sla A               ; left
 sla A               ; four
@@ -752,12 +756,12 @@ dly A               ; the transmit completes.
 ; type of a confirmation is always at_conf and the data byte is always
 ; the high byte of the device identifier.
 
-ld A,(mmu_idh)      ; Load HI byte id identifier into A and
+ld A,identifier_hi  ; Load HI byte id identifier into A and
 ld (mmu_xlb),A      ; write to transmit LO register.
-ld A,(mmu_idl)      ; Load LO byte of identifier into A,
+ld A,identifier_lo  ; Load LO byte of identifier into A,
 or A,0x0F           ; set lower four bits to one and
 ld (mmu_xch),A      ; write to the transmit channel register.
-ld A,(mmu_idl)      ; Load LO byte into A again,
+ld A,identifier_lo  ; Load LO byte into A again,
 sla A               ; shift A 
 sla A               ; left
 sla A               ; four
@@ -836,10 +840,10 @@ push F
 push A
 push B
 
-ld A,(mmu_ver)      ; and get battery measurement.
-push A              ; Store battery voltage 
-pop B               ; in B.
-ld A,at_ver         ; The battery type code.
+ld A,version        ; Put the version number
+push A              ; in register
+pop B               ; B for procedure call.
+ld A,at_ver         ; Load version type in A.
 call xmit_annc      ; Transmit annoucement.
 
 pop B
@@ -868,10 +872,10 @@ push L
 ; collide only if their IDs are consecutive, and we will wait
 ; only 0.7 s. 
 
-ld A,(mmu_idh)
+ld A,identifier_hi
 push A
 pop H
-ld A,(mmu_idl)
+ld A,identifier_lo
 push A
 pop L
 identify_delay:
@@ -891,7 +895,7 @@ jp nc,identify_delay
 
 ; Prepare A and B for call to xmit_annc.
 
-ld A,(mmu_idh)      ; Load HI byte id identifier 
+ld A,identifier_hi  ; Load HI byte id identifier 
 push A              ; into A and
 pop B               ; store in B.
 ld A,at_id          ; Load the identify type code into A.
@@ -1026,10 +1030,10 @@ jp nz,cmd_done
 
 ; Load the device id into HL and the command target id into DE.
 
-ld A,(mmu_idh)
+ld A,identifier_hi
 push A
 pop H
-ld A,(mmu_idl)
+ld A,identifier_lo
 push A
 pop L
 call get_cmd_byte
@@ -1409,10 +1413,10 @@ jp nz,main_var_init_loop
 
 ; Initialize certain variables to values other than zero.
 
-ld A,(mmu_idl)     ; Set the primary channel number to the
+ld A,identifier_lo ; Set the primary channel number to the
 ld (xmit_ch),A     ; LO byte of the device identifier.
 ld (rand_0),A      ; Seed the random number generator
-ld A,(mmu_idh)     ; with the LO and HI bytes of the
+ld A,identifier_hi ; with the LO and HI bytes of the
 ld (rand_1),A      ; device identifier.
 ld A,shdn_rst      ; Load the extinguish counter with
 ld (shdncnt1),A    ; the reset value,
@@ -1432,6 +1436,8 @@ ld (mmu_i4p),A     ; generation.
 ld (mmu_imsk),A    ; Mask all interrupts.
 ld A,0xFF          ; Load A with ones
 ld (mmu_irst),A    ; and reset all interrupts.
+ld A,frequency_low ; Write the radio frequency
+ld (mmu_rfc),A     ; calibration to the firmware.
 
 ; Configure user programming.
 
