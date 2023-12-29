@@ -55,14 +55,16 @@
 -- V1.7, 02-AUG-23: Fix bug in lamp current control, producing linear increase in duty cycle with 
 -- current code.
 
--- V1.8, 16-AUG-23: Reduce program memory to 3 KByte and make it dual-port. Map the top kilobyte -- into the top kilobyte of cpu memory. We read the program memory on !CK. We find we must write
+-- V1.8, 16-AUG-23: Reduce program memory to 3 KByte and make it dual-port. Map the top kilobyte
+-- into the top kilobyte of cpu memory. We read the program memory on !CK. We find we must write
 -- on CK or the writes fail. Now we can write to the program memory. Move specification of device
 -- identifier and radio-frequency center frequency into VHDL and add locations to allow the
 -- software to read both bytes of the ID. 
 
 -- V1.9, 11-SEP-23: Convert command memory into 2-KByte FIFO. This frees up logic with elimination
 -- of command address. Enable timer interrupts 3 and 4. Expand program memory to 4 KByte, top two
--- are user-memory. CPU reads command memory through one location and checks empty with its nearly-- empty flag. We configure the nearly empty flag to assert when there are only two bytes left to
+-- are user-memory. CPU reads command memory through one location and checks empty with its nearly
+-- empty flag. We configure the nearly empty flag to assert when there are only two bytes left to
 -- read in the FIFO, which means we will leave the checksum bytes in the FIFO automatically. We 
 -- assign first KByte of CPU memory to RAM, second KByte to control registers, and final two KByte 
 -- to user program memory. We expand top_bits to include CPU address 8 and increase bottom bits to 

@@ -5,8 +5,8 @@
 
 ; Configuration Constants.
 const version         21 ; The firmwarwe version.
-const identifier_hi 0x28 ; High byte of identifier.
-const identifier_lo 0x6C ; Low byte of identifier.
+const identifier_hi 0x27 ; 0-255, no restrictions
+const identifier_lo 0x9A ; 0-255, low nibble cannot be 0x0 or 0xF 
 const frequency_low    5 ; Radio frequency calibration.
 
 ; CPU Address Map Boundary Constants
@@ -86,7 +86,7 @@ const initial_tcd   15  ; Max possible value of TCK divisor
 const uprog_tick   163  ; User program interrupt period
 const id_delay      33  ; To pad id delay to 50 TCK periods
 const min_int_p     25  ; Minimum transmit period
-const shdn_rst     250 ; Shutdown counter reset value.
+const shdn_rst     250  ; Shutdown counter reset value.
 
 ; Stimulus Control Variables
 const Scurrent    0x0000 ; Stimulus Current
