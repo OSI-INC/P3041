@@ -1192,7 +1192,7 @@ begin
 -- so that they reset the crc register to all zeros. If crc is not zero at the 
 -- end of a command, there was some error during reception. We use the Bit Strobe 
 -- (BITS) signal to clock crc, because BITS is asserted only when a command data 
--- bit is receive, not when we receive a start or stop bit.
+-- bit is received, not when we receive a start or stop bit.
 	Error_Check : process is
 		variable crc, next_crc : std_logic_vector(15 downto 0) := (others => '1');
 	begin
