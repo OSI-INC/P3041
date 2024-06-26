@@ -85,6 +85,8 @@
 -- "bottom_bits" to five. Now we can include an "others" clause in the control space case 
 -- statement. We find we must include an "others" statement in the register write case statement.
 
+-- V3.1, 26-JUN-24: Adding User Flash Memory. Reduce command memory to 1-KByte FIFO. This frees
+-- up the top 9344 bits, 1168 Bytes, or 73 pages of flash memory for use as non-volatile storage.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -158,6 +160,7 @@ entity main is
 	constant mmu_i2pl : integer := 25; -- Interrupt Timer Two Period LSB (Write)
 	constant mmu_i3p  : integer := 26; -- Interrupt Timer Three Period MSB (Write)
 	constant mmu_i4p  : integer := 27; -- Interrupt Timer Four Period MSB (Write)
+	constant mmu_cmem : integer := 28; -- Configuration Memory Port (Read/Write)
 end;
 
 architecture behavior of main is
@@ -274,6 +277,10 @@ architecture behavior of main is
 		CPRST -- Command Processor Reset
 		: boolean := false;
 		
+-- Configuration Memory
+	signal CMEMDS, CMEMSEL, CMEMWR, CMEMACK : std_logic;
+	signal cmem_addr, cmem_in, cmem_out : std_logic_vector(7 downto 0); 
+		
 -- Stimulus Current Controller
 	signal stimulus_current : integer range 0 to 15;
 
@@ -326,7 +333,6 @@ begin
 		OND <= to_std_logic(CPA or DACTIVE);
 	end process;
 	
-	
 -- Ring Oscillator. This oscillator turns on when the microprocessor asserts
 -- Enable Transmit Clock (ENTCK). The transmit clock must be running during a
 -- sample transmission in order for the timing of the transmission to be correct.
@@ -344,6 +350,19 @@ begin
 	begin
 		if falling_edge(FCK) then TCK <= to_std_logic(TCK = '0'); end if;
 	end process;
+	
+-- Configuration memory, using non-volatile user flash memory.
+	CMEM : entity UFM port map (
+		wb_clk_i => CK,
+		wb_rst_i => RESET,
+		wb_cyc_i => CMEMDS,
+		wb_stb_i => CMEMSEL,
+		wb_we_i => CMEMWR,
+		wb_adr_i => cmem_addr,
+		wb_dat_i => cmem_in,
+		wb_dat_o => cmem_out,
+		wb_ack_o => CMEMACK);
+
 
 -- User memory and configuration code for the CPU. This RAM will be initialized at
 -- start-up with a configuration file, and so may be read after power up to configure
@@ -453,7 +472,11 @@ begin
 					when mmu_cmp =>
 						cpu_data_in <= cmd_out;
 						CMRD <= to_std_logic(CPUDS);
-					-- This others statement stabilizes the code. I also has the
+					when mmu_cmem =>
+						cpu_data_in <= cmem_out;
+						CMEMWR <= '0';
+						CMEMDS <= to_std_logic(CPUDS);
+					-- This others statement stabilizes the code. It also has the
 					-- effect of making the non-existent register read return a zero.
 					when others => 
 						cpu_data_in <= (others => '0');
