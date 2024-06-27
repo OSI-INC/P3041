@@ -117,7 +117,7 @@ entity main is
 	constant tx_channel_default : integer := 1;
 
 -- Configuration of OSR8 CPU.
-	constant prog_addr_len : integer := 12;
+	constant prog_addr_len : integer := 11;
 	constant cpu_addr_len : integer := 12;
 	constant start_pc : integer := 0;
 	constant interrupt_pc : integer := 3;
@@ -160,7 +160,7 @@ entity main is
 	constant mmu_i2pl : integer := 25; -- Interrupt Timer Two Period LSB (Write)
 	constant mmu_i3p  : integer := 26; -- Interrupt Timer Three Period MSB (Write)
 	constant mmu_i4p  : integer := 27; -- Interrupt Timer Four Period MSB (Write)
-	constant mmu_cmem : integer := 28; -- Configuration Memory Port (Read/Write)
+	constant mmu_wb   : integer := 28; -- Wishbone Memory Port (Read/Write)
 end;
 
 architecture behavior of main is
@@ -278,8 +278,8 @@ architecture behavior of main is
 		: boolean := false;
 		
 -- Configuration Memory
-	signal CMEMDS, CMEMSEL, CMEMWR, CMEMACK : std_logic;
-	signal cmem_addr, cmem_in, cmem_out : std_logic_vector(7 downto 0); 
+	signal WBDS, WBSEL, WBWR, WBACK : std_logic;
+	signal wb_addr, wb_in, wb_out : std_logic_vector(7 downto 0); 
 		
 -- Stimulus Current Controller
 	signal stimulus_current : integer range 0 to 15;
@@ -352,16 +352,16 @@ begin
 	end process;
 	
 -- Configuration memory, using non-volatile user flash memory.
-	CMEM : entity UFM port map (
+	Wishbone : entity UFM port map (
 		wb_clk_i => CK,
 		wb_rst_i => RESET,
-		wb_cyc_i => CMEMDS,
-		wb_stb_i => CMEMSEL,
-		wb_we_i => CMEMWR,
-		wb_adr_i => cmem_addr,
-		wb_dat_i => cmem_in,
-		wb_dat_o => cmem_out,
-		wb_ack_o => CMEMACK);
+		wb_cyc_i => WBDS,
+		wb_stb_i => WBSEL,
+		wb_we_i => WBWR,
+		wb_adr_i => wb_addr,
+		wb_dat_i => wb_in,
+		wb_dat_o => wb_out,
+		wb_ack_o => WBACK);
 
 
 -- User memory and configuration code for the CPU. This RAM will be initialized at
@@ -423,23 +423,28 @@ begin
 		variable bottom_bits : integer range 0 to 31;
 	begin		
 		-- By default, don't write to RAM or PROG memories, nor do we read from
-		-- the command memory FIFO.
+		-- the command memory FIFO or the Wishbone interface.
 		RAMWR <= '0';
 		PROGWR <= '0';
 		CMRD <= '0';
+		WBWR <= '0';
 		
 		-- The RAM address we take from the lower bits of the cpu
 		-- address. The RAM data in is always the cpu data out.
 		ram_in <= cpu_data_out;
 		ram_addr <= cpu_addr(ram_addr_len-1 downto 0);
 		
+		-- The wishbone interface.
+		wb_in <= cpu_data_out;
+		wb_addr <= cpu_addr(7 downto 0);
+		
 		-- The program memory data input is the cpu data, but its 
 		-- write address we restrict to the upper kilobyte of the 
 		-- program memory, so we can never write to the lower two
 		-- kilobytes. 
 		prog_in <= cpu_data_out;
-		prog_in_addr(11) <= '1';
-		prog_in_addr(10 downto 0) <= cpu_addr(10 downto 0);
+		prog_in_addr(10) <= '1';
+		prog_in_addr(9 downto 0) <= cpu_addr(9 downto 0);
 		
 		-- These signals develop after the CPU asserts a new address
 		-- along with CPU Write. They will be ready before the falling 
@@ -469,17 +474,28 @@ begin
 						cpu_data_in(4) <= to_std_logic(CPA);    -- Command Processor Active Flag
 						cpu_data_in(5) <= to_std_logic(BOOST);  -- Boost CPU Flag
 						cpu_data_in(6) <= CME;                  -- Command Memory Empty
+						cpu_data_in(7) <= WBACK;                -- Wishbone acknowledge
 					when mmu_cmp =>
 						cpu_data_in <= cmd_out;
 						CMRD <= to_std_logic(CPUDS);
-					when mmu_cmem =>
-						cpu_data_in <= cmem_out;
-						CMEMWR <= '0';
-						CMEMDS <= to_std_logic(CPUDS);
+					when mmu_wb => 
+						cpu_data_in <= wb_out;
+						WBDS <= to_std_logic(CPUDS);
+						WBSEL <= to_std_logic(CPUDS);
+						WBWR <= '0';
+						
 					-- This others statement stabilizes the code. It also has the
 					-- effect of making the non-existent register read return a zero.
 					when others => 
 						cpu_data_in <= (others => '0');
+				end case;
+			else 
+				case bottom_bits is
+				when mmu_wb => 
+					wb_in <= cpu_data_out;
+					WBDS <= to_std_logic(CPUDS);
+					WBSEL <= to_std_logic(CPUDS);
+					WBWR <= '1';
 				end case;
 			end if;
 		when prog_bot to prog_top =>

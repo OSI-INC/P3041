@@ -14,8 +14,8 @@ end entity tb;
 architecture test of tb is 
 
     component ROM
-        port (WrAddress : in std_logic_vector(11 downto 0); 
-        RdAddress : in std_logic_vector(11 downto 0); 
+        port (WrAddress : in std_logic_vector(10 downto 0); 
+        RdAddress : in std_logic_vector(10 downto 0); 
         Data : in std_logic_vector(7 downto 0); WE: in std_logic; 
         RdClock: in std_logic; RdClockEn: in std_logic; 
         Reset: in std_logic; WrClock: in std_logic; 
@@ -23,8 +23,8 @@ architecture test of tb is
     );
     end component;
 
-    signal WrAddress : std_logic_vector(11 downto 0) := (others => '0');
-    signal RdAddress : std_logic_vector(11 downto 0) := (others => '0');
+    signal WrAddress : std_logic_vector(10 downto 0) := (others => '0');
+    signal RdAddress : std_logic_vector(10 downto 0) := (others => '0');
     signal Data : std_logic_vector(7 downto 0) := (others => '0');
     signal WE: std_logic := '0';
     signal RdClock: std_logic := '0';
@@ -46,7 +46,7 @@ begin
       WrAddress <= (others => '0') ;
       wait for 100 ns;
       wait until Reset = '0';
-      for i in 0 to 8198 loop
+      for i in 0 to 4102 loop
         wait until WrClock'event and WrClock = '1';
         WrAddress <= WrAddress + '1' after 1 ns;
       end loop;
@@ -59,7 +59,7 @@ begin
       RdAddress <= (others => '0') ;
       wait for 100 ns;
       wait until Reset = '0';
-      for i in 0 to 8198 loop
+      for i in 0 to 4102 loop
         wait until RdClock'event and RdClock = '1';
         RdAddress <= RdAddress + '1' after 1 ns;
       end loop;
@@ -72,7 +72,7 @@ begin
       Data <= (others => '0') ;
       wait for 100 ns;
       wait until Reset = '0';
-      for i in 0 to 4099 loop
+      for i in 0 to 2051 loop
         wait until WrClock'event and WrClock = '1';
         Data <= Data + '1' after 1 ns;
       end loop;
@@ -84,7 +84,7 @@ begin
     begin
       WE <= '0' ;
       wait until Reset = '0';
-      for i in 0 to 4099 loop
+      for i in 0 to 2051 loop
         wait until WrClock'event and WrClock = '1';
         WE <= '1' after 1 ns;
       end loop;

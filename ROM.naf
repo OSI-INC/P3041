@@ -1,4 +1,3 @@
-WrAddress[11]  i
 WrAddress[10]  i
 WrAddress[9]  i
 WrAddress[8]  i
@@ -10,7 +9,6 @@ WrAddress[3]  i
 WrAddress[2]  i
 WrAddress[1]  i
 WrAddress[0]  i
-RdAddress[11]  i
 RdAddress[10]  i
 RdAddress[9]  i
 RdAddress[8]  i

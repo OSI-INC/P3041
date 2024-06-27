@@ -1,5 +1,5 @@
 SCUBA, Version Diamond (64-bit) 3.12.1.454
-Wed Jun 26 13:10:03 2024
+Thu Jun 27 14:10:40 2024
   
 Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
 Copyright (c) 1995 AT&T Corp.   All rights reserved.
@@ -9,21 +9,24 @@ Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
   
 BEGIN SCUBA Module Synthesis
   
-    Issued command   : C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n UFM -lang vhdl -synth synplify -bus_exp 7 -bb -type efb -arch xo2c00 -freq 50 -ufm -ufm_ebr 438 -mem_size 73 -ufm_0 -wb -dev 1200 
-    Circuit name     : UFM
-    Module type      : efb
-    Module Version   : 1.2
+    Issued command   : C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type ramdps -device LCMXO2-1200ZE -raddr_width 11 -rwidth 8 -waddr_width 11 -wwidth 8 -rnum_words 2048 -wnum_words 2048 -cascade 11 -memfile c:/kevan/a3041/p3041/rom.mem -memformat hex 
+    Circuit name     : ROM
+    Module type      : RAM_DP
+    Module Version   : 6.5
     Ports            : 
-    Inputs       : wb_clk_i, wb_rst_i, wb_cyc_i, wb_stb_i, wb_we_i, wb_adr_i[7:0], wb_dat_i[7:0]
-    Outputs      : wb_dat_o[7:0], wb_ack_o, wbc_ufm_irq
+    Inputs       : WrAddress[10:0], RdAddress[10:0], Data[7:0], WE, RdClock, RdClockEn, Reset, WrClock, WrClockEn
+    Outputs      : Q[7:0]
     I/O buffer       : not inserted
-    EDIF output      : UFM.edn
-    VHDL output      : UFM.vhd
-    VHDL template    : UFM_tmpl.vhd
+    Memory file      : c:/kevan/a3041/p3041/rom.mem
+    EDIF output      : ROM.edn
+    VHDL output      : ROM.vhd
+    VHDL template    : ROM_tmpl.vhd
+    VHDL testbench   : tb_ROM_tmpl.vhd
     VHDL purpose     : for synthesis and simulation
     Bus notation     : big endian
-    Report output    : UFM.srp
+    Report output    : ROM.srp
     Estimated Resource Usage:
+            EBR : 2
   
 END   SCUBA Module Synthesis
 
