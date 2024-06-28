@@ -727,11 +727,12 @@ begin
 			for i in 4 to 7 loop
 				int_bits(i) <= '0';
 			end loop;			
+
+			-- We generate an interrupt if any one interrupt bit is 
+			-- set and unmasked.
+			CPUIRQ <= (int_bits and int_mask) /= "00000000";
 		end if;
 
-		-- We generate an interrupt if any one interrupt bit is 
-		-- set and unmasked.
-		CPUIRQ <= (int_bits and int_mask) /= "00000000";
 	end process;
 
 	-- The Sensor Controller reads out the eight-bit battery monitoring ADC when it
