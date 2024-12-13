@@ -85,7 +85,8 @@
 -- "bottom_bits" to five. Now we can include an "others" clause in the control space case 
 -- statement. We find we must include an "others" statement in the register write case statement.
 
--- V2.2, 13-DEC-24: Import improvements to power-up process from P3051.
+-- V2.2, 13-DEC-24: Import improvements to power-up process from P3051. Add two more others 
+-- clauses, so all cases have others clauses except those for which all values are accounted for.
 
 
 library ieee;  
@@ -435,41 +436,42 @@ begin
 		all_bits := to_integer(unsigned(cpu_addr));
 		bottom_bits := to_integer(unsigned(cpu_addr(7 downto 0)));
 		case all_bits is
-		when ram_bot to ram_top => 
-			if not CPUWR then
-				cpu_data_in <= ram_out;
-			else
-				RAMWR <= to_std_logic(CPUDS);
-			end if;
-		when ctrl_bot to ctrl_top =>
-			if not CPUWR then 
-				case bottom_bits is
-					when mmu_sdb => cpu_data_in <= sensor_bits_in;
-					when mmu_irqb => cpu_data_in <= int_bits;
-					when mmu_imsk => cpu_data_in <= int_mask;
-					when mmu_dfr => cpu_data_in(3 downto 0) <= df_reg;
-					when mmu_tcf => cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
-					when mmu_sr => 
-						cpu_data_in(0) <= to_std_logic(CMDRDY); -- Command Ready Flag
-						cpu_data_in(1) <= to_std_logic(ENTCK);  -- Transmit Clock Enabled
-						cpu_data_in(2) <= to_std_logic(SAA);    -- Sensor Access Active Flag
-						cpu_data_in(3) <= to_std_logic(TXA);    -- Transmit Active Flag
-						cpu_data_in(4) <= to_std_logic(CPA);    -- Command Processor Active Flag
-						cpu_data_in(5) <= to_std_logic(BOOST);  -- Boost CPU Flag
-						cpu_data_in(6) <= CME;                  -- Command Memory Empty
-					when mmu_cmp =>
-						cpu_data_in <= cmd_out;
-						CMRD <= to_std_logic(CPUDS);
-					-- This others statement stabilizes the code. I also has the
-					-- effect of making the non-existent register read return a zero.
-					when others => 
-						cpu_data_in <= (others => '0');
-				end case;
-			end if;
-		when prog_bot to prog_top =>
-			if CPUWR then
-				PROGWR <= to_std_logic(CPUDS);
-			end if;
+			when ram_bot to ram_top => 
+				if not CPUWR then
+					cpu_data_in <= ram_out;
+				else
+					RAMWR <= to_std_logic(CPUDS);
+				end if;
+			when ctrl_bot to ctrl_top =>
+				if not CPUWR then 
+					case bottom_bits is
+						when mmu_sdb => cpu_data_in <= sensor_bits_in;
+						when mmu_irqb => cpu_data_in <= int_bits;
+						when mmu_imsk => cpu_data_in <= int_mask;
+						when mmu_dfr => cpu_data_in(3 downto 0) <= df_reg;
+						when mmu_tcf => cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
+						when mmu_sr => 
+							cpu_data_in(0) <= to_std_logic(CMDRDY); -- Command Ready Flag
+							cpu_data_in(1) <= to_std_logic(ENTCK);  -- Transmit Clock Enabled
+							cpu_data_in(2) <= to_std_logic(SAA);    -- Sensor Access Active Flag
+							cpu_data_in(3) <= to_std_logic(TXA);    -- Transmit Active Flag
+							cpu_data_in(4) <= to_std_logic(CPA);    -- Command Processor Active Flag
+							cpu_data_in(5) <= to_std_logic(BOOST);  -- Boost CPU Flag
+							cpu_data_in(6) <= CME;                  -- Command Memory Empty
+						when mmu_cmp =>
+							cpu_data_in <= cmd_out;
+							CMRD <= to_std_logic(CPUDS);
+						when others => 
+							cpu_data_in <= (others => '0');
+					end case;
+				end if;
+			when prog_bot to prog_top =>
+				if CPUWR then
+					PROGWR <= to_std_logic(CPUDS);
+				end if;
+				cpu_data_in <= (others => '0');
+			when others =>
+				cpu_data_in <= (others => '0');
 		end case;
 		
 		-- We use RESET to clear some registers and signals, but not all. We do not clear the
@@ -733,13 +735,12 @@ begin
 			-- We disable the remaining interrupt lines.
 			for i in 4 to 7 loop
 				int_bits(i) <= '0';
-			end loop;			
-
+			end loop;		
+			
 			-- We generate an interrupt if any one interrupt bit is 
 			-- set and unmasked.
 			CPUIRQ <= (int_bits and int_mask) /= "00000000";
 		end if;
-
 	end process;
 
 	-- The Sensor Controller reads out the eight-bit battery monitoring ADC when it
