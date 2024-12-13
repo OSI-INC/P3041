@@ -307,7 +307,7 @@ begin
 -- and RESET set HI. When RCK starts up, we us the falling edge to move the 
 -- chip into standby mode, then unassert RESET once we receive SFLAG from the
 -- Power Control Unit (PCU). The process asserts OND to keep the power on.
-PowerUp: process (RCK) is
+	PowerUp: process (RCK) is
 		constant end_state : integer := 7;
 		variable state : integer range 0 to end_state := 0;
 	begin
