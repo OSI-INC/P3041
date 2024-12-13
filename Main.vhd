@@ -85,8 +85,8 @@
 -- "bottom_bits" to five. Now we can include an "others" clause in the control space case 
 -- statement. We find we must include an "others" statement in the register write case statement.
 
--- V2.2, 13-DEC-24: Import improvements to power-up process from P3051. Add two more others 
--- clauses, so all cases have others clauses except those for which all values are accounted for.
+-- V2.2, 13-DEC-24: Import improvements to power-up process from P3051. Add others clauses to
+-- all case statements.
 
 
 library ieee;  
@@ -312,7 +312,7 @@ begin
 		constant end_state : integer := 7;
 		variable state : integer range 0 to end_state := 0;
 	begin
-		if falling_edge(RCK) then
+		if rising_edge(RCK) then
 			CLRFLAG <= to_std_logic(state = 1);
 			USERSTDBY <= to_std_logic(state >= 3);
 			RESET <= to_std_logic((state < end_state) or SWRST);
@@ -462,7 +462,7 @@ begin
 							cpu_data_in <= cmd_out;
 							CMRD <= to_std_logic(CPUDS);
 						when others => 
-							cpu_data_in <= (others => '0');
+							cpu_data_in <= cmd_out;
 					end case;
 				end if;
 			when prog_bot to prog_top =>
@@ -532,8 +532,6 @@ begin
 						when mmu_i2pl => int_period_2(7 downto 0) <= cpu_data_out;
 						when mmu_i3p  => int_period_3(7 downto 0) <= cpu_data_out;
 						when mmu_i4p  => int_period_4(7 downto 0) <= cpu_data_out;
-						-- The following others statement stabilizes the compile but
-						-- otherwise does nothing.
 						when others   => df_reg <= df_reg;
 					end case;
 				end if;
@@ -689,7 +687,6 @@ begin
 		-- reset, we clear the interrupt request line and the interrupt bits. We
 		-- clear the delayed counter zero lines.
 		if (RESET = '1') then
-			CPUIRQ <= false;
 			int_bits <= (others => '0');
 			INTZ1 <= false;
 			INTZ2 <= false;
@@ -737,10 +734,11 @@ begin
 				int_bits(i) <= '0';
 			end loop;		
 			
-			-- We generate an interrupt if any one interrupt bit is 
-			-- set and unmasked.
-			CPUIRQ <= (int_bits and int_mask) /= "00000000";
 		end if;
+		
+		-- We generate an interrupt if any one interrupt bit is 
+		-- set and unmasked.
+		CPUIRQ <= (int_bits and int_mask) /= "00000000";
 	end process;
 
 	-- The Sensor Controller reads out the eight-bit battery monitoring ADC when it
@@ -1366,7 +1364,7 @@ begin
 	TP2 <= to_std_logic((df_reg(1)='1') or CMDRDY);
 	
 -- Test Point Three appears on P4-3 after the programming connector is removed.
-	TP3 <= RCK;
+	TP3 <= to_std_logic(unsigned(prog_addr) = 0);
 
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
