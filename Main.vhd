@@ -85,6 +85,8 @@
 -- "bottom_bits" to five. Now we can include an "others" clause in the control space case 
 -- statement. We find we must include an "others" statement in the register write case statement.
 
+-- V2.2, 13-DEC-24: Import improvements to power-up process from P3051.
+
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -167,11 +169,13 @@ architecture behavior of main is
 	attribute nomerge : string;
 
 -- Power Controller
-	signal USERSTDBY, CLRFLAG, SFLAG, STDBY, RESET : std_logic;
+	signal USERSTDBY, CLRFLAG : std_logic := '0';
+	signal RESET : std_logic := '1';
 	attribute syn_keep of RESET : signal is true;
 	attribute nomerge of RESET : signal is "";
-	signal SWRST : boolean := false; -- Software Reset
-	signal DACTIVE : boolean := true; -- Device Active
+	signal SFLAG, STDBY : std_logic;
+	signal SWRST : boolean := false;
+	signal DACTIVE : boolean := true; 
 	
 -- Ring Oscillator and Transmit Clock
 	signal TCK, FCK, CK : std_logic;
@@ -284,27 +288,30 @@ architecture behavior of main is
 begin
 
 -- We turn off the logic chip bandgap references and other power-hungry
--- circuits with the power controller unit. Within a few milliseconds
+-- circuits with the power controller unit (PCU). Within a few milliseconds
 -- of power-up, the chip is fully operational, but consuming several 
--- milliamps. We move the chip into standby mode by first clearing the 
--- standby flag with CLRFLAG, then asserting the USERSTDBY control signal
--- that begins the transition to standby mode. The PCU has two outputs: 
--- STDBY and SFLAG. The STDBY signal is intended as a command to put 
--- circuits to sleep, while SFLAG is intended as a signal that the system
--- is in standby mode, which must be cleared after returning to full-power
--- mode. We return to full-power mode when we program the chip. The OND
--- signal keeps the power turned on to the chip.
+-- milliamps. We must still wait for RCK to start up, which will take
+-- roughly 150 ms. Once we have RCK, we move the chip into standby mode by
+-- clearing the standby flag with CLRFLAG and asserting USERSTDBY. This
+-- begins the transition to standby mode. The PCU has two outputs: STDBY and 
+-- SFLAG. The STDBY signal is intended as a command to put circuits to sleep, 
+-- while SFLAG is intended as a signal that the system has entered standby 
+-- mode. We return to full-power mode when we program the chip.
 	Power_Controller: entity PCU port map (
 		CLRFLAG => CLRFLAG,
 		USERSTDBY => USERSTDBY, 
 		STDBY => STDBY,
 		SFLAG => SFLAG);	
 
-	PowerUp: process (RCK) is
+-- The Power-Up Process. We have CLRFLAG and USERSTDBY cleared LO on power-up,
+-- and RESET set HI. When RCK starts up, we us the falling edge to move the 
+-- chip into standby mode, then unassert RESET once we receive SFLAG from the
+-- Power Control Unit (PCU). The process asserts OND to keep the power on.
+PowerUp: process (RCK) is
 		constant end_state : integer := 7;
 		variable state : integer range 0 to end_state := 0;
 	begin
-		if rising_edge(RCK) then
+		if falling_edge(RCK) then
 			CLRFLAG <= to_std_logic(state = 1);
 			USERSTDBY <= to_std_logic(state >= 3);
 			RESET <= to_std_logic((state < end_state) or SWRST);
