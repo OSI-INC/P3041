@@ -127,7 +127,7 @@ const xmit_ch     0x0029 ; Telemetry Channel Number
 
 ; User Program Constants
 const prog_usr    0x0800 ; User program location
-const ret_code      0x0A ; Return from subrouting instruction
+const ret_code      0x0A ; Return from subroutine instruction
 
 ; Operation Codes
 const op_stop        0 ; 0 operands

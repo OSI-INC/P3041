@@ -87,7 +87,8 @@
 
 -- V2.2, 13-DEC-24: Import improvements to power-up process from P3051. Add others clauses to
 -- all case statements. Set RAM and ROM reset inputs LO, disabling reset, which fixes an erratic
--- start-up problem in the CPU. Code does not fit.
+-- start-up problem in the CPU. Code does not fit until we remove the others clauses in the
+-- memory management unit.
 
 
 library ieee;  
@@ -461,8 +462,8 @@ begin
 						when mmu_cmp =>
 							cpu_data_in <= cmd_out;
 							CMRD <= to_std_logic(CPUDS);
-						when others => 
-							cpu_data_in <= cmd_out;
+--						when others => 
+--							cpu_data_in <= (others => '0');
 					end case;
 				end if;
 			when prog_bot to prog_top =>
@@ -532,7 +533,7 @@ begin
 						when mmu_i2pl => int_period_2(7 downto 0) <= cpu_data_out;
 						when mmu_i3p  => int_period_3(7 downto 0) <= cpu_data_out;
 						when mmu_i4p  => int_period_4(7 downto 0) <= cpu_data_out;
-						when others   => df_reg <= df_reg;
+--						when others   => df_reg <= df_reg;
 					end case;
 				end if;
 			end if;
@@ -732,13 +733,13 @@ begin
 			-- We disable the remaining interrupt lines.
 			for i in 4 to 7 loop
 				int_bits(i) <= '0';
-			end loop;		
+			end loop;	
 			
+			-- We generate an interrupt if any one interrupt bit is 
+			-- set and unmasked.
+			CPUIRQ <= (int_bits and int_mask) /= "00000000";	
 		end if;
 		
-		-- We generate an interrupt if any one interrupt bit is 
-		-- set and unmasked.
-		CPUIRQ <= (int_bits and int_mask) /= "00000000";
 	end process;
 
 	-- The Sensor Controller reads out the eight-bit battery monitoring ADC when it
@@ -1364,13 +1365,12 @@ begin
 	TP2 <= to_std_logic((df_reg(1)='1') or CMDRDY);
 	
 -- Test Point Three appears on P4-3 after the programming connector is removed.
-	TP3 <= to_std_logic(unsigned(prog_addr) = 0);
+	TP3 <= RCK;
 
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
 -- this output is almost always HI, and the programming extension is still 
 -- attached, quiescent current increases by 250 uA.
 	TP4 <= to_std_logic(FHI);
-
 
 end behavior;
