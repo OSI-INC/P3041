@@ -86,7 +86,8 @@
 -- statement. We find we must include an "others" statement in the register write case statement.
 
 -- V2.2, 13-DEC-24: Import improvements to power-up process from P3051. Add others clauses to
--- all case statements.
+-- all case statements. Set RAM and ROM reset inputs LO, disabling reset, which fixes an erratic
+-- start-up problem in the CPU. Code does not fit.
 
 
 library ieee;  
@@ -310,17 +311,17 @@ begin
 -- Power Control Unit (PCU). The process asserts OND to keep the power on.
 	PowerUp: process (RCK) is
 		constant end_state : integer := 7;
+		constant clr_state : integer := 3;
+		constant stdby_state : integer := clr_state + 2;
 		variable state : integer range 0 to end_state := 0;
 	begin
-		if rising_edge(RCK) then
-			CLRFLAG <= to_std_logic(state = 1);
-			USERSTDBY <= to_std_logic(state >= 3);
+		if falling_edge(RCK) then
+			CLRFLAG <= to_std_logic(state = clr_state);
+			USERSTDBY <= to_std_logic(state >= stdby_state);
 			RESET <= to_std_logic((state < end_state) or SWRST);
 
-			if (state = 0) then state := 1;
-			elsif (state = 1) then state := 2;
-			elsif (state = 2) then state := 3;
-			elsif (SFLAG = '0') then state := 3;
+			if (state < stdby_state) then state := state + 1;
+			elsif (SFLAG = '0') then state := stdby_state;
 			elsif (state < end_state) then state := state + 1; 
 			else state := end_state; end if;
 		end if;
@@ -332,8 +333,7 @@ begin
 		-- processor is active (CPA) or the microprocessor has asserted
 		-- Device Active (DACTIVE).
 		OND <= to_std_logic(CPA or DACTIVE);
-	end process;
-	
+	end process;	
 	
 -- Ring Oscillator. This oscillator turns on when the microprocessor asserts
 -- Enable Transmit Clock (ENTCK). The transmit clock must be running during a
@@ -359,7 +359,7 @@ begin
 	RAM : entity RAM port map (
 		Clock => not CK,
 		ClockEn => '1',
-        Reset => RESET,
+        Reset => '0',
 		WE => RAMWR,
 		Address => ram_addr, 
 		Data => ram_in,
@@ -374,7 +374,7 @@ begin
 		RdAddress => prog_addr,
         RdClock => not CK,
         RdClockEn => '1',
-        Reset => RESET,	
+        Reset => '0',	
         Q => prog_data,
 		WrAddress => prog_in_addr,
 		WrClock => CK,
