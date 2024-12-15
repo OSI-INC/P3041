@@ -110,7 +110,6 @@ architecture behavior of OSR8_CPU is
 
 	constant nop      : integer := 16#00#; -- nop
 	constant jp_nn    : integer := 16#01#; -- jp nn
-	constant jp_nn    : integer := 16#01#; -- jp nn
 	constant jp_nz_nn : integer := 16#02#; -- jp nz,nn
 	constant jp_z_nn  : integer := 16#03#; -- jp z,nn
 	constant jp_nc_nn : integer := 16#04#; -- jp nc,nn
