@@ -82,14 +82,13 @@
 -- device identifier, radio frequency calibration, and device version constants out of the VHDL
 -- and into the OSR8 code. Provided our VHDL compile works for one device, it will work for all.
 -- Even without the constants, the MMU read register map is unstable. We reduce the length of
--- "bottom_bits" to five. Now we can include an "others" clause in the control space case 
--- statement. We find we must include an "others" statement in the register write case statement.
+-- "bottom_bits" to five. We add "others" clauses to the MMU case statements and find that the-- code is works with these additions, but not without them.
 
 -- V2.2, 13-DEC-24: Import improvements to power-up process from P3051. Add others clauses to
 -- all case statements. Set RAM and ROM reset inputs LO, disabling reset, which fixes an erratic
--- start-up problem in the CPU. Code does not fit until we remove the others clauses in the
--- memory management unit.
-
+-- start-up problem in the CPU. Because of all the "others" clauses we have added to the OSR8V3
+-- case statements, the compiled logic does not fit in the 1200ZE chip. We remove our local MMU 
+-- "others" clauses, and the code fits in the 1200ZE and runs perfectly.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -156,7 +155,7 @@ entity main is
 	constant mmu_dfr  : integer := 17; -- Diagnostic Flag Register (Read/Write)
 	constant mmu_sr   : integer := 18; -- Status Register (Read)
 	constant mmu_cmp  : integer := 19; -- Command Memory Portal(Read)
-	constant mmu_crst : integer := 21; -- Command Processor Reset (Write)
+	constant mmu_cpr : integer := 21; -- Command Processor Reset (Write)
 	constant mmu_i1ph : integer := 22; -- Interrupt Timer One Period MSB (Write)
 	constant mmu_i1pl : integer := 23; -- Interrupt Timer One Period LSB (Write)
 	constant mmu_i2ph : integer := 24; -- Interrupt Timer Two Period MSB (Write)
@@ -462,16 +461,12 @@ begin
 						when mmu_cmp =>
 							cpu_data_in <= cmd_out;
 							CMRD <= to_std_logic(CPUDS);
---						when others => 
---							cpu_data_in <= (others => '0');
 					end case;
 				end if;
 			when prog_bot to prog_top =>
 				if CPUWR then
 					PROGWR <= to_std_logic(CPUDS);
 				end if;
-				cpu_data_in <= (others => '0');
-			when others =>
 				cpu_data_in <= (others => '0');
 		end case;
 		
@@ -497,6 +492,7 @@ begin
 			CPRST <= true;
 			DACTIVE <= false;
 			frequency_low <= default_frequency_low;
+			
 		-- We use the falling edge of RCK to write to registers and to initiate sensor 
 		-- and transmit activity. Some signals we assert only for one CK period, and 
 		-- these we assert as false by default.
@@ -526,14 +522,13 @@ begin
 						when mmu_tcd  => tck_divisor <= to_integer(unsigned(cpu_data_out));
 						when mmu_bcc  => BOOST <= (cpu_data_out(0) = '1');
 						when mmu_dfr  => df_reg <= cpu_data_out(3 downto 0);
-						when mmu_crst => CPRST <= true;
+						when mmu_cpr => CPRST <= true;
 						when mmu_i1ph => int_period_1(15 downto 8) <= cpu_data_out;
 						when mmu_i1pl => int_period_1(7 downto 0) <= cpu_data_out;
 						when mmu_i2ph => int_period_2(15 downto 8) <= cpu_data_out;
 						when mmu_i2pl => int_period_2(7 downto 0) <= cpu_data_out;
 						when mmu_i3p  => int_period_3(7 downto 0) <= cpu_data_out;
 						when mmu_i4p  => int_period_4(7 downto 0) <= cpu_data_out;
---						when others   => df_reg <= df_reg;
 					end case;
 				end if;
 			end if;
