@@ -610,7 +610,9 @@ begin
 	end process;
 
 	-- The Interrupt_Controller provides the interrupt signal to the CPU in response to
-	-- sensor and timer events. By default, at power-up, all interrupts are masked.
+	-- timer events. By default, at power-up, all interrupts are masked. We can set the
+	-- period of each timer by writing to locations in the CPU control space. If we want
+	-- the counter to have period N ticks, we write value N-1 to the period registers.
 	Interrupt_Controller : process (RCK,CK,RESET) is
 	variable counter_1, counter_2 : integer range 0 to 65535;
 	variable counter_3, counter_4 : integer range 0 to 255;

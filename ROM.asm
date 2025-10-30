@@ -83,7 +83,7 @@ const sa_delay      30  ; Wait time for sensor access, TCK periods
 const wp_delay     255  ; Warm-up delay for auxiliary messages
 const num_vars      64  ; Number of vars to clear at start
 const initial_tcd   15  ; Max possible value of TCK divisor
-const uprog_tick   163  ; User program interrupt period
+const uprog_tick   163  ; User program interrupt period minus one
 const id_delay      33  ; To pad id delay to 50 TCK periods
 const min_int_p     25  ; Minimum transmit period
 const shdn_rst     250  ; Shutdown counter reset value.
@@ -113,7 +113,7 @@ const ccmdb       0x0016 ; Copy of Command Byte
 const shdncnt1    0x0019 ; Counter Byte One
 const shdncnt0    0x001A ; Counter Byte Zero
 
-; Random Number Variabls
+; Random Number Variables
 const rand_1      0x0020 ; Random Number Byte One
 const rand_0      0x0021 ; Random Number Byte Zero
 
@@ -1264,7 +1264,8 @@ ld (mmu_imsk),A    ; interrupt mask.
 jp cmd_loop        ; We are done with this instruction.
 check_pgld_end:
 
-; Turn on execution of user code during transmit interrupt.
+; Turn on execution of user code by enabling the dedicated user program
+; interrupt.
 
 check_pgon:
 ld A,(ccmdb)
