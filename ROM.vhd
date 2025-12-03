@@ -2,7 +2,7 @@
 -- Module  Version: 6.5
 --C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type bram -wp 10 -rp 0011 -rdata_width 8 -data_width 8 -num_rows 4096 -cascade 11 -memfile c:/kevan/a3041/p3041/rom.mem -memformat hex 
 
--- Wed Dec 03 12:23:36 2025
+-- Wed Dec 03 16:06:15 2025
 
 library IEEE;
 use IEEE.std_logic_1164.all;

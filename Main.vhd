@@ -90,6 +90,9 @@
 -- case statements, the compiled logic does not fit in the 1200ZE chip. We remove our local MMU 
 -- "others" clauses, and the code fits in the 1200ZE and runs perfectly.
 
+-- V2.3, 03-DEC-25: Our code is failing to fit, apparantly at randome. We remove all "others" 
+-- clauses from our OSR8 code. We move CPUIRG back out of an if clause we put it in earlier.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -732,11 +735,11 @@ begin
 				int_bits(i) <= '0';
 			end loop;	
 			
-			-- We generate an interrupt if any one interrupt bit is 
-			-- set and unmasked.
-			CPUIRQ <= (int_bits and int_mask) /= "00000000";	
 		end if;
 		
+		-- We generate an interrupt if any one interrupt bit is 
+		-- set and unmasked.
+		CPUIRQ <= (int_bits and int_mask) /= "00000000";	
 	end process;
 
 	-- The Sensor Controller reads out the eight-bit battery monitoring ADC when it

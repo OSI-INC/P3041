@@ -33,6 +33,10 @@
 -- stabilized the compile process. Each others clause is a repeat of some
 -- or all of a previous clause.
 
+-- [03-DEC-24] Remove others clauses because our code does not fit in the
+-- A3041, and we have stabilized the code by refraining from resetting the
+-- RAM and ROM on power-up.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -355,13 +359,6 @@ begin
 			
 		-- Shift Right Logical of X
 		when alu_cmd_srl => 
-			result_vec(6 downto 0) := X_vec(7 downto 1);
-			result_vec(7) := '0';		
-			result_vec(8) := X_vec(0);		
-			result := to_integer(unsigned(result_vec));
-		
-		-- An others clause identical to another instruction.
-		when others =>
 			result_vec(6 downto 0) := X_vec(7 downto 1);
 			result_vec(7) := '0';		
 			result_vec(8) := X_vec(0);		
@@ -951,7 +948,6 @@ begin
 					when jp_c_nn => jump := flag_C;
 					when jp_np_nn => jump := flag_S;
 					when jp_p_nn => jump := not flag_S;
-					when others => jump := false;
 					end case;
 					-- If we are supposed to jump, do so by setting the program counter to
 					-- the specified absolute value. The first operand is the HI byte, the
@@ -965,12 +961,6 @@ begin
 						next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					end if;
 					next_state := read_opcode;
-					
-				-- An others clause identical to one of the other opcodes.
-				when others => 
-					next_state := read_opcode;
-					next_pa := std_logic_vector(unsigned(prog_addr)+1);
-	
 				end case;
 				
 			-- Read the first byte of data from the data bus. This could be a user memory access
@@ -1005,7 +995,6 @@ begin
 							next_flag_C := (cpu_data_in(2) = '1');		
 							next_flag_S := (cpu_data_in(1) = '1');
 							next_flag_Z := (cpu_data_in(0) = '1');
-						when others => next_A := to_integer(unsigned(cpu_data_in));
 					end case;
 					next_pa := prog_addr;
 					next_state := read_opcode;
@@ -1020,7 +1009,6 @@ begin
 					case opcode is
 						when pop_IX => next_IX(7 downto 0) := cpu_data_in(7 downto 0);
 						when pop_IY => next_IY(7 downto 0) := cpu_data_in(7 downto 0);
-						when others => next_IX(7 downto 0) := cpu_data_in(7 downto 0);
 					end case;
 					next_pa := prog_addr;
 					next_state := read_second_byte;	
@@ -1035,13 +1023,7 @@ begin
 					next_pa := (others => '0');
 					next_pa(7 downto 0) := cpu_data_in;
 					next_state := read_second_byte;	
-				
-				-- An others clause identical to one of the above clauses.
-				when others => 
-					next_pa := (others => '0');
-					next_pa(7 downto 0) := cpu_data_in;
-					next_state := read_second_byte;	
-	
+					
 				end case;
 	
 			-- Read the second byte of data. We never increment the program counter from
@@ -1078,11 +1060,6 @@ begin
 						next_state := read_opcode;
 					end if;
 		
-				-- An others clause identical to one of the above.
-				when others => 
-					next_pa(pa_top downto 8) := cpu_data_in(pa_top-8 downto 0);
-					next_pa(7 downto 0) := prog_addr(7 downto 0);	
-
 			end case;
 			
 			-- Write the second byte of data. We have no "write first byte" state because
@@ -1104,7 +1081,6 @@ begin
 					case opcode is
 						when push_IX => cpu_data_out(7 downto 0) <= reg_IX(7 downto 0);
 						when push_IY => cpu_data_out(7 downto 0) <= reg_IY(7 downto 0);
-						when others => cpu_data_out(7 downto 0) <= reg_IX(7 downto 0);
 					end case;
 					next_pa := prog_addr;
 					next_state := read_opcode;
@@ -1130,11 +1106,6 @@ begin
 						next_pa(7 downto 0) := 
 							std_logic_vector(to_unsigned((interrupt_pc rem 256),8));
 					end if;
-					next_state := read_opcode;
-				
-				-- An others clause identical to one of the above.
-				when others => 
-					next_pa := prog_addr;
 					next_state := read_opcode;
 										
 				end case;
@@ -1273,13 +1244,7 @@ begin
 					when sla_A => alu_ctrl <= alu_cmd_sla;
 					when sra_A => alu_ctrl <= alu_cmd_sra;
 					when srl_A => alu_ctrl <= alu_cmd_srl;	
-					when others => alu_ctrl <= alu_cmd_srl;
 				end case;
-				
-			when others =>
-				alu_in_x <= reg_A;
-				alu_in_y <= reg_B;
-				alu_ctrl <= alu_cmd_nop;
 				
 			end case;
 		-- If we are not in the read_opcode state, we have a variable "opcode" that holds
@@ -1320,11 +1285,6 @@ begin
 				alu_in_y <= to_integer(unsigned(prog_data));
 				alu_ctrl <= alu_cmd_xor;
 			
-			when others =>
-				alu_in_x <= reg_A;
-				alu_in_y <= reg_B;
-				alu_ctrl <= alu_cmd_nop;
-			
 			end case;
 		end if;
 		
@@ -1338,7 +1298,6 @@ begin
 			when read_second_byte => SIG(2 downto 0) <= "101";
 			when write_second_byte => SIG(2 downto 0) <= "110";
 			when incr_pc => SIG(2 downto 0) <= "111";
-			when others => SIG(2 downto 0) <= "000";
 		end case;
 	end process;
 end behavior;
