@@ -84,14 +84,14 @@
 -- Even without the constants, the MMU read register map is unstable. We reduce the length of
 -- "bottom_bits" to five. We add "others" clauses to the MMU case statements and find that the-- code is works with these additions, but not without them.
 
--- V2.2, 13-DEC-24: Import improvements to power-up process from P3051. Add others clauses to
--- all case statements. Set RAM and ROM reset inputs LO, disabling reset, which fixes an erratic
--- start-up problem in the CPU. Because of all the "others" clauses we have added to the OSR8V3
--- case statements, the compiled logic does not fit in the 1200ZE chip. We remove our local MMU 
--- "others" clauses, and the code fits in the 1200ZE and runs perfectly.
+-- V2.2, 13-DEC-24: Import improvements from P3051: tie RAM and ROM reset inputs LO to stop
+-- long-standing instability in CPU, lengthen power-up process to account for slow start-up 
+-- of the 32.768 kHz oscillator. 
 
--- V2.3, 03-DEC-25: Our code is failing to fit, apparantly at randome. We remove all "others" 
--- clauses from our OSR8 code. We move CPUIRG back out of an if clause we put it in earlier.
+-- V2.3, 03-DEC-25: We find the V2.2 code does not fit. We remove all unecessary "when others" 
+-- clauses from our OSR8. Now the code fits, but stimulus interrupts are failing. Revert our
+-- OSR8 all the way back to 18-JUN-22 version, restoring the intermediate program counter
+-- variable. Code fits, compiles, and is stable.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -158,7 +158,7 @@ entity main is
 	constant mmu_dfr  : integer := 17; -- Diagnostic Flag Register (Read/Write)
 	constant mmu_sr   : integer := 18; -- Status Register (Read)
 	constant mmu_cmp  : integer := 19; -- Command Memory Portal(Read)
-	constant mmu_cpr : integer := 21; -- Command Processor Reset (Write)
+	constant mmu_cpr  : integer := 21; -- Command Processor Reset (Write)
 	constant mmu_i1ph : integer := 22; -- Interrupt Timer One Period MSB (Write)
 	constant mmu_i1pl : integer := 23; -- Interrupt Timer One Period LSB (Write)
 	constant mmu_i2ph : integer := 24; -- Interrupt Timer Two Period MSB (Write)
