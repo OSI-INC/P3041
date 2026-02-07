@@ -425,10 +425,12 @@ begin
 		ram_in <= cpu_data_out;
 		ram_addr <= cpu_addr(ram_addr_len-1 downto 0);
 		
-		-- The program memory data input is the cpu data, but its 
-		-- write address we restrict to the upper kilobyte of the 
-		-- program memory, so we can never write to the lower two
-		-- kilobytes. 
+		-- We can write to the user program memory with the CPU. We restrict 
+		-- the program memory write address to the upper two kilobytes of the 
+		-- program memory, making it impossible to write to the lower two 
+		-- kilobytes. On no account do we want the user program to be able to 
+		-- over-write the main program, which is loaded from the logic chip's 
+		-- conguration EEPROM on power-up.
 		prog_in <= cpu_data_out;
 		prog_in_addr(11) <= '1';
 		prog_in_addr(10 downto 0) <= cpu_addr(10 downto 0);

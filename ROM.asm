@@ -5,16 +5,21 @@
 
 ; Configuration Constants.
 const version         22 ; The firmwarwe version.
-const identifier_hi 0x48 ; 0-255, no restrictions
-const identifier_lo 0x06 ; 0-255, low nibble cannot be 0x0 or 0xF 
+const identifier_hi 0x62 ; 0-255, no restrictions
+const identifier_lo 0x8C ; 0-255, low nibble cannot be 0x0 or 0xF 
 const frequency_low    5 ; Radio frequency calibration.
 
 ; CPU Address Map Boundary Constants
-const mmu_vmem 0x0000 ; Base of Main Program Variable Memory
-const mmu_sba  0x0100 ; Stack Base Address
-const mmu_umem 0x0200 ; Base of User Program Variable Memory
-const mmu_ctrl 0x0400 ; Base of Control Space
-const mmu_prog 0x0800 ; Base of user program memory window
+const mvar_bot  0x0000 ; Bottom of Main Variable Memory
+const mvar_top  0x00FF ; Top of Main Program Variable Memory
+const stack_bot 0x0100 ; Bottom of Program Stack
+const stack_top 0x01FF ; Top of Program Stack
+const uvar_bot  0x0200 ; Bottom of User Variable Memory
+const uvar_top  0x02FF ; Top of User Variable Memory
+const ctrl_bot  0x0400 ; Bottom Control Register
+const ctrl_top  0x0400 ; Top Control Register
+const prog_bot  0x0800 ; Bottom of User Program Memory
+const prog_top  0x0FFF ; Top of User Program Memory
 
 ; Address Map Locations
 const mmu_sdb  0x0400 ; Sensor Data Byte (Write)
@@ -126,7 +131,6 @@ const xmit_p      0x0028 ; Transmit Period
 const xmit_ch     0x0029 ; Telemetry Channel Number
 
 ; User Program Constants
-const prog_usr    0x0800 ; User program location
 const ret_code      0x0A ; Return from subroutine instruction
 
 ; Operation Codes
@@ -470,7 +474,7 @@ jp z,int_uprog_done ; skip if uprog interrupt.
 ld A,bit2_mask      ; Reset this interrupt
 ld (mmu_irst),A     ; with the bit two mask.
 
-call prog_usr       ; Call the user program.
+call prog_bot       ; Call the user program.
 
 int_uprog_done:
 
@@ -1308,7 +1312,7 @@ check_pgrst:
 ld A,(ccmdb)
 sub A,op_pgrst
 jp nz,check_pgrst_end
-ld IY,mmu_prog          ; Load IY with the base of
+ld IY,prog_bot          ; Load IY with the base of
 jp cmd_loop             ; user program memory.
 check_pgrst_end:
 
@@ -1379,7 +1383,7 @@ ret
 main:
 
 ; Initialize the stack pointer.
-ld HL,mmu_sba
+ld HL,stack_bot
 ld SP,HL
 
 ; Initialize registers.
@@ -1401,7 +1405,7 @@ pop L
 ; as a boot-up delay to let the power supply settle before we
 ; calibrate the transmit clock. We are clearing all flags.
 
-ld IX,mmu_vmem
+ld IX,mvar_bot
 ld A,num_vars
 push A
 pop B
@@ -1442,7 +1446,7 @@ ld (mmu_rfc),A     ; calibration to the firmware.
 
 ; Configure user programming.
 
-ld IY,mmu_prog     ; The main loop uses IY for the user program pointer.
+ld IY,prog_bot     ; The main loop uses IY for the user program pointer.
 ld A,ret_code      ; Put a return opcode at first byte
 ld (IY),A          ; in user program, in case of enable.
 
