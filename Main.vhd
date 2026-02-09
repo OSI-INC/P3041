@@ -1250,7 +1250,7 @@ begin
 		Full => CMF,
 		Q => cmd_out);
 	
--- This Command Processor detects Inititiate Command (ICMD) and activates the Byte Receiver. 
+-- The Command Processor detects Inititiate Command (ICMD) and activates the Byte Receiver. 
 -- It stores command bytes in the Command Memory until it detects Terminate Command (TCMD). If
 -- the Error Check reports no error, the Command Processor asserts Command Ready (CMDRDY) and
 -- waits until the CPU asserts Command Processor Reset (CPRST) before returning to its rest
@@ -1268,7 +1268,7 @@ begin
 		constant complete_s : integer := 5;
 		
 		-- Variables for the Command Processor
-		variable state, next_state : integer range 0 to 31 := 0;
+		variable state, next_state : integer range 0 to 7 := 0;
 		
 	begin
 		-- We reset to the idle state on global RESET or the Command Processor
@@ -1367,7 +1367,7 @@ begin
 	TP2 <= to_std_logic((df_reg(1)='1') or CMDRDY);
 	
 -- Test Point Three appears on P4-3 after the programming connector is removed.
-	TP3 <= RCK;
+	TP3 <= df_reg(0);
 
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 

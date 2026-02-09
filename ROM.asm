@@ -4,9 +4,9 @@
 ; This code runs in the OSR8V3 microprocessor of the A3041A.
 
 ; Configuration Constants.
-const version         22 ; The firmwarwe version.
-const identifier_hi 0x62 ; 0-255, no restrictions
-const identifier_lo 0x8C ; 0-255, low nibble cannot be 0x0 or 0xF 
+const version         24 ; The firmwarwe version.
+const identifier_hi 0x90 ; 0-255, no restrictions
+const identifier_lo 0x12 ; 0-255, low nibble cannot be 0x0 or 0xF 
 const frequency_low    5 ; Radio frequency calibration.
 
 ; CPU Address Map Boundary Constants
