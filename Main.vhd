@@ -1,104 +1,12 @@
 -- <pre> Implantable Stimulator-Transponder (IST, A3041) Firmware, Toplevel Unit
 
--- V1.0, 06-APR-22: Based upon P3035A11. Remove P3035 prefixes to file names so as to make
--- a more generic programming structure we can move to new projects. Simplify serial interface to
--- sensor for our eight-bit battery monitoring DAC. Add in the command processing from P3036A06, 
--- but leave only the reception part of the processor. Add CPU interface for command processor
--- Add DACTIVE register for CPU to assert OND. Add ONL register for CPU to control ONL. Place
--- the Command Memory, a dual-port RAM, in the CPU memory space. Reduce program memory to 5 KB.
--- Adjust Stack Pointer location in OSR8V1, so now have OSR8V1R2 for this minor revision. When we
--- compile, we use 1235 of 1280 LUTs.
-
--- V1.1, 12-APR-22: We switch to OSR8V3, which has generic constants by which we configure
--- its memory space. Many edits on default values and arrangement of constants. Correct bug in 
--- sensor readout that expands the code. Reduce the cpu memory to 4 KB. The first 1 KB is for
--- Random Access Memory. The first 768 Bytes are for variables, the final 256 Bytes for the stack. 
--- The second 1 KB of cpu address space are for the Command Memory. The third and kilobyte is the 
--- control space. Expand program memory to 4 KB. The code now uses only 1217 LUTs. We are using 
--- six of seven embedded blocks of RAM (EBRs), four for program memory, one for cpu RAM and one
--- for the command memory.
-
--- V1.2, 15-JUN-22: First version to run on the A3041AV1 assembly. Test points working, micro-
--- processor running, interrupts correct, self-calibration of TCK correct, transmission correct.
-
--- V1.3, 20-JUN-22: The transmit clock turns on only when the CPU says so with ENTCK. The CPU
--- must assert ENTCK for sample transmission. If the CPU asserts ENTCK for sensor access, so
--- much the better: the access will go faster and the sensor will be awake for less time. 
--- Remove TXD, SAD, and stack overflow interrupts. The command processor now asserts CPA until
--- the CPU resets its state to idle. We will have OND asserted by CPA until the CPU asserts CPRST. 
--- The CPU can use the CMDRDY memory location to poll for new commands. Combine readback of 
--- CMDRDY, ENTCK, ONL, SAA, and TXA in a single status register. Eliminate stack pointer base 
--- and height locations in memory management unit.  The OSR8 will initialize SP to zero. An interrupt 
--- routine can monitor the stack if we are worried about overflow. With these simplifications, we 
--- are now able to expand from one eight-bit interrupt timer to four, each with its own interrupt 
--- line. Remove CPU software interrupts. Remove interrupt set register. If the CPU wants to generate 
--- an interrupt, it can use one of the timers. Test on A3041AV1 and works perfectly.
-
--- V1.4, 05-JUL-22: Add read-back of the command memory write address to act as a count of the
--- command bytes stored in the command memory. The CPU needs this count to tell it when the list
--- of commands ends. Add modulation of ONL with four-bit counter that runs all the time off RCK.
--- The CPU sets duty cycle with stimulus current location, writing a value 0-15. Disable two of 
--- the four interrupt timers. Change "test point register" to "diagnostic flag register" and restore
--- readback that we have inadvertently removed. Add the Transmit Warm-Up (TXWP) flag that we can 
--- set and clear with memory writes. This flag turns on the VCO to warm it up before auxiliary 
--- message transmission. The Transmit Initiate (TXI) flag we now set by writing to bit zero of the 
--- transmit control register, not just any write to the control register. But TXI still clears itself
--- on the next CK cycle, while TXWP must be cleared deliberately. 
-
--- V1.5, 06-JUL-22: Status register now contains CMDRDY, ENTCK, SAA, TXA, CPA, and BOOST. We have all
--- four interrupt timers implemented, hoping to use the second and third for transmission scatter
--- and pulse randomization. Perfect ADC readout. Remove interrupt timer four to free up logic.
-
--- V1.6, 13-JUL-22: Add support for transmission warm-up (TXWP) so CPU can turn on the VCO to warm
--- it up before transmitting auxiliary messages.
-
--- V1.7, 02-AUG-23: Fix bug in lamp current control, producing linear increase in duty cycle with 
--- current code.
-
--- V1.8, 16-AUG-23: Reduce program memory to 3 KByte and make it dual-port. Map the top kilobyte
--- into the top kilobyte of cpu memory. We read the program memory on !CK. We find we must write
--- on CK or the writes fail. Now we can write to the program memory. Move specification of device
--- identifier and radio-frequency center frequency into VHDL and add locations to allow the
--- software to read both bytes of the ID. 
-
--- V1.9, 11-SEP-23: Convert command memory into 2-KByte FIFO. This frees up logic with elimination
--- of command address. Enable timer interrupts 3 and 4. Expand program memory to 4 KByte, top two
--- are user-memory. CPU reads command memory through one location and checks empty with its nearly
--- empty flag. We configure the nearly empty flag to assert when there are only two bytes left to
--- read in the FIFO, which means we will leave the checksum bytes in the FIFO automatically. We 
--- assign first KByte of CPU memory to RAM, second KByte to control registers, and final two KByte 
--- to user program memory. We expand top_bits to include CPU address 8 and increase bottom bits to 
--- include all lower eight bits. Add CPA and CMDRDY to test points. Increase interrupt timers one
--- and two to sixteen bits and make them reset to zero when we reset the interrupt. This way, we
--- can force the timer to the stored period value when we reset the interrupt.
-
--- V2.0, 12-SEP-23: Try to add device version byte, but the MMU stops working when we do. We 
--- add an "others" line to complete the control space case statement. Now code won't fit. As it
--- is, the code returns version number zero at the version location.
-
--- V2.1, 13-SEP-23: The VHDL compile of our code, without "others" clauses, is unstable. Changes
--- in readback constants cause it to fail. Version 2.0, for example, compiles perfectly for 
--- device identifier 0x286C, but fails to provide a working memory map for 0x4E35. We move the
--- device identifier, radio frequency calibration, and device version constants out of the VHDL
--- and into the OSR8 code. Provided our VHDL compile works for one device, it will work for all.
--- Even without the constants, the MMU read register map is unstable. We reduce the length of
--- "bottom_bits" to five. We add "others" clauses to the MMU case statements and find that the-- code is works with these additions, but not without them.
-
--- V2.2, 13-DEC-24: Import improvements from P3051: tie RAM and ROM reset inputs LO to stop
--- long-standing instability in CPU, lengthen power-up process to account for slow start-up 
--- of the 32.768 kHz oscillator. 
-
--- V2.3, 03-DEC-25: We find the V2.2 code does not fit. We remove all unecessary "when others" 
--- clauses from our OSR8. Now the code fits, but stimulus interrupts are failing. Revert our
--- OSR8 all the way back to 18-JUN-22 version, restoring the intermediate program counter
--- variable. Code fits, compiles, and is stable.
-
--- V2.4, 09-FEB-26: Rework the interrupt manager. We now set the interrupt bits only with RCK,
--- not with TCK. We clear the interrupt bits with asynchronous reset using the reset bits. So
--- far as we can tell, the new manager is immune to conflicts between the edges of RCK and TCK.
-
 -- V3.1, 10-FEB-26: Modify to accommodate the OSR8V4 port interface: change prog_addr to 
--- prog_cntr.
+-- prog_cntr. No change in logic allocation: 1267 LUTs. To test the stability of our VHDL, 
+-- we move specification of frequency_low out of software and into firmware. We compile and -- code now occupies only 1219 LUTs. It works perfectly. Undo this change so as to preserve
+-- the CPU's ability to set the radio frequency calibration. We want all configuration in
+-- software. In future implants, we will have an EEPROM in which we can save calibration 
+-- and configuration constants. We want to be able to read them on reset and apply them
+-- through software.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -124,10 +32,6 @@ entity main is
 		xdac -- Transmit DAC Output, to set data transmit frequency
 		: out std_logic_vector(4 downto 0));
 		
--- Default Configuration of Device.
-	constant default_frequency_low : integer := 5;
-	constant tx_channel_default : integer := 1;
-
 -- Configuration of OSR8 CPU.
 	constant prog_cntr_len : integer := 12;
 	constant cpu_addr_len : integer := 12;
@@ -204,8 +108,10 @@ architecture behavior of main is
 	attribute syn_keep of TXI, TXA : signal is true;
 	attribute nomerge of TXI, TXA : signal is "";  
 	signal xmit_bits : std_logic_vector(15 downto 0) := (others => '0');
+	constant tx_channel_default : integer := 1;
 	signal tx_channel : integer range 0 to 255 := tx_channel_default;
 	constant frequency_step : integer := 1; 
+	constant default_frequency_low : integer := 5;
 	signal frequency_low : integer range 0 to 31 := default_frequency_low;
 		
 -- Sensor Controller
@@ -270,7 +176,7 @@ architecture behavior of main is
 		CRCERR, -- Cyclic Redundancy Checksum Error
 		BYTERR, -- Byte Error
 		BYTS, -- Command Byte Strobe
-		BITS -- Command Bit Strobe
+		CBS -- Command Bit Strobe (CBS)
 		: boolean := false; 
 	
 -- Command Memory
@@ -1187,13 +1093,13 @@ begin
 			end if;
 		end loop;
 		
-		-- We assert Command Bit Strobe one RCK period before the best moment
+		-- We assert Command Bit Strobe (CBS) one RCK period before the best moment
 		-- to sample each bit value.
 		if (state = 34) or (state = 30) or (state = 26) or (state = 22) 
 			or (state = 18) or (state = 14) or (state = 10) or (state = 6) then
-			BITS <= true;
+			CBS <= true;
 		else 
-			BITS <= false;
+			CBS <= false;
 		end if;
 		
 		-- The Byte Strobe signal indicates that we have a start bit and is 
@@ -1209,9 +1115,9 @@ begin
 -- feedback shift register, with local name "crc" for "cyclic redundancy check". 
 -- We preset crc to all ones. The final sixteen bits of every command are chosen 
 -- so that they reset the crc register to all zeros. If crc is not zero at the 
--- end of a command, there was some error during reception. We use the Bit Strobe 
--- (BITS) signal to clock crc, because BITS is asserted only when a command data 
--- bit is received, not when we receive a start or stop bit.
+-- end of a command, there was some error during reception. We use the Command
+-- Bit Strobe (CBS) signal to clock crc, because CBS is asserted only when a command 
+-- data bit is received, not when we receive a start or stop bit.
 	Error_Check : process is
 		variable crc, next_crc : std_logic_vector(15 downto 0) := (others => '1');
 	begin
@@ -1222,14 +1128,14 @@ begin
 			-- check register to all ones.
 			crc := (others => '1');
 		else
-			-- We use Command Bit Strobe to clock each command bit into the CRC.
+			-- We use Command Bit Strobe (CBS) to clock each command bit into the CRC.
 			-- The transmitter calculates the checksum with zeros in the last
 			-- sixteen bits, reverses the order of these checksum bits, and sends
 			-- them as the last two bytes of the actual transmission, instead of the
 			-- zeros it used when it calculated its own checksum. These last sixteen
 			-- bits, thus obtained, will reset the receiver CRC to zero, provided there
 			-- has been no corruption of the data on the way.
-			if BITS then
+			if CBS then
 				for i in 0 to 9 loop next_crc(i) := crc(i+1); end loop;
 				next_crc(10) := crc(11) xor crc(0);
 				next_crc(11) := crc(12);
@@ -1383,6 +1289,5 @@ begin
 -- this output is almost always HI, and the programming extension is still 
 -- attached, quiescent current increases by 250 uA.
 	TP4 <= to_std_logic(FHI);
-
 
 end behavior;
