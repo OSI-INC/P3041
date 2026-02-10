@@ -4,3 +4,7 @@ impl1/
 Untitled.tpf
 .*
 _*
+*.log
+*.html
+*.edn
+*.srp

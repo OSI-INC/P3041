@@ -93,8 +93,9 @@
 -- OSR8 all the way back to 18-JUN-22 version, restoring the intermediate program counter
 -- variable. Code fits, compiles, and is stable.
 
--- V2.4, 09-FEB-26: Fix the interrupt manager by moving to falling edge of CK and bringing the
--- CPUIRQ calculation into the synchronous code.
+-- V2.4, 09-FEB-26: Rework the interrupt manager. We now set the interrupt bits only with RCK,
+-- not with TCK. We clear the interrupt bits with asynchronous reset using the reset bits. So
+-- far as we can tell, the new manager is immune to conflicts between the edges of RCK and TCK.
 
 library ieee;  
 use ieee.std_logic_1164.all;

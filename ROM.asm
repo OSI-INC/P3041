@@ -678,8 +678,7 @@ ld (mmu_xcr),A      ; and write to transmit control register.
 
 int_xmit_done:
 
-; Turn off the transmit clock, move out of boost, restore registers and return 
-; from interrupt.
+; Restore registers.
 
 int_done:
 pop IY
@@ -690,12 +689,21 @@ pop E
 pop D
 pop C
 pop B
+
+; End the pulse on diagnostic flag.
+
 ld A,(mmu_dfr)      ; Load the diagnostic flag register.
 and A,bit0_clr      ; Clear bit zero and
 ld (mmu_dfr),A      ; write to diagnostic flag register.
+
+; Move out of boost mode and turn off the transmit clock.
+
 ld A,0x00           ; Clear bit zero and use it to
 ld (mmu_bcc),A      ; move CPU back to slow RCK
 ld (mmu_etc),A      ; and stop the transmit clock.
+
+; Restore flags and accumulator, return from interrupt.
+
 pop F               ; Restore the flags.
 pop A               ; Restore A.
 rti                 ; Return from interrupt.
