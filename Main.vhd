@@ -2,7 +2,8 @@
 
 -- V3.1, 10-FEB-26: Modify to accommodate the OSR8V4 port interface: change prog_addr to 
 -- prog_cntr. No change in logic allocation: 1267 LUTs. To test the stability of our VHDL, 
--- we move specification of frequency_low out of software and into firmware. We compile and -- code now occupies only 1219 LUTs. It works perfectly. Undo this change so as to preserve
+-- we move specification of frequency_low out of software and into firmware. We compile and 
+-- code now occupies only 1219 LUTs. It works perfectly. Undo this change so as to preserve
 -- the CPU's ability to set the radio frequency calibration. We want all configuration in
 -- software. In future implants, we will have an EEPROM in which we can save calibration 
 -- and configuration constants. We want to be able to read them on reset and apply them
@@ -63,7 +64,7 @@ entity main is
 	constant mmu_xcr  : integer := 11; -- Transmit Control Register (Write)
 	constant mmu_rfc  : integer := 12; -- Radio Frequency Calibration (Write)	
 	constant mmu_etc  : integer := 13; -- Enable Transmit Clock (Write)
-	constant mmu_tcf  : integer := 14; -- Transmit Clock Frequency (Write)
+	constant mmu_tcf  : integer := 14; -- Transmit Clock Frequency (Read)
 	constant mmu_tcd  : integer := 15; -- Transmit Clock Divider (Write)
 	constant mmu_bcc  : integer := 16; -- Boost CPU Clock (Write)
 	constant mmu_dfr  : integer := 17; -- Diagnostic Flag Register (Read/Write)

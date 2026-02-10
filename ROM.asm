@@ -1,7 +1,7 @@
 ; Implantable Stimulator-Transponder (IST) Program
 ; ------------------------------------------------
 
-; This code runs in an OSR8V microprocessor.
+; This code runs in an OSR8 microprocessor.
 
 ; Configuration Constants.
 const version         31 ; The firmwarwe version.
