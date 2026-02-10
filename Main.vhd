@@ -93,6 +93,9 @@
 -- OSR8 all the way back to 18-JUN-22 version, restoring the intermediate program counter
 -- variable. Code fits, compiles, and is stable.
 
+-- V2.4, 09-FEB-26: Fix the interrupt manager by moving to falling edge of CK and bringing the
+-- CPUIRQ calculation into the synchronous code.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -686,16 +689,16 @@ begin
 			end if;
 		end if;
 
-		-- The interrupt management runs off CK, which can be RCK or TCK. On 
-		-- reset, we clear the interrupt request line and the interrupt bits. We
-		-- clear the delayed counter zero lines.
+		-- The interrupt management runs off the falling edge of CK, which can be RCK 
+		-- or TCK. If we run the management off the rising edge, we get erratic behavior.
 		if (RESET = '1') then
 			int_bits <= (others => '0');
+			CPUIRQ <= false;
 			INTZ1 <= false;
 			INTZ2 <= false;
 			INTZ3 <= false;
 			INTZ4 <= false;
-		elsif rising_edge(CK) then
+		elsif falling_edge(CK) then
 		
 			-- The timer one interrupt is set when counter_1 goes from value
 			-- one to value zero while this interrupt is enabled by the interrupt
@@ -737,11 +740,11 @@ begin
 				int_bits(i) <= '0';
 			end loop;	
 			
+			-- We generate an interrupt if any one interrupt bit is 
+			-- set and unmasked.
+			CPUIRQ <= (int_bits and int_mask) /= "00000000";	
 		end if;
 		
-		-- We generate an interrupt if any one interrupt bit is 
-		-- set and unmasked.
-		CPUIRQ <= (int_bits and int_mask) /= "00000000";	
 	end process;
 
 	-- The Sensor Controller reads out the eight-bit battery monitoring ADC when it
@@ -1367,12 +1370,13 @@ begin
 	TP2 <= to_std_logic((df_reg(1)='1') or CMDRDY);
 	
 -- Test Point Three appears on P4-3 after the programming connector is removed.
-	TP3 <= df_reg(0);
+	TP3 <= to_std_logic(CPUIRQ);
 
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
 -- this output is almost always HI, and the programming extension is still 
 -- attached, quiescent current increases by 250 uA.
 	TP4 <= to_std_logic(FHI);
+
 
 end behavior;

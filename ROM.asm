@@ -468,7 +468,7 @@ push IY
 int_uprog:
 
 ld A,(mmu_irqb)     ; Read the interrupt request bits
-and A,bit2_mask     ; and test bit one,
+and A,bit2_mask     ; and test bit two,
 jp z,int_uprog_done ; skip if uprog interrupt.
 
 ld A,bit2_mask      ; Reset this interrupt
