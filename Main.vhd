@@ -689,62 +689,64 @@ begin
 			end if;
 		end if;
 
-		-- The interrupt management runs off the falling edge of CK, which can be RCK 
-		-- or TCK. If we run the management off the rising edge, we get erratic behavior.
-		if (RESET = '1') then
-			int_bits <= (others => '0');
-			CPUIRQ <= false;
-			INTZ1 <= false;
-			INTZ2 <= false;
-			INTZ3 <= false;
-			INTZ4 <= false;
-		elsif falling_edge(CK) then
-		
-			-- The timer one interrupt is set when counter_1 goes from value
-			-- one to value zero while this interrupt is enabled by the interrupt
-			-- mask. We reset when we write 1 to int_rst(0). The timer generates 
-			-- an interrupt on bit zero.
+		-- We clear the timer one interrupt and set the the timer one zero 
+		-- flag when we assert the int_rst bit zero. The interrupt bit
+		-- itself is set when we the counter reaches zero but the zero flag 
+		-- is not set.
+		if (int_rst(0) = '1') then
+			int_bits(0) <= '0';
+			INTZ1 <= true;
+		elsif rising_edge(RCK) then
 			INTZ1 <= (counter_1 = 0);
-			if (int_rst(0) = '1') then
-				int_bits(0) <= '0';
-			elsif ((counter_1 = 0) and (not INTZ1)) then
+			if ((counter_1 = 0) and (not INTZ1)) then
 				int_bits(0) <= '1';
 			end if;
+		end if;
 			
-			-- The timer two interrupt, interrupt bit one.
+		-- The timer two interrupt.
+		if (int_rst(1) = '1') then
+			int_bits(1) <= '0';
+			INTZ2 <= true;
+		elsif rising_edge(RCK) then
 			INTZ2 <= (counter_2 = 0);
-			if (int_rst(1) = '1') then
-				int_bits(1) <= '0';
-			elsif ((counter_2 = 0) and (not INTZ2)) then
+			if ((counter_2 = 0) and (not INTZ2)) then
 				int_bits(1) <= '1';
 			end if;
-			
-			-- The timer three interrupt, interrupt bit two.
-			INTZ3 <= (counter_3 = 0);
-			if (int_rst(2) = '1') then
-				int_bits(2) <= '0';
-			elsif ((counter_3 = 0) and (not INTZ3)) then
-				int_bits(2) <= '1';
-			end if;
-			
-			-- The timer four interrupt, interrupt bit three.
-			INTZ4 <= (counter_4 = 0);
-			if (int_rst(3) = '1') then
-				int_bits(3) <= '0';
-			elsif ((counter_4 = 0) and (not INTZ4)) then
-				int_bits(3) <= '1';
-			end if;
-			
-			-- We disable the remaining interrupt lines.
-			for i in 4 to 7 loop
-				int_bits(i) <= '0';
-			end loop;	
-			
-			-- We generate an interrupt if any one interrupt bit is 
-			-- set and unmasked.
-			CPUIRQ <= (int_bits and int_mask) /= "00000000";	
 		end if;
 		
+		-- The timer three interrupt.
+		if (int_rst(2) = '1') then
+			int_bits(2) <= '0';
+			INTZ3 <= true;
+		elsif rising_edge(RCK) then
+			INTZ3 <= (counter_3 = 0);
+			if ((counter_3 = 0) and (not INTZ3)) then
+				int_bits(2) <= '1';
+			end if;
+		end if;
+
+		-- The timer four interrupt.
+		if (int_rst(3) = '1') then
+			int_bits(3) <= '0';
+			INTZ4 <= true;
+		elsif rising_edge(RCK) then
+			INTZ4 <= (counter_4 = 0);
+			if ((counter_4 = 0) and (not INTZ4)) then
+				int_bits(3) <= '1';
+			end if;
+		end if;
+
+		-- We disable the remaining interrupt lines.
+		for i in 4 to 7 loop
+			int_bits(i) <= '0';
+		end loop;
+		
+		-- We generate an interrupt if any one interrupt bit is 
+		-- set and unmasked, but we synchronize with the CPU
+		-- clock.
+		if falling_edge(CK) then
+			CPUIRQ <= (int_bits and int_mask) /= "00000000";
+		end if;
 	end process;
 
 	-- The Sensor Controller reads out the eight-bit battery monitoring ADC when it
