@@ -1,6 +1,6 @@
 -- Open-Source Reconfigurable Eight-Bit (OSR8) Central Processing Unit (CPU)
 --
--- Copyright (C) 2020-2022 Kevan Hashemi, Open Source Instruments Inc.
+-- Copyright (C) 2020-2026 Kevan Hashemi, Open Source Instruments Inc.
 --
 -- This program is free software; you can redistribute it and/orpr
 -- modify it under the terms of the GNU General Public License
@@ -27,6 +27,12 @@
 -- zero, so CPU must have RAM at address zero to use as initial stack during
 -- initialization. The initial stack will allow the CPU program to load the
 -- stack pointer with a new value.
+
+-- Version 4: Efforts to Simplify and Compress the CPU.
+
+-- [10-FEB-26] Eliminate the intermediate variable prog_cntr, change all
+-- occurances of prog_addr to prog_cntr. Resulst in no change in the logic
+-- resource allocation.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -71,13 +77,13 @@ use ieee.numeric_std.all;
 
 entity OSR8_CPU is 
 	generic (
-		prog_addr_len : integer := 12;
+		prog_cntr_len : integer := 12;
 		cpu_addr_len : integer := 11;
 		start_pc : integer := 0;
 		interrupt_pc : integer := 3	);
 	port (
 		prog_data : in std_logic_vector(7 downto 0); -- Program Data
-		prog_addr : out std_logic_vector(prog_addr_len-1 downto 0); -- Program Address
+		prog_cntr : out std_logic_vector(prog_cntr_len-1 downto 0); -- Program Address
 		cpu_data_out : out std_logic_vector(7 downto 0); -- Outgoing CPU Data Bus
 		cpu_data_in : in std_logic_vector(7 downto 0); -- Incoming CPU Data Bus
 		cpu_addr : out std_logic_vector(cpu_addr_len-1 downto 0); -- Outgoing CPU Address Bus
@@ -89,7 +95,7 @@ entity OSR8_CPU is
 		CK : in std_logic); -- The clock, duty cycle 50%.
 
 -- Program location constants in bytes.
-	constant pa_top : integer := prog_addr_len-1;
+	constant pa_top : integer := prog_cntr_len-1;
 	constant ca_top : integer := cpu_addr_len-1;
 end;
 
@@ -264,22 +270,16 @@ architecture behavior of OSR8_CPU is
 -- The Stack Pointer (SP) we use to manage an upward-growing stack. The
 -- Stack Pointer points to the top of the stack, which is the byte most
 -- recently pushed onto the stack, and at the highest address of all the 
--- bytes on the stack. When we push a byte onto the stack, we increment
+-- bytes on the stack. When we push a byte onto the stack, we increment
 -- the stack pointer, then perform the write. When we pop from the stack, we 
 -- read from the stack and then decrement the stack pointer.
 	signal reg_SP : std_logic_vector(ca_top downto 0);
 		
--- The program counter, which provides the program address.
-	signal prog_cntr : std_logic_vector(pa_top downto 0);
-	
 -- Functions and Procedures	
 	function to_std_logic (v: boolean) return std_ulogic is
 	begin if v then return('1'); else return('0'); end if; end function;
 
 begin 
-
--- The program address is equal to the program counter.
-	prog_addr <= prog_cntr;
 
 -- The Arithmetic Logic Unit provides an eight-bit adder-subtractor with carry 
 -- in and carry out, as well as logical operations AND, OR, and XOR.
@@ -425,7 +425,7 @@ begin
 		-- Reset the cpu state and program counter until we enter standby mode.
 		if (RESET ='1') then 
 			state := read_opcode;
-			prog_cntr <= std_logic_vector(to_unsigned(start_pc,prog_addr_len)); 
+			prog_cntr <= std_logic_vector(to_unsigned(start_pc,prog_cntr_len)); 
 			reg_SP <= (others => '0'); 
 			flag_Z <= false;
 			flag_C <= false;
@@ -567,7 +567,7 @@ begin
 					next_state := read_opcode;
 					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
 				when ld_PC_HL =>
-					next_pc(pa_top downto 8) := std_logic_vector(to_unsigned(reg_H,prog_addr_len-8));
+					next_pc(pa_top downto 8) := std_logic_vector(to_unsigned(reg_H,prog_cntr_len-8));
 					next_pc(7 downto 0) := std_logic_vector(to_unsigned(reg_L,8));
 					next_state := read_opcode;
 					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
@@ -954,7 +954,7 @@ begin
 					-- the specified absolute value. The first operand is the HI byte, the
 					-- second the LO byte.
 					if jump then
-						next_pc(pa_top downto 8) := std_logic_vector(to_unsigned(first_operand,prog_addr_len-8));
+						next_pc(pa_top downto 8) := std_logic_vector(to_unsigned(first_operand,prog_cntr_len-8));
 						next_pc(7 downto 0) := std_logic_vector(to_unsigned(second_operand,8));
 					else
 						next_pc := std_logic_vector(unsigned(prog_cntr)+1);
@@ -1095,11 +1095,11 @@ begin
 					DS <= true;
 					cpu_data_out <= prog_cntr(7 downto 0);
 					if (opcode = call_nn) then
-						next_pc(pa_top downto 8) := std_logic_vector(to_unsigned(first_operand,prog_addr_len-8));
+						next_pc(pa_top downto 8) := std_logic_vector(to_unsigned(first_operand,prog_cntr_len-8));
 						next_pc(7 downto 0) := std_logic_vector(to_unsigned(second_operand,8));
 					else
 						next_pc(pa_top downto 8) := 
-							std_logic_vector(to_unsigned((interrupt_pc / 256),prog_addr_len-8));
+							std_logic_vector(to_unsigned((interrupt_pc / 256),prog_cntr_len-8));
 						next_pc(7 downto 0) := 
 							std_logic_vector(to_unsigned((interrupt_pc rem 256),8));
 					end if;

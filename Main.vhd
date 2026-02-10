@@ -97,6 +97,9 @@
 -- not with TCK. We clear the interrupt bits with asynchronous reset using the reset bits. So
 -- far as we can tell, the new manager is immune to conflicts between the edges of RCK and TCK.
 
+-- V3.1, 10-FEB-26: Modify to accommodate the OSR8V4 port interface: change prog_addr to 
+-- prog_cntr.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -126,7 +129,7 @@ entity main is
 	constant tx_channel_default : integer := 1;
 
 -- Configuration of OSR8 CPU.
-	constant prog_addr_len : integer := 12;
+	constant prog_cntr_len : integer := 12;
 	constant cpu_addr_len : integer := 12;
 	constant start_pc : integer := 0;
 	constant interrupt_pc : integer := 3;
@@ -230,9 +233,9 @@ architecture behavior of main is
 
 -- Program Memory Signals
 	signal prog_data : std_logic_vector(7 downto 0); -- ROM Data
-	signal prog_addr : std_logic_vector(prog_addr_len-1 downto 0); -- Prog Address
+	signal prog_cntr : std_logic_vector(prog_cntr_len-1 downto 0); -- Prog Address
 	signal prog_in : std_logic_vector(7 downto 0); 
-	signal prog_in_addr : std_logic_vector(prog_addr_len-1 downto 0); -- ROM Address
+	signal prog_in_addr : std_logic_vector(prog_cntr_len-1 downto 0); -- ROM Address
 	signal PROGWR : std_logic; -- ROM Write
 	
 -- Process Memory Signals
@@ -378,7 +381,7 @@ begin
 -- The CPU may also write to the program memory through the cpu_addr, but only to the 
 -- top kilobyte of the ROM.
 	ROM : entity ROM port map (
-		RdAddress => prog_addr,
+		RdAddress => prog_cntr,
         RdClock => not CK,
         RdClockEn => '1',
         Reset => '0',	
@@ -392,14 +395,14 @@ begin
 -- The processor itself, and eight-bit microprocessor with thirteen-bit address bus.
 	CPU : entity OSR8_CPU 
 		generic map (
-			prog_addr_len => prog_addr_len,
+			prog_cntr_len => prog_cntr_len,
 			cpu_addr_len => cpu_addr_len,
 			start_pc => start_pc,
 			interrupt_pc => interrupt_pc
 		)
 		port map (
 			prog_data => prog_data,
-			prog_addr => prog_addr,
+			prog_cntr => prog_cntr,
 			cpu_data_out => cpu_data_out,
 			cpu_data_in => cpu_data_in,
 			cpu_addr => cpu_addr,
