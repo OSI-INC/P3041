@@ -35,10 +35,9 @@ const mmu_xlb  0x0409 ; Transmit LO Byte (Write)
 const mmu_xch  0x040A ; Transmit Channel Number (Write)
 const mmu_xcr  0x040B ; Transmit Control Register (Write)
 const mmu_rfc  0x040C ; Radio Frequency Calibration (Write)
-const mmu_etc  0x040D ; Enable Transmit Clock (Write)
+const mmu_ccr  0x040D ; Clock Control Register (Write)
 const mmu_tcf  0x040E ; Transmit Clock Frequency (Write)
 const mmu_tcd  0x040F ; Transmit Clock Divider (Write)
-const mmu_bcc  0x0410 ; Boost CPU Clock (Write)
 const mmu_dfr  0x0411 ; Diagnostic Flag Register (Read/Write)
 const mmu_sr   0x0412 ; Status Register (Read)
 const mmu_cmp  0x0413 ; Command Memory Portal (Read)
@@ -391,9 +390,10 @@ push F
 push A           
 push B           
 
-ld A,0x00        ; Clear bit zero of A
-ld (mmu_bcc),A   ; Disable CPU Clock Boost
-ld (mmu_etc),A   ; Disable Transmit Clock
+ld A,0x01        ; Set bit one.
+ld (mmu_ccr),A   ; Move CPU out of boost.
+ld A,0x00        ; Clear bit one.
+ld (mmu_ccr),A   ; Disable Transmit Clock.
 ld A,initial_tcd ; The initial value of transmit clock divisor
 push A           ; Push divisor onto the stack
 pop B            ; Store divisor in B
@@ -403,11 +403,11 @@ push B           ; Push divisor onto stack.
 pop A            ; Pop divisor into A.
 ld (mmu_tcd),A   ; Write divisor to transmit clock generator.
 ld A,0x01        ; Set bit zero of A.
-ld (mmu_etc),A   ; Enable the transmit clock.
+ld (mmu_ccr),A   ; Enable the transmit clock.
 ld A,(mmu_tcf)   ; Read the transmit clock frequency.
 sub A,min_tcf    ; Subtract the minimum frequency.
 ld A,0x00        ; Clear bit zero of A.
-ld (mmu_etc),A   ; Disable Transmit Clock.
+ld (mmu_ccr),A   ; Disable Transmit Clock.
 jp np,cal_tck_1  ; Try smaller divisor.
 
 ; Pop registers and return.
@@ -435,9 +435,10 @@ interrupt:
 ; Each instruction at 33 kHz takes 150 times longer than at 5 MHz.
 
 push A              ; Save A on stack
-ld A,0x01           ; Set bit zero to one.
-ld (mmu_etc),A      ; Enable the transmit clock, TCK.
-ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
+ld A,0x01           ; Set bit zero.
+ld (mmu_ccr),A      ; Enable the transmit clock.
+ld A,0x03           ; Set bits one and zero.
+ld (mmu_ccr),A      ; Enable tranmit clock and boost.
 push F              ; Save the flags onto the stack.
 
 ; Drive TP1 high.
@@ -698,9 +699,10 @@ ld (mmu_dfr),A      ; write to diagnostic flag register.
 
 ; Move out of boost mode and turn off the transmit clock.
 
-ld A,0x00           ; Clear bit zero and use it to
-ld (mmu_bcc),A      ; move CPU back to slow RCK
-ld (mmu_etc),A      ; and stop the transmit clock.
+ld A,0x01           ; Set bit zero.
+ld (mmu_ccr),A      ; Disable boost.
+ld A,0x00           ; Clear bit zero.
+ld (mmu_ccr),A      ; Disable TCK.
 
 ; Restore flags and accumulator, return from interrupt.
 
@@ -1020,9 +1022,10 @@ seti                ; Disable interrupts.
 ; the remaining registers we plan to use.
 
 push A              ; Save A.
-ld A,0x01           ; Set bit zero to one.
-ld (mmu_etc),A      ; Enable the transmit clock, TCK.
-ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
+ld A,0x01           ; Set bit zero.
+ld (mmu_ccr),A      ; Enable the transmit clock.
+ld A,0x03           ; Set bits one and zero.
+ld (mmu_ccr),A      ; Enable tranmit clock and boost.
 push B
 push C
 push D
@@ -1376,9 +1379,11 @@ pop B
 
 ; Un-boost the CPU and exit.
 
-ld A,0x00           
-ld (mmu_bcc),A      
-ld (mmu_etc),A      
+ld A,0x01           ; Set bit zero, clear bit one.
+ld (mmu_ccr),A      ; Disable boost.
+ld A,0x00           ; Clear bits one and zero.
+ld (mmu_ccr),A      ; Disable tranmit clock.
+
 pop A               
 pop F               
 ret                 
@@ -1506,15 +1511,17 @@ jp nc,main_check_flags
 
 main_shdn_ack:
 seti
-ld A,0x01       
-ld (mmu_etc),A      
-ld (mmu_bcc),A      
+ld A,0x01           
+ld (mmu_ccr),A 
+ld A,0x03
+ld (mmu_ccr),A
 ld A,op_shdn
 ld (Sack_key),A
 call annc_ack
-ld A,0x00           
-ld (mmu_bcc),A      
-ld (mmu_etc),A
+ld A,0x01           
+ld (mmu_ccr),A 
+ld A,0x00
+ld (mmu_ccr),A
 clri
 jp main_shdn
 

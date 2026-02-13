@@ -1,6 +1,6 @@
 -- <pre> Implantable Stimulator-Transponder (IST, A3041) Firmware, Toplevel Unit
 
--- V3.1, 10-FEB-26: Modify to accommodate the OSR8V4 port interface: change prog_addr to 
+-- V3.1, [10-FEB-26]: Modify to accommodate the OSR8V4 port interface: change prog_addr to 
 -- prog_cntr. No change in logic allocation: 1267 LUTs. To test the stability of our VHDL, 
 -- we move specification of frequency_low out of software and into firmware. We compile and 
 -- code now occupies only 1219 LUTs. It works perfectly. Undo this change so as to preserve
@@ -8,6 +8,9 @@
 -- software. In future implants, we will have an EEPROM in which we can save calibration 
 -- and configuration constants. We want to be able to read them on reset and apply them
 -- through software.
+
+-- [13-FEB-26] Switch to shared copy of OSR8V4 in the OSR8 repository. Code is occupying
+-- 1244 LUTs with new test point signals.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -63,10 +66,9 @@ entity main is
 	constant mmu_xch  : integer := 10; -- Transmit Channel Number (Write)
 	constant mmu_xcr  : integer := 11; -- Transmit Control Register (Write)
 	constant mmu_rfc  : integer := 12; -- Radio Frequency Calibration (Write)	
-	constant mmu_etc  : integer := 13; -- Enable Transmit Clock (Write)
+	constant mmu_ccr  : integer := 13; -- Clock Control Register (Write)
 	constant mmu_tcf  : integer := 14; -- Transmit Clock Frequency (Read)
 	constant mmu_tcd  : integer := 15; -- Transmit Clock Divider (Write)
-	constant mmu_bcc  : integer := 16; -- Boost CPU Clock (Write)
 	constant mmu_dfr  : integer := 17; -- Diagnostic Flag Register (Read/Write)
 	constant mmu_sr   : integer := 18; -- Status Register (Read)
 	constant mmu_cmp  : integer := 19; -- Command Memory Portal(Read)
@@ -131,7 +133,9 @@ architecture behavior of main is
 	signal tck_divisor : integer range 0 to 15 := default_tck_divisor;
 	
 -- Boost Controller
-	signal BOOST : boolean;
+	signal BOOST : boolean; -- Boost CPU Clock
+	signal BOOSTD, BOOSTDD : boolean; -- BOOST Delayed and Double-Delayed
+	signal ENTCKD, ENTCKDD : boolean; -- ENTCK Delayed and Double-Delayed
 	attribute syn_keep of BOOST : signal is true;
 	attribute nomerge of BOOST : signal is "";
 	
@@ -258,7 +262,7 @@ begin
 -- The transmit clock should be turned on during a sensor access as well, so that
 -- the sensor access will be quick and the sensor can power down again sooner.
 	Fast_CK : entity ring_oscillator port map (
-		ENABLE => to_std_logic(ENTCK), 
+		ENABLE => to_std_logic(ENTCK or ENTCKDD), 
 		calib => tck_divisor,
 		CK => FCK);
 	
@@ -437,9 +441,10 @@ begin
 						when mmu_dact => DACTIVE <= (cpu_data_out(0) = '1');
 						when mmu_stc  => stimulus_current <= to_integer(unsigned(cpu_data_out));
 						when mmu_rst  => SWRST <= (cpu_data_out(0) = '1');
-						when mmu_etc  => ENTCK <= (cpu_data_out(0) = '1');
+						when mmu_ccr  => 
+							ENTCK <= (cpu_data_out(0) = '1');
+							BOOST <= (cpu_data_out(1) = '1');
 						when mmu_tcd  => tck_divisor <= to_integer(unsigned(cpu_data_out));
-						when mmu_bcc  => BOOST <= (cpu_data_out(0) = '1');
 						when mmu_dfr  => df_reg <= cpu_data_out(3 downto 0);
 						when mmu_cpr => CPRST <= true;
 						when mmu_i1ph => int_period_1(15 downto 8) <= cpu_data_out;
@@ -490,19 +495,23 @@ begin
 		end if;
 	end process;
 	
-	-- The Boost Controller switches the CPU bewteen RCK and TCK, but makinge 
-	-- sure TCK is enabled for two cycles before connecting the CPU clock to
-	-- TCK. The CPU must first enable TCK with ENTCK, then assert BOOST. When
-	-- switching back to RCK, it must first unassert BOOST, then unassert ENTCK.
-	Boost_Controller : process (TCK,ENTCK) is
+	-- The Boost Controller switches the CPU bewteen RCK and TCK and back 
+	-- again.
+	Boost_Controller : process (TCK,ENTCK,BOOST) is
 	variable state, next_state : integer range 0 to 3;
 	begin
-		if not ENTCK then
+		if RESET = '1' then
 			state := 0;
 		elsif rising_edge(TCK) then
+			ENTCKD <= ENTCK;
+			ENTCKDD <= ENTCKD;
+			
+			BOOSTD <= BOOST;
+			BOOSTDD <= BOOSTD;
+			
 			case state is
 				when 0 =>
-					if BOOST then 
+					if BOOSTDD then 
 						next_state := 1;
 					else 
 						next_state := 0;
