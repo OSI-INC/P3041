@@ -2,7 +2,7 @@
 
 -- V3.1, 10-FEB-26: Modify to accommodate the OSR8V4 port interface: change prog_addr to 
 -- prog_cntr. No change in logic allocation: 1267 LUTs. To test the stability of our VHDL, 
--- we move specification of frequency_low out of software and into firmware. We compile and 
+-- we move specification of frequency_low out of software and into firmware. We compile and 
 -- code now occupies only 1219 LUTs. It works perfectly. Undo this change so as to preserve
 -- the CPU's ability to set the radio frequency calibration. We want all configuration in
 -- software. In future implants, we will have an EEPROM in which we can save calibration 
