@@ -10,7 +10,8 @@
 -- through software.
 
 -- [13-FEB-26] Switch to shared copy of OSR8V4 in the OSR8 repository. Code is occupying
--- 1244 LUTs with new test point signals.
+-- 1244 LUTs with new test point signals. Combine BOOST and ENTCK into one register, 
+-- making it possible to set both at the same time.
 
 library ieee;  
 use ieee.std_logic_1164.all;

@@ -435,8 +435,6 @@ interrupt:
 ; Each instruction at 33 kHz takes 150 times longer than at 5 MHz.
 
 push A              ; Save A on stack
-ld A,0x01           ; Set bit zero.
-ld (mmu_ccr),A      ; Enable the transmit clock.
 ld A,0x03           ; Set bits one and zero.
 ld (mmu_ccr),A      ; Enable tranmit clock and boost.
 push F              ; Save the flags onto the stack.
