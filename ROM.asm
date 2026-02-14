@@ -436,7 +436,7 @@ interrupt:
 
 push A              ; Save A on stack
 ld A,0x03           ; Set bits one and zero.
-ld (mmu_ccr),A      ; Enable tranmit clock and boost.
+ld (mmu_ccr),A      ; Enable transmit clock and boost.
 push F              ; Save the flags onto the stack.
 
 ; Drive TP1 high.
@@ -1019,11 +1019,9 @@ seti                ; Disable interrupts.
 ; Now we push A, turn on the transmit clock and go into boost, then push all 
 ; the remaining registers we plan to use.
 
-push A              ; Save A.
-ld A,0x01           ; Set bit zero.
-ld (mmu_ccr),A      ; Enable the transmit clock.
-ld A,0x03           ; Set bits one and zero.
-ld (mmu_ccr),A      ; Enable tranmit clock and boost.
+push A       
+ld A,0x03 
+ld (mmu_ccr),A 
 push B
 push C
 push D
@@ -1380,7 +1378,7 @@ pop B
 ld A,0x01           ; Set bit zero, clear bit one.
 ld (mmu_ccr),A      ; Disable boost.
 ld A,0x00           ; Clear bits one and zero.
-ld (mmu_ccr),A      ; Disable tranmit clock.
+ld (mmu_ccr),A      ; Disable transmit clock.
 
 pop A               
 pop F               
@@ -1509,10 +1507,8 @@ jp nc,main_check_flags
 
 main_shdn_ack:
 seti
-ld A,0x01           
+ld A,0x03        
 ld (mmu_ccr),A 
-ld A,0x03
-ld (mmu_ccr),A
 ld A,op_shdn
 ld (Sack_key),A
 call annc_ack
