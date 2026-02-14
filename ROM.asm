@@ -674,6 +674,8 @@ int_xmit_rdy:
 
 ld A,tx_txi         ; Load transmit initiate bit
 ld (mmu_xcr),A      ; and write to transmit control register.
+ld A,tx_delay       ; Wait for transmit to
+dly A               ; complete.
 
 int_xmit_done:
 
@@ -697,10 +699,8 @@ ld (mmu_dfr),A      ; write to diagnostic flag register.
 
 ; Move out of boost mode and turn off the transmit clock.
 
-ld A,0x01           ; Set bit zero.
-ld (mmu_ccr),A      ; Disable boost.
-ld A,0x00           ; Clear bit zero.
-ld (mmu_ccr),A      ; Disable TCK.
+ld A,0x00           ; Clear bits zero and one,
+ld (mmu_ccr),A      ; write to clock control register.
 
 ; Restore flags and accumulator, return from interrupt.
 
@@ -1375,10 +1375,8 @@ pop B
 
 ; Un-boost the CPU and exit.
 
-ld A,0x01           ; Set bit zero, clear bit one.
-ld (mmu_ccr),A      ; Disable boost.
-ld A,0x00           ; Clear bits one and zero.
-ld (mmu_ccr),A      ; Disable transmit clock.
+ld A,0x00           ; Clear bits zero and one,
+ld (mmu_ccr),A      ; Disable TCK and move out of boost.
 
 pop A               
 pop F               

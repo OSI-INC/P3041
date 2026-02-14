@@ -11,7 +11,9 @@
 
 -- [13-FEB-26] Switch to shared copy of OSR8V4 in the OSR8 repository. Code is occupying
 -- 1244 LUTs with new test point signals. Combine BOOST and ENTCK into one register, 
--- making it possible to set both at the same time.
+-- making it possible to set both at the same time. Add KEEPTCK, which keeps TCK running
+-- during transition into and out of boost. Now we are able to move immediately into and
+-- out of boost with one register write.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -135,8 +137,7 @@ architecture behavior of main is
 	
 -- Boost Controller
 	signal BOOST : boolean; -- Boost CPU Clock
-	signal BOOSTD, BOOSTDD : boolean; -- BOOST Delayed and Double-Delayed
-	signal ENTCKD, ENTCKDD : boolean; -- ENTCK Delayed and Double-Delayed
+	signal KEEPTCK : boolean; -- Keep TCK Running
 	attribute syn_keep of BOOST : signal is true;
 	attribute nomerge of BOOST : signal is "";
 	
@@ -263,7 +264,7 @@ begin
 -- The transmit clock should be turned on during a sensor access as well, so that
 -- the sensor access will be quick and the sensor can power down again sooner.
 	Fast_CK : entity ring_oscillator port map (
-		ENABLE => to_std_logic(ENTCK or ENTCKDD), 
+		ENABLE => to_std_logic(ENTCK or KEEPTCK), 
 		calib => tck_divisor,
 		CK => FCK);
 	
@@ -503,16 +504,11 @@ begin
 	begin
 		if RESET = '1' then
 			state := 0;
+			KEEPTCK <= false;
 		elsif rising_edge(TCK) then
-			ENTCKD <= ENTCK;
-			ENTCKDD <= ENTCKD;
-			
-			BOOSTD <= BOOST;
-			BOOSTDD <= BOOSTD;
-			
 			case state is
 				when 0 =>
-					if BOOSTDD then 
+					if BOOST then 
 						next_state := 1;
 					else 
 						next_state := 0;
@@ -531,6 +527,7 @@ begin
 						next_state := 2;
 					end if;
 			end case;
+			KEEPTCK <= (state /= 0);
 			state := next_state;
 		end if;
 		CK <= to_std_logic(((RCK = '1') and (state = 0))
