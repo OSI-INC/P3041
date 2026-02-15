@@ -1510,8 +1510,6 @@ ld (mmu_ccr),A
 ld A,op_shdn
 ld (Sack_key),A
 call annc_ack
-ld A,0x01           
-ld (mmu_ccr),A 
 ld A,0x00
 ld (mmu_ccr),A
 clri
