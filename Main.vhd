@@ -15,8 +15,8 @@
 -- and out of boost. Now we are able to move immediately into and out of boost with one 
 -- register write.
 
--- V3.3, [15-FEB-26]: Add two states to the Boost Controller to ensure that no RCK edge can occur in 
--- the middle of our transition from TCK back to RCK. Provide detailed explanation of 
+-- V3.3, [15-FEB-26]: Add two states to the Boost Controller to ensure that no RCK edge can 
+-- occur in the middle of our transition from TCK back to RCK. Provide detailed explanation of 
 -- Boost Controller.
 
 library ieee;  
@@ -169,7 +169,7 @@ architecture behavior of main is
 		CPUDS, -- Data Strobe
 		CPUIRQ -- Interrupt Request
 		: boolean; 
-	signal CPUSIG : std_logic_vector(2 downto 0); -- Signals for debugging.
+	signal CPUSIG : std_logic_vector(2 downto 0); -- Signals for debugging
 
 -- Interrupt Handler signals.
 	signal int_mask, int_bits, int_rst, int_set : std_logic_vector(7 downto 0);
