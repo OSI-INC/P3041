@@ -1,21 +1,23 @@
 -- <pre> Implantable Stimulator-Transponder (IST, A3041) Firmware, Toplevel Unit
 
--- V3.1, [10-FEB-26]: Modify to accommodate the OSR8V4 port interface: change prog_addr to 
+-- V3.1, [13-FEB-26]: Modify to accommodate the OSR8V4 port interface: change prog_addr to 
 -- prog_cntr. No change in logic allocation: 1267 LUTs. To test the stability of our VHDL, 
 -- we move specification of frequency_low out of software and into firmware. We compile and 
 -- code now occupies only 1219 LUTs. It works perfectly. Undo this change so as to preserve
 -- the CPU's ability to set the radio frequency calibration. We want all configuration in
 -- software. In future implants, we will have an EEPROM in which we can save calibration 
 -- and configuration constants. We want to be able to read them on reset and apply them
--- through software.
-
--- [13-FEB-26] Switch to shared copy of OSR8V4 in the OSR8 repository. Code is occupying
--- 1244 LUTs with new test point signals. 
+-- through software. Switch to shared copy of OSR8V4 in the OSR8 repository. Code is 
+-- occupying 1244 LUTs with new test point signals. 
 
 -- V3.2, [14-FEB-26]: Combine BOOST and ENTCK into one register, making it possible to 
 -- set both at the same time. Add KEEPTCK, which keeps TCK running during transition into 
 -- and out of boost. Now we are able to move immediately into and out of boost with one 
 -- register write.
+
+-- V3.3, Add two states to the Boost Controller to ensure that no RCK edge can occur in 
+-- the middle of our transition from TCK back to RCK. Provide detailed explanation of 
+-- Boost Controller.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -500,9 +502,60 @@ begin
 	end process;
 	
 	-- The Boost Controller switches the CPU bewteen RCK and TCK and back 
-	-- again.
+	-- again. When CK = TCK, we are in the "boost" mode. When CK = RCK we 
+	-- are in "normal" mode, or "non-boost". Switching to boost is quick,
+	-- because we know the state of RCK after BOOST is asserted: RCK must 
+	-- be LO because the OSR8's MMU clocks registers on the falling edge 
+	-- of RCK. When TCK starts up, we use the rising edges of TCK to drive 
+	-- our Boost Controller, so we know the state of TCK before and after 
+	-- state transistion. When we see BOOST, and assuming TCK is running, 
+	-- we use the next TCK rising edge to move from State Zero to State 
+	-- One, where we drive CK to LO, matching RCK. On the next rising edge 
+	-- of TCK we move to State Three, where we drive CK equal to TCK, and 
+	-- we are in boost. Coming out of boost is more complicated, because 
+	-- we do not know the state of RCK. When we see BOOST unasserted, we
+	-- move immediately to State Two, where we drive CK to HI. We must 
+	-- drive CK to HI because TCK just went HI and CK has been equal to
+	-- CK while in boost mode. We wait for RCK to be HI. When we see RCK 
+	-- is HI, we move to State Six. We continue to drive CK HI. We wait 
+	-- for RCK to go LO. When we see RCK go LO, we know we have just seen 
+	-- a falling edge on RCK, so RCK will remain LO for 15 us, which is 
+	-- many cycles of the 5-MHz TCK. We move to State Four, where we 
+	-- continue to drive CK to HI, and we immediately proceed to State 
+	-- Zero, where we drive CK equal to RCK. Going through State Four on 
+	-- the way from Six to Zero ensures that all our state transitions 
+	-- involve only one of the state bits changing. Once in State Zero, 
+	-- we drive CK equal to RCK, and we are out of boost. After one TCK 
+	-- period in State Zero, our KEEPTCK flag clears, and TCK might stop. 
+	-- If we have kept ENTCK asserted, then TCK will keep running, but 
+	-- KEEPTCK will still be cleared. Moving out of boost mode could take 
+	-- as long as one full RCK period. If we enter State Two just after a 
+	-- falling edge of RCK, we will wait 15 us for RCK to go HI, then 
+	-- another 15 us for it to go LO, and only then will we move CK from 
+	-- TCK to RCK. On average, the wait will be 7.5 us. So far as we can 
+	-- tell, there is nothing we can do to reduce this average wait. But 
+	-- we note that the only cost of the wait, in terms of current 
+	-- consumption, is the running of TCK for an average of 7.5 us. The 
+	-- CPU stops running on TCK immediately we see BOOST unasserted The
+	-- CPU clock, CK, remains HI and the CPU is inactive until CK moves 
+	-- to RCK and a rising edge on RCK occurs.
+	--
+	-- We have been careful to ensure that all possible state changes 
+	-- involve only one of the state variable bits changing at a time. The 
+	-- CK signal is a combinatorial function of the state, TCK, and RCK. 
+	-- We will see glitches on CK if we experience a state change with more 
+	-- than one bit changing. In fact, we will see glitches on CK if we drive 
+	-- CK to LO in State Six or State Four. Even though a single-level 
+	-- combinatorial implementation of the state calculation will not generate 
+	-- glitches with single-bit state transitions, the actual implementation 
+	-- of the state machine in sixteen-bit LUTs does generate glitches when 
+	-- we force CK to go LO before we reach State Zero. The slight increase
+	-- in complexity demanded by driving CK to LO in State Six and Four 
+	-- increases the size of our compiled code from 1243 to 1257 LUTs. The
+	-- propagation of the state through these fourteen additional LUTs causes
+	-- glitches during state transitions. 
 	Boost_Controller : process (TCK,ENTCK,BOOST) is
-	variable state, next_state : integer range 0 to 3;
+	variable state, next_state : integer range 0 to 7;
 	begin
 		if RESET = '1' then
 			state := 0;
@@ -523,18 +576,30 @@ begin
 						next_state := 3;
 					end if;
 				when 2 => 
-					if (RCK = '0') then
-						next_state := 0;
+					if (RCK = '1') then
+						next_state := 6;
 					else
 						next_state := 2;
 					end if;
+				when 6 => 
+					if (RCK = '0') then
+						next_state := 4;
+					else
+						next_state := 6;
+					end if;
+				when 4 => 
+					next_state := 0;
+				when others => 
+					next_state := 0;
 			end case;
 			KEEPTCK <= (state /= 0);
 			state := next_state;
 		end if;
 		CK <= to_std_logic(((RCK = '1') and (state = 0))
 			or ((TCK = '1') and (state = 3))
-			or (state = 2));
+			or (state = 2)
+			or (state = 6)
+			or (state = 4));
 	end process;
 
 	-- The Interrupt_Controller provides the interrupt signal to the CPU in response to
