@@ -10,10 +10,12 @@
 -- through software.
 
 -- [13-FEB-26] Switch to shared copy of OSR8V4 in the OSR8 repository. Code is occupying
--- 1244 LUTs with new test point signals. Combine BOOST and ENTCK into one register, 
--- making it possible to set both at the same time. Add KEEPTCK, which keeps TCK running
--- during transition into and out of boost. Now we are able to move immediately into and
--- out of boost with one register write.
+-- 1244 LUTs with new test point signals. 
+
+-- V3.2, [14-FEB-26]: Combine BOOST and ENTCK into one register, making it possible to 
+-- set both at the same time. Add KEEPTCK, which keeps TCK running during transition into 
+-- and out of boost. Now we are able to move immediately into and out of boost with one 
+-- register write.
 
 library ieee;  
 use ieee.std_logic_1164.all;
