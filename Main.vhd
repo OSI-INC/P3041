@@ -452,7 +452,7 @@ begin
 							BOOST <= (cpu_data_out(1) = '1');
 						when mmu_tcd  => tck_divisor <= to_integer(unsigned(cpu_data_out));
 						when mmu_dfr  => df_reg <= cpu_data_out(3 downto 0);
-						when mmu_cpr => CPRST <= true;
+						when mmu_cpr  => CPRST <= true;
 						when mmu_i1ph => int_period_1(15 downto 8) <= cpu_data_out;
 						when mmu_i1pl => int_period_1(7 downto 0) <= cpu_data_out;
 						when mmu_i2ph => int_period_2(15 downto 8) <= cpu_data_out;
