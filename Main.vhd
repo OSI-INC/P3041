@@ -1,4 +1,4 @@
--- <pre> Implantable Stimulator-Transponder (IST, A3041) Firmware, Toplevel Unit
+-- Implantable Stimulator-Transponder (IST, A3041) Firmware, Top-Level Unit
 
 -- V3.1, [13-FEB-26]: Modify to accommodate the OSR8V4 port interface: change prog_addr to 
 -- prog_cntr. No change in logic allocation: 1267 LUTs. To test the stability of our VHDL, 
@@ -15,7 +15,7 @@
 -- and out of boost. Now we are able to move immediately into and out of boost with one 
 -- register write.
 
--- V3.3, Add two states to the Boost Controller to ensure that no RCK edge can occur in 
+-- V3.3, [15-FEB-26]: Add two states to the Boost Controller to ensure that no RCK edge can occur in 
 -- the middle of our transition from TCK back to RCK. Provide detailed explanation of 
 -- Boost Controller.
 
@@ -536,7 +536,7 @@ begin
 	-- tell, there is nothing we can do to reduce this average wait. But 
 	-- we note that the only cost of the wait, in terms of current 
 	-- consumption, is the running of TCK for an average of 7.5 us. The 
-	-- CPU stops running on TCK immediately we see BOOST unasserted The
+	-- CPU stops running on TCK as soon as we see BOOST unasserted. The
 	-- CPU clock, CK, remains HI and the CPU is inactive until CK moves 
 	-- to RCK and a rising edge on RCK occurs.
 	--
