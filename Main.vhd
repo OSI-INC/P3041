@@ -19,6 +19,8 @@
 -- occur in the middle of our transition from TCK back to RCK. Provide detailed explanation of 
 -- Boost Controller.
 
+-- V3.4, [15-FEB-26]: Add others clauses and default values to constrain the logic.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -364,6 +366,7 @@ begin
 		-- edge of the CPU clock.
 		all_bits := to_integer(unsigned(cpu_addr));
 		bottom_bits := to_integer(unsigned(cpu_addr(7 downto 0)));
+		cpu_data_in <= (others => '0');
 		case all_bits is
 			when ram_bot to ram_top => 
 				if not CPUWR then
@@ -390,13 +393,16 @@ begin
 						when mmu_cmp =>
 							cpu_data_in <= cmd_out;
 							CMRD <= to_std_logic(CPUDS);
+						when others =>
+							null;
 					end case;
 				end if;
 			when prog_bot to prog_top =>
 				if CPUWR then
 					PROGWR <= to_std_logic(CPUDS);
 				end if;
-				cpu_data_in <= (others => '0');
+			when others =>
+				null;
 		end case;
 		
 		-- We use RESET to clear some registers and signals, but not all. We do not clear the
@@ -459,6 +465,7 @@ begin
 						when mmu_i2pl => int_period_2(7 downto 0) <= cpu_data_out;
 						when mmu_i3p  => int_period_3(7 downto 0) <= cpu_data_out;
 						when mmu_i4p  => int_period_4(7 downto 0) <= cpu_data_out;
+						when others => null;
 					end case;
 				end if;
 			end if;

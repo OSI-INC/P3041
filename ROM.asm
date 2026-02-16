@@ -4,11 +4,10 @@
 ; This code runs in an OSR8 microprocessor.
 
 ; Configuration Constants.
-const version         31 ; The firmwarwe version.
+const version         33 ; The firmwarwe version.
 const identifier_hi 0x90 ; 0-255, no restrictions
 const identifier_lo 0x13 ; 0-255, low nibble cannot be 0x0 or 0xF 
-const frequency_low    5 ; Radio frequency calibration
-const tck_divisor      9 ; Transmit clock calibration
+const frequency_low    5 ; Radio frequency calibration.
 
 ; CPU Address Map Boundary Constants
 const mvar_bot  0x0000 ; Bottom of Main Variable Memory
@@ -374,7 +373,6 @@ pop A
 pop F
 ret                
 
-
 ; ------------------------------------------------------------
 ; Calibrate the transmit clock frequency. We take the CPU out
 ; of boost, turn off the transmit clock, and repeat a cycle of
@@ -391,15 +389,32 @@ push F
 push A           
 push B           
 
-ld A,tck_divisor
-ld (mmu_tcd),A
+ld A,0x01        ; Set bit one.
+ld (mmu_ccr),A   ; Move CPU out of boost.
+ld A,0x00        ; Clear bit one.
+ld (mmu_ccr),A   ; Disable Transmit Clock.
+ld A,initial_tcd ; The initial value of transmit clock divisor
+push A           ; Push divisor onto the stack
+pop B            ; Store divisor in B
+cal_tck_1:
+dec B            ; Decrement the divisor.
+push B           ; Push divisor onto stack.
+pop A            ; Pop divisor into A.
+ld (mmu_tcd),A   ; Write divisor to transmit clock generator.
+ld A,0x01        ; Set bit zero of A.
+ld (mmu_ccr),A   ; Enable the transmit clock.
+ld A,(mmu_tcf)   ; Read the transmit clock frequency.
+sub A,min_tcf    ; Subtract the minimum frequency.
+ld A,0x00        ; Clear bit zero of A.
+ld (mmu_ccr),A   ; Disable Transmit Clock.
+jp np,cal_tck_1  ; Try smaller divisor.
 
 ; Pop registers and return.
 
 pop B           
 pop A           
 pop F
-ret             
+ret               
 
 ; ------------------------------------------------------------
 ; The interrupt handler. Assumes that it interrupts a program
