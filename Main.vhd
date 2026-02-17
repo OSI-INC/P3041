@@ -25,7 +25,9 @@
 
 -- [16-FEB-26]: Fix the Boost Controller. It now generates its own Boost Clock (BCK)-- on the falling edges of FCK, just like we generate the Transmit Clock (TCK) from FCK. 
 -- We make sure that both clocks are LO when we switch between them, and that they will 
--- remain LO for at least 100 ns after we switch.
+-- remain LO for at least 100 ns after we switch. When we switch back to slow mode, we
+-- look for a falling edge on RCK, synchronized with the rising edge of FCK, so that
+-- we are sure we have RCK low for long enough to make the transition.
 
 
 
@@ -284,14 +286,6 @@ begin
 		calib => fck_divisor,
 		CK => FCK);
 	
--- The Transmit Clock process divides FCK in two so as to produce a clock with
--- exactly 50% duty cycle and frequency close to 5 MHz, which we call the 
--- Transmit Clock (TCK). We clock TCK on the falling edge of FCK.
-	Tx_CK : process (all) is 
-	begin
-		if falling_edge(FCK) then TCK <= to_std_logic(TCK = '0'); end if;
-	end process;
-
 -- User memory and configuration code for the CPU. This RAM will be initialized at
 -- start-up with a configuration file, and so may be read after power up to configure
 -- sensor. The configuration data will begin at address zero.
@@ -519,82 +513,87 @@ begin
 		end if;
 	end process;
 	
-	-- The Boost Controller switches the CPU between RCK and a specially-
-	-- generated Boost Clock (BCK) that is a copy of the Transmit Clock
-	-- (TCK). When CK = BCK, we are in the "boost" mode. When CK = RCK we 
-	-- are in "normal" mode, or "non-boost". Switching to boost is quick,
-	-- because we know the state of RCK after BOOST is asserted: RCK must 
-	-- be LO because the OSR8's MMU clocks registers on the falling edge 
-	-- of RCK. Before we enter boost, we make sure BCK is LO. When FCK
-	-- is running and BOOST is asserted, we use the falling edge of FCK to
-	-- toggle the state of BCK, thus generating a 5-MHz clock. When we see 
-	-- BOOST unassertd, we drive BCK to LO and wait until we see a falling
-	-- edge on RCK. Then we switch CK over to RCK. We keep FCK running
-	-- until the transition out of BOOST is complete by using the KEEPFCK
-	-- signal. Even if we unassert ENFCK while the CPU is in boost, so 
-	-- long as BOOST remains asserted, the CPU will keep running boost,
-	-- and FCK will keep running.
+	-- The Boost Controller switches the CPU between RCK and Boost Clock 
+	-- (BCK), which is a copy of the Transmit Clock (TCK). When CK = BCK, 
+	-- we are in the "boost" mode. When CK = RCK we are in "slow" mode. 
+	-- Switching to boost is quick because we know the state of RCK after 
+	-- BOOST is asserted: RCK must be LO because the OSR8's MMU clocks 
+	-- registers on the falling edge of RCK. The Boost Controller runs off
+	-- FCK, which is 10 MHz, and creates BCK at 5 MHz. Before we enter 
+	-- boost, we make sure BCK is LO. Before we start toggling BCK, we
+	-- make sure that TCK is LO too, so that BCK and TCK will be in phase.
+	-- We use the falling edge of FCK to toggle the state of BCK, just as
+	-- we do for TCK. To come out of boost, we unassert BOOST. We drive
+	-- BCK to LO and wait until we see a falling edge on RCK. Now we are
+	-- certain that RCK will be LO for long enough to make the switch 
+	-- back to slow mode. We keep FCK running until the transition out 
+	-- of BOOST is complete by with the KEEPFCK signal. In order to chek
+	-- the value of RCK within a state machine driven by FCK, we first
+	-- synchronize RCK with respect to FCK's rising edge.
 	Boost_Controller : process (all) is
 	variable state, next_state : integer range 0 to 7;
-	variable BCK : boolean;
 	variable SYNC : boolean;
+	variable SRCK : boolean;
 	begin
 		if RESET = '1' then
 			state := 0;
-			BCK := false;
+			TCK <= '0';
 		elsif falling_edge(FCK) then
 			case state is
 				when 0 =>
-					if BOOST and SYNC then 
+					if BOOST then 
+						TCK <= '0';
 						next_state := 1;
-					else 
+					else
+						TCK <= to_std_logic(TCK = '0');
 						next_state := 0;
 					end if;
-					BCK := false;
 				when 1 => 
 					next_state := 3;
-					BCK := false;
+					TCK <= '0';
 				when 3 =>
 					if (not BOOST) then
+						TCK <= '0';
 						next_state := 2;
 					else
+						TCK <= to_std_logic(TCK = '0');
 						next_state := 3;
 					end if;
-					BCK := not BCK;
 				when 2 => 
-					if (RCK = '1') then
+					if SRCK then
 						next_state := 6;
 					else
 						next_state := 2;
 					end if;
-					BCK := false;
+					TCK <= '0';
 				when 6 => 
-					if (RCK = '0') then
+					if not SRCK then
 						next_state := 4;
 					else
 						next_state := 6;
 					end if;
-					BCK := false;
+					TCK <= '0';
 				when 4 => 
 					next_state := 0;
-					BCK := false;
+					TCK <= '0';
 				when others => 
 					next_state := 0;
-					BCK := false;
+					TCK <= '0';
 			end case;
 			state := next_state;
 		end if;
 		
 		if RESET = '1' then
 			KEEPFCK <= false;
-			SYNC := false;
+			SRCK := false;
 		elsif rising_edge(FCK) then
 			KEEPFCK <= (state /= 0);
-			SYNC := (TCK = '0');
+			SRCK := (RCK = '1');
 		end if;
 	
---		SCRATCH <= (state = 2) or (state = 4) or (state = 6);
-		CK <= to_std_logic(((RCK = '1') and (state = 0)) or BCK);
+		CK <= to_std_logic(
+			((RCK = '1') and (state = 0)) 
+			or ((TCK = '1') and (state = 3)));
 	end process;
 
 	-- The Interrupt_Controller provides the interrupt signal to the CPU in response to
@@ -1367,20 +1366,23 @@ begin
 	end process;
 
 -- Test Point One appears on P4-1.
---	TP1 <= CPUSIG(0);
-	TP1 <= df_reg(1);
+	TP1 <= CPUSIG(0);
+--	TP1 <= RCK;
 --	TP1 <= TCK;
+--	TP1 <= df_reg(0);
 	
 -- Test Point Two appears on P4-2.
 --	TP2 <= CPUSIG(1);
 --	TP2 <= to_std_logic(ENFCK or KEEPFCK);
 --	TP2 <= to_std_logic(SCRATCH);
 	TP2 <= df_reg(0);
+--	TP2 <= to_std_logic(KEEPFCK);
+	
 	
 -- Test Point Three appears on P4-3 after the programming connector is removed.
-	TP3 <= to_std_logic(CPUIRQ);
---	TP3 <= CPUSIG(2);
---	TP3 <= RCK;
+--	TP3 <= to_std_logic(CPUIRQ);
+	TP3 <= CPUSIG(2);
+--	TP3 <= TCK;
 	
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
@@ -1388,7 +1390,7 @@ begin
 -- attached, quiescent current increases by 250 uA.
 --	TP4 <= to_std_logic(FHI);
 --	TP4 <= int_bits(4);
---	TP4 <= CPUSIG(3);
-	TP4 <= CK;
+	TP4 <= CPUSIG(3);
+--	TP4 <= CK;
 
 end behavior;

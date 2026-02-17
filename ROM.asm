@@ -390,23 +390,21 @@ push F
 push A           
 push B           
 
-ld A,0x01        ; Set bit one.
-ld (mmu_ccr),A   ; Move CPU out of boost.
-ld A,0x00        ; Clear bit one.
-ld (mmu_ccr),A   ; Disable fast clock.
+ld A,0x00        ; Clear bits zero and one.
+ld (mmu_ccr),A   ; Disable fast clock and move out of boost.
 ld A,initial_tcd ; The initial value of transmit clock divisor
-push A           ; Push divisor onto the stack
+push A           ; Push divisor onto the stacku
 pop B            ; Store divisor in B
 cal_tck_1:
 dec B            ; Decrement the divisor.
 push B           ; Push divisor onto stack.
 pop A            ; Pop divisor into A.
 ld (mmu_tcd),A   ; Write divisor to fast clock generator.
-ld A,0x01        ; Set bit zero of A.
+ld A,0x01        ; Set bit zero.
 ld (mmu_ccr),A   ; Enable the fast clock.
 ld A,(mmu_tcf)   ; Read the transmit clock frequency.
 sub A,min_tcf    ; Subtract the minimum frequency.
-ld A,0x00        ; Clear bit zero of A.
+ld A,0x00        ; Clear bit zero.
 ld (mmu_ccr),A   ; Disable fast clock.
 jp np,cal_tck_1  ; Try smaller divisor.
 
@@ -1371,8 +1369,8 @@ pop D
 pop C
 pop B
 
-; Un-boost the CPU and exit. Upon exit, we pop the flag register off
-; the stack, which should clear the interrupt flag.
+; Turn of fast clock and move out of boost. Pop the flag register off
+; the stack, restores the previous value of the interrupt flag.
 
 ld A,0x00           ; Clear bits zero and one,
 ld (mmu_ccr),A      ; Disable TCK and move out of boost.
@@ -1470,12 +1468,6 @@ clri
 ; The main event loop.
 
 main_loop:
-
-ld A,(mmu_dfr)      
-or A,bit1_mask 
-ld (mmu_dfr),A
-and A,bit1_clr
-ld (mmu_dfr),A
 
 
 ; Deal with any pending commands.
