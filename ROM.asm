@@ -57,6 +57,7 @@ const sr_txa     0x08 ; Transmit Active Flag
 const sr_cpa     0x10 ; Command Processor Active
 const sr_boost   0x20 ; Boost Flag
 const sr_cme     0x40 ; Command Memory Empty
+const sr_rck     0x80 ; RCK State
 
 ; Transmit Control Masks, for use with tansmit control register
 const tx_txi     0x01 ; Assert transmit initiate
@@ -315,7 +316,7 @@ ld (Smaxdly0),A      ; max delay byte zero.
 ld A,(Spulse1)       ; Load pulse length
 push A               ; byte one into 
 pop B                ; B and
-ld A,(Sint1)         ; interval lengt byte one
+ld A,(Sint1)         ; interval length byte one
 sbc A,B              ; into A and subtract with
 ld (Smaxdly1),A      ; carry to get max delay byte one.
 jp nc,rand_delay_ds  ; If not negative, move on.
@@ -392,7 +393,7 @@ push B
 ld A,0x01        ; Set bit one.
 ld (mmu_ccr),A   ; Move CPU out of boost.
 ld A,0x00        ; Clear bit one.
-ld (mmu_ccr),A   ; Disable Transmit Clock.
+ld (mmu_ccr),A   ; Disable fast clock.
 ld A,initial_tcd ; The initial value of transmit clock divisor
 push A           ; Push divisor onto the stack
 pop B            ; Store divisor in B
@@ -400,13 +401,13 @@ cal_tck_1:
 dec B            ; Decrement the divisor.
 push B           ; Push divisor onto stack.
 pop A            ; Pop divisor into A.
-ld (mmu_tcd),A   ; Write divisor to transmit clock generator.
+ld (mmu_tcd),A   ; Write divisor to fast clock generator.
 ld A,0x01        ; Set bit zero of A.
-ld (mmu_ccr),A   ; Enable the transmit clock.
+ld (mmu_ccr),A   ; Enable the fast clock.
 ld A,(mmu_tcf)   ; Read the transmit clock frequency.
 sub A,min_tcf    ; Subtract the minimum frequency.
 ld A,0x00        ; Clear bit zero of A.
-ld (mmu_ccr),A   ; Disable Transmit Clock.
+ld (mmu_ccr),A   ; Disable fast clock.
 jp np,cal_tck_1  ; Try smaller divisor.
 
 ; Pop registers and return.
@@ -435,10 +436,11 @@ interrupt:
 
 push A              ; Save A on stack
 ld A,0x03           ; Set bits one and zero.
-ld (mmu_ccr),A      ; Enable transmit clock and boost.
+ld (mmu_ccr),A      ; Enable fast clock and boost.
 push F              ; Save the flags onto the stack.
 
-; Drive TP1 high.
+; Set diagnostic flag zero.
+
 ld A,(mmu_dfr)      ; Load the diagnostic flag register.
 or A,bit0_mask      ; set bit zero and
 ld (mmu_dfr),A      ; write to diagnostic flag register.
@@ -467,13 +469,10 @@ int_uprog:
 
 ld A,(mmu_irqb)     ; Read the interrupt request bits
 and A,bit2_mask     ; and test bit two,
-jp z,int_uprog_done ; skip if uprog interrupt.
-
+jp z,int_uprog_done ; skip if not uprog interrupt.
 ld A,bit2_mask      ; Reset this interrupt
 ld (mmu_irst),A     ; with the bit two mask.
-
 call prog_bot       ; Call the user program.
-
 int_uprog_done:
 
 ; Handle the stimulus interval interrupt. We decrement the stimulus
@@ -690,13 +689,13 @@ pop D
 pop C
 pop B
 
-; End the pulse on diagnostic flag.
+; Clear diagnostic flag zero.
 
 ld A,(mmu_dfr)      ; Load the diagnostic flag register.
 and A,bit0_clr      ; Clear bit zero and
 ld (mmu_dfr),A      ; write to diagnostic flag register.
 
-; Move out of boost mode and turn off the transmit clock.
+; Move out of boost mode and turn off the fast clock.
 
 ld A,0x00           ; Clear bits zero and one,
 ld (mmu_ccr),A      ; write to clock control register.
@@ -934,7 +933,7 @@ get_cmd_byte:
 
 const gcb_dsp 0     ; Set to one for debugging.
 const gcb_dly 33    ; Bit period for display.
-const gcb_nb 11     ; Total number of bits minus start bit.
+const gcb_nb  11    ; Total number of bits minus start bit.
 
 push F
 
@@ -1015,7 +1014,7 @@ cmd_execute:
 push F              ; Push flags.
 seti                ; Disable interrupts.
 
-; Now we push A, turn on the transmit clock and go into boost, then push all 
+; Now we push A, turn on the fast clock and go into boost, then push all 
 ; the remaining registers we plan to use.
 
 push A       
@@ -1372,7 +1371,8 @@ pop D
 pop C
 pop B
 
-; Un-boost the CPU and exit.
+; Un-boost the CPU and exit. Upon exit, we pop the flag register off
+; the stack, which should clear the interrupt flag.
 
 ld A,0x00           ; Clear bits zero and one,
 ld (mmu_ccr),A      ; Disable TCK and move out of boost.
@@ -1387,6 +1387,9 @@ ret
 ; The main program uses IY to store the user program pointer.
 
 main:
+
+; Disable interruupts.
+seti
 
 ; Initialize the stack pointer.
 ld HL,stack_bot
@@ -1460,9 +1463,20 @@ ld (IY),A          ; in user program, in case of enable.
 
 call calibrate_tck
 
+; Enable interrupts.
+
+clri
+
 ; The main event loop.
 
 main_loop:
+
+ld A,(mmu_dfr)      
+or A,bit1_mask 
+ld (mmu_dfr),A
+and A,bit1_clr
+ld (mmu_dfr),A
+
 
 ; Deal with any pending commands.
 
@@ -1472,7 +1486,7 @@ jp z,main_nocmd     ; Jump if it's clear,
 call cmd_execute    ; execute command if it's set.
 main_nocmd:
 
-; If the stimulus flag is set, reset extinguish counter and call main loop
+; If the stimulus flag is set, reset the shutdown counter and call main loop
 ; again. 
 
 main_check_srun:
