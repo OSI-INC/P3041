@@ -29,6 +29,10 @@
 -- look for a falling edge on RCK, synchronized with the rising edge of FCK, so that
 -- we are sure we have RCK low for long enough to make the transition.
 
+-- [18-FEB-26] Adjust test points to show the four SIG signals from the OSR8V4. Test,
+-- adjust, re-compile half a dozen times. All functions working and robust with every
+-- recompile. 
+
 
 
 library ieee;  
@@ -1381,10 +1385,9 @@ begin
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
 -- this output is almost always HI, and the programming extension is still 
--- attached, quiescent current increases by 250 uA. We like to reserve this
--- test point for FHI, which shows us the telemetry transmission.
-	TP4 <= to_std_logic(FHI);
---	TP4 <= CPUSIG(3);
+-- attached, quiescent current increases by 250 uA.
+--	TP4 <= to_std_logic(FHI);
+	TP4 <= CPUSIG(3);
 --	TP2 <= df_reg(3);
 
 end behavior;
