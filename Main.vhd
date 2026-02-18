@@ -1367,30 +1367,24 @@ begin
 
 -- Test Point One appears on P4-1.
 	TP1 <= CPUSIG(0);
---	TP1 <= RCK;
---	TP1 <= TCK;
 --	TP1 <= df_reg(0);
 	
 -- Test Point Two appears on P4-2.
---	TP2 <= CPUSIG(1);
---	TP2 <= to_std_logic(ENFCK or KEEPFCK);
---	TP2 <= to_std_logic(SCRATCH);
-	TP2 <= df_reg(0);
---	TP2 <= to_std_logic(KEEPFCK);
+	TP2 <= CPUSIG(1);
+--	TP2 <= df_reg(1);
 	
 	
 -- Test Point Three appears on P4-3 after the programming connector is removed.
---	TP3 <= to_std_logic(CPUIRQ);
 	TP3 <= CPUSIG(2);
---	TP3 <= TCK;
-	
+--	TP2 <= df_reg(2);
+		
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
 -- this output is almost always HI, and the programming extension is still 
--- attached, quiescent current increases by 250 uA.
---	TP4 <= to_std_logic(FHI);
---	TP4 <= int_bits(4);
-	TP4 <= CPUSIG(3);
---	TP4 <= CK;
+-- attached, quiescent current increases by 250 uA. We like to reserve this
+-- test point for FHI, which shows us the telemetry transmission.
+	TP4 <= to_std_logic(FHI);
+--	TP4 <= CPUSIG(3);
+--	TP2 <= df_reg(3);
 
 end behavior;
