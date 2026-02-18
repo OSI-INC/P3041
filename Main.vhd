@@ -15,15 +15,15 @@
 -- and out of boost. Now we are able to move immediately into and out of boost with one 
 -- register write.
 
--- V3.3, [15-FEB-26]: Update Boost Controller, but interrupts don't work. Nor can we 
+-- V3.3, [15-FEB-26] Update Boost Controller, but interrupts don't work. Nor can we 
 -- compile with suitable test pins to figure out what is wrong because the code won't
 -- fit when we add the pins.
 
--- V3.4, [15-FEB-26]: Add others clauses and default values to constrain the logic. 
+-- V3.4, [15-FEB-26] Add others clauses and default values to constrain the logic. 
 -- Meanwhile, in OSRV4 we eliminate some instructions we have never used, and this 
 -- drops the code size to 1220 LUTs.
 
--- [16-FEB-26]: Fix the Boost Controller. It now generates its own Boost Clock (BCK)-- on the falling edges of FCK, just like we generate the Transmit Clock (TCK) from FCK. 
+-- [16-FEB-26] Fix the Boost Controller. It now generates its own Boost Clock (BCK)-- on the falling edges of FCK, just like we generate the Transmit Clock (TCK) from FCK. 
 -- We make sure that both clocks are LO when we switch between them, and that they will 
 -- remain LO for at least 100 ns after we switch. When we switch back to slow mode, we
 -- look for a falling edge on RCK, synchronized with the rising edge of FCK, so that
@@ -33,6 +33,7 @@
 -- adjust, re-compile half a dozen times. All functions working and robust with every
 -- recompile. 
 
+-- V3.5, [18-FEB-26] Start V3.5. Want to implement immediate boost on interrupt.
 
 
 library ieee;  
