@@ -434,6 +434,7 @@ begin
 			stimulus_current <= 0;
 			df_reg <= (others => '0');
 			int_mask <= (others => '0');
+			int_rst <= (others => '1');
 			CPRST <= true;
 			DACTIVE <= false;
 			frequency_low <= default_frequency_low;
@@ -605,7 +606,7 @@ begin
 	-- timer events. By default, at power-up, all interrupts are masked. We can set the
 	-- period of each timer by writing to locations in the CPU control space. If we want
 	-- the counter to have period N ticks, we write value N-1 to the period registers.
-	Interrupt_Controller : process (all) is
+	Interrupt_Controller : process (CK, RCK) is
 	variable counter_1, counter_2 : integer range 0 to 65535;
 	variable counter_3, counter_4 : integer range 0 to 255;
 	variable mcnt : integer range 0 to 31;
@@ -621,8 +622,8 @@ begin
 			end if;
 		end if;
 	
-		-- The first of two sixteen-bit delay timers, generating interrupt bit zero
-		-- we call it Interrupt Timer One. Counts milliseconds.
+		-- The first of two sixteen-bit delay timers, generating interrupt bit zero.
+		-- We call it Interrupt Timer One. Counts milliseconds.
 		if (int_rst(0) = '1') then
 			counter_1 := 0;
 		elsif rising_edge(RCK) then
@@ -637,8 +638,8 @@ begin
 			end if;
 		end if;
 
-		-- The second of two sixteen-bit delay timers, generating interrupt bit one
-		-- we call it Interrupt Timer Two. Counts milliseconds.
+		-- The second of two sixteen-bit delay timers, generating interrupt bit one.
+		-- We call it Interrupt Timer Two. Counts milliseconds.
 		if (int_rst(1) = '1') then
 			counter_2 := 0;
 		elsif rising_edge(RCK) then
@@ -653,8 +654,8 @@ begin
 			end if;
 		end if;
 		
-		-- The first of two eight-bit repeating timers, generating interrupt bit two
-		-- we call it Interrupt Timer Three.
+		-- The first of two eight-bit repeating timers, generating interrupt bit two.
+		-- We call it Interrupt Timer Three.
 		if rising_edge(RCK) then
 			if (counter_3 = 0) then
 				counter_3 := to_integer(unsigned(int_period_3));
@@ -663,8 +664,8 @@ begin
 			end if;
 		end if;
 
-		-- The second of two eight-bit repeating timers, generating interrupt bit three
-		-- we call it Interrupt Timer Four.
+		-- The second of two eight-bit repeating timers, generating interrupt bit three.
+		-- We call it Interrupt Timer Four.
 		if rising_edge(RCK) then
 			if (counter_4 = 0) then
 				counter_4 := to_integer(unsigned(int_period_4));
@@ -677,46 +678,50 @@ begin
 		-- flag when we assert the int_rst bit zero. The interrupt bit
 		-- itself is set when we the counter reaches zero but the zero flag 
 		-- is not set.
-		if (int_rst(0) = '1') then
-			int_bits(0) <= '0';
-			INTZ1 <= true;
-		elsif rising_edge(RCK) then
-			INTZ1 <= (counter_1 = 0);
-			if ((counter_1 = 0) and (not INTZ1)) then
-				int_bits(0) <= '1';
+		if rising_edge(CK) then
+			if (int_rst(0) = '1') then
+				int_bits(0) <= '0';
+			else
+				INTZ1 <= (counter_1 = 0);
+				if ((counter_1 = 0) and (not INTZ1)) then
+					int_bits(0) <= '1';
+				end if;
 			end if;
 		end if;
 			
 		-- The timer two interrupt.
-		if (int_rst(1) = '1') then
-			int_bits(1) <= '0';
-			INTZ2 <= true;
-		elsif rising_edge(RCK) then
-			INTZ2 <= (counter_2 = 0);
-			if ((counter_2 = 0) and (not INTZ2)) then
-				int_bits(1) <= '1';
+		if rising_edge(CK) then
+			if (int_rst(1) = '1') then
+				int_bits(1) <= '0';
+			else
+				INTZ2 <= (counter_2 = 0);
+				if ((counter_2 = 0) and (not INTZ2)) then
+					int_bits(1) <= '1';
+				end if;
 			end if;
 		end if;
 		
 		-- The timer three interrupt.
-		if (int_rst(2) = '1') then
-			int_bits(2) <= '0';
-			INTZ3 <= true;
-		elsif rising_edge(RCK) then
-			INTZ3 <= (counter_3 = 0);
-			if ((counter_3 = 0) and (not INTZ3)) then
-				int_bits(2) <= '1';
+		if rising_edge(CK) then
+			if (int_rst(2) = '1') then
+				int_bits(2) <= '0';
+			else
+				INTZ3 <= (counter_3 = 0);
+				if ((counter_3 = 0) and (not INTZ3)) then
+					int_bits(2) <= '1';
+				end if;
 			end if;
 		end if;
 
 		-- The timer four interrupt.
-		if (int_rst(3) = '1') then
-			int_bits(3) <= '0';
-			INTZ4 <= true;
-		elsif rising_edge(RCK) then
-			INTZ4 <= (counter_4 = 0);
-			if ((counter_4 = 0) and (not INTZ4)) then
-				int_bits(3) <= '1';
+		if rising_edge(CK) then
+			if (int_rst(3) = '1') then
+				int_bits(3) <= '0';
+			else
+				INTZ4 <= (counter_4 = 0);
+				if ((counter_4 = 0) and (not INTZ4)) then
+					int_bits(3) <= '1';
+				end if;
 			end if;
 		end if;
 
@@ -1376,12 +1381,12 @@ begin
 	
 -- Test Point Two appears on P4-2.
 	TP2 <= CPUSIG(1);
---	TP2 <= df_reg(1);
-	
+--	TP2 <= df_reg(0);	
 	
 -- Test Point Three appears on P4-3 after the programming connector is removed.
+--	TP3 <= to_std_logic(INTZ4);
+--	TP3 <= df_reg(2);
 	TP3 <= CPUSIG(2);
---	TP2 <= df_reg(2);
 		
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
@@ -1389,6 +1394,7 @@ begin
 -- attached, quiescent current increases by 250 uA.
 --	TP4 <= to_std_logic(FHI);
 	TP4 <= CPUSIG(3);
---	TP2 <= df_reg(3);
+--	TP4 <= df_reg(3);
+--	TP4 <= to_std_logic(CPUIRQ);
 
 end behavior;
