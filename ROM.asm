@@ -428,13 +428,10 @@ ret
 
 interrupt:
 
-; Push A onto the stack, boost CPU, push F. We push A before
-; F because we want to move into boost as quickly as possible.
-; Each instruction at 33 kHz takes 150 times longer than at 5 MHz.
+; Push A onto the stack. We are already in boost, provided that
+; we got here with an interrupt request.
 
 push A              ; Save A on stack
-ld A,0x03           ; Set bits one and zero.
-ld (mmu_ccr),A      ; Enable fast clock and boost.
 push F              ; Save the flags onto the stack.
 
 ; Set diagnostic flag zero.
@@ -693,10 +690,6 @@ ld A,(mmu_dfr)      ; Load the diagnostic flag register.
 and A,bit0_clr      ; Clear bit zero and
 ld (mmu_dfr),A      ; write to diagnostic flag register.
 
-; Move out of boost mode and turn off the fast clock.
-
-ld A,0x00           ; Clear bits zero and one,
-ld (mmu_ccr),A      ; write to clock control register.
 
 ; Restore flags and accumulator, return from interrupt.
 

@@ -184,7 +184,8 @@ architecture behavior of main is
 	attribute nomerge of cpu_addr : signal is "";  
 	signal CPUWR, -- Write (Not Read)
 		CPUDS, -- Data Strobe
-		CPUIRQ -- Interrupt Request
+		CPUIRQ, -- Interrupt Request
+		CPUISRV -- Interrupt Service
 		: boolean; 
 	signal CPUSIG : std_logic_vector(3 downto 0); -- Signals for debugging
 
@@ -256,7 +257,7 @@ begin
 -- and RESET set HI. When RCK starts up, we us the falling edge to move the 
 -- chip into standby mode, then unassert RESET once we receive SFLAG from the
 -- Power Control Unit (PCU). The process asserts OND to keep the power on.
-	PowerUp: process (all) is
+	PowerUp: process (RCK, CPA, DACTIVE) is
 		constant end_state : integer := 7;
 		constant clr_state : integer := 3;
 		constant stdby_state : integer := clr_state + 2;
@@ -288,7 +289,7 @@ begin
 -- The transmit clock should be turned on during a sensor access as well, so that
 -- the sensor access will be quick and the sensor can power down again sooner.
 	Fast_CK : entity ring_oscillator port map (
-		ENABLE => to_std_logic(ENFCK or KEEPFCK), 
+		ENABLE => to_std_logic(ENFCK or KEEPFCK or CPUISRV), 
 		calib => fck_divisor,
 		CK => FCK);
 	
@@ -338,6 +339,7 @@ begin
 			WR => CPUWR,
 			DS => CPUDS,
 			IRQ => CPUIRQ,
+			ISRV => CPUISRV,
 			SIG => CPUSIG,
 			RESET => RESET,
 			CK => CK
@@ -489,7 +491,7 @@ begin
 	-- in the tck_frequency register. If TCK is 5.00 MHz and RCK is 32.768 kHz, 
 	-- tck_frequency will be 76 when the counter stops. The counter will hold its 
 	-- value until ENFCK is unasserted.
-	Clock_Calibrator : process (all) is
+	Clock_Calibrator : process (ENFCK, TCK) is
 	variable state, next_state : integer range 0 to 3;
 	begin
 		if not ENFCK then
@@ -523,23 +525,17 @@ begin
 	-- The Boost Controller switches the CPU between RCK and Boost Clock 
 	-- (BCK), which is a copy of the Transmit Clock (TCK). When CK = BCK, 
 	-- we are in the "boost" mode. When CK = RCK we are in "slow" mode. 
-	-- Switching to boost is quick because we know the state of RCK after 
-	-- BOOST is asserted: RCK must be LO because the OSR8's MMU clocks 
-	-- registers on the falling edge of RCK. The Boost Controller runs off
-	-- FCK, which is 10 MHz, and creates BCK at 5 MHz. Before we enter 
-	-- boost, we make sure BCK is LO. Before we start toggling BCK, we
-	-- make sure that TCK is LO too, so that BCK and TCK will be in phase.
-	-- We use the falling edge of FCK to toggle the state of BCK, just as
-	-- we do for TCK. To come out of boost, we unassert BOOST. We drive
-	-- BCK to LO and wait until we see a falling edge on RCK. Now we are
-	-- certain that RCK will be LO for long enough to make the switch 
-	-- back to slow mode. We keep FCK running until the transition out 
-	-- of BOOST is complete by with the KEEPFCK signal. In order to chek
-	-- the value of RCK within a state machine driven by FCK, we first
-	-- synchronize RCK with respect to FCK's rising edge.
-	Boost_Controller : process (all) is
+	-- Switching to boost is quick because we know the state of RCK when
+	-- we want to switch into boost. Either the CPU just asserted BOOST
+	-- with a regiseter write, or it just asserted Interrupt Service (ISRV).
+	-- Both occur on the falling edge of CK, so RCK  will be LO for at
+	-- least 15 us. To come out of boost, either the processor unasserts
+	-- BOOST or ISRV, both of which it will do on the falling edge of TCK.
+	-- Either way, we wait for RCK to go HI, and then go LO, so that we know
+	-- that RCK will remain LO while we switch over. We synchronize RCK 
+	-- with respect to FCK for these comparisons.
+	Boost_Controller : process (RESET, FCK) is
 	variable state, next_state : integer range 0 to 7;
-	variable SYNC : boolean;
 	variable SRCK : boolean;
 	begin
 		if RESET = '1' then
@@ -548,7 +544,7 @@ begin
 		elsif falling_edge(FCK) then
 			case state is
 				when 0 =>
-					if BOOST then 
+					if BOOST or CPUISRV then 
 						TCK <= '0';
 						next_state := 1;
 					else
@@ -559,7 +555,7 @@ begin
 					next_state := 3;
 					TCK <= '0';
 				when 3 =>
-					if (not BOOST) then
+					if (not BOOST) and (not CPUISRV) then
 						TCK <= '0';
 						next_state := 2;
 					else
@@ -790,7 +786,7 @@ begin
 	-- process to start. The SAI signal will be asserted for one period of CK following
 	-- a CPU write to the SAI location. Further writes to the same location will have
 	-- no effect until the Sensor Controller returns to its idle state.
-	Sensor_Controller : process (all) is
+	Sensor_Controller : process (RESET, TCK) is
 		variable state, next_state : integer range 0 to 31 := 0;
 		
  	begin
@@ -877,7 +873,7 @@ begin
 -- for the process to run. The TXI signal will be asserted for one period of CK
 -- following a CPU write to the TXI location. Further writes to the same location
 -- will be ignored until the Message Transmitter returns to its idle state.
-	Message_Transmitter : process (all) is
+	Message_Transmitter : process (RESET, TCK) is
 		variable channel_num, set_num, completion_code : 
 			integer range 0 to 15; -- set number for data
 		constant num_sync_bits : integer := 11; -- Num synchronizing bits at start.
@@ -981,7 +977,7 @@ begin
 -- output (xdac) between the HI and LO frequency values. These values are turned
 -- into analog voltages on the TUNE input of the radio frequency oscillator, and
 -- so modulate the frequency of the transmission.
-	Frequency_Modulation : process (all) is
+	Frequency_Modulation : process (RESET, FCK) is
 	begin
 		if RESET = '1' then
 			xdac <= (others => '0');
@@ -1015,7 +1011,7 @@ begin
 
 -- The Stimulus Controller takes the stimulus current value and modulates
 -- the On Lamp (ONL) output from 6% to 100% for values 0 to 15.
-	Stimulus_Controller: process (all) is 
+	Stimulus_Controller: process (RESET, RCK) is 
 	variable c : integer range 0 to 15;
 	begin
 		if RESET = '1' then
@@ -1062,7 +1058,7 @@ begin
 	end process;
 	
 -- The Receive Power signal must be synchronized with the RCK clock.
-	Synchronize_RP: process (all) is 
+	Synchronize_RP: process (RESET, RCK) is 
 	begin
 		if RESET = '1' then
 			RPS <= false;
@@ -1073,7 +1069,7 @@ begin
 	
 -- We detect a long enough burst of command power to initiate
 -- command reception, and set the ICMD signal.
-	Initiate_Command: process (all) is 
+	Initiate_Command: process (RESET, RCK) is 
 		constant endcount : integer := 63;
 		variable counter : integer range 0 to endcount := 0;
 	begin
@@ -1097,7 +1093,7 @@ begin
 	
 -- We detect a long enough period without command power to 
 -- terminate command reception, and set the TCMD signal.
-	Terminate_Command: process (all) is 
+	Terminate_Command: process (RESET, RCK) is 
 		constant endcount : integer := 255;
 		variable counter : integer range 0 to endcount := 0;
 	begin
@@ -1122,7 +1118,7 @@ begin
 -- The Receive Command (RCMD) signal indicates that a command is being 
 -- received. We set RCMD when Initiate Command (ICMD) occurs, and we clear
 -- RCMD when Terminate Command (TCMD) occurs.
-	Receive_Command: process (all) is
+	Receive_Command: process (RESET, RCK) is
 	begin
 		if RESET = '1' then
 			RCMD <= false;
@@ -1137,7 +1133,7 @@ begin
 
 -- We watch for a start bit and receive serial bytes when instructed
 -- to do so by the Command Processor with the RBI signal.
-	Byte_Receiver: process (all) is
+	Byte_Receiver: process (RESET, RCK) is
 		variable state, next_state : integer range 0 to 63 := 0;
 		variable no_stop_bit : boolean := false;
 	begin
@@ -1264,7 +1260,7 @@ begin
 -- end of a command, there was some error during reception. We use the Command
 -- Bit Strobe (CBS) signal to clock crc, because CBS is asserted only when a command 
 -- data bit is received, not when we receive a start or stop bit.
-	Error_Check : process (all) is
+	Error_Check : process (RESET, RCK) is
 		variable crc, next_crc : std_logic_vector(15 downto 0) := (others => '1');
 	begin
 		if RESET = '1' then
@@ -1320,7 +1316,7 @@ begin
 -- state. When the command is ready, the CPU can read all bytes out of the Command Memory. 
 -- The Command Processor runs on the reference clock, which is 32.768 kHz, and proceeds to a 
 -- new state every clock cycle. 
-	Command_Processor: process (all) is
+	Command_Processor: process (RESET, RCK) is
 		
 		-- General-purpose state names for the Command Processor
 		constant idle_s : integer := 0;
@@ -1429,9 +1425,10 @@ begin
 --	TP1 <= to_std_logic(INTZ1);
 	
 -- Test Point Two appears on P4-2.
-	TP2 <= CPUSIG(1);
+--	TP2 <= CPUSIG(1);
 --	TP2 <= df_reg(0);	
 --	TP2 <= to_std_logic(INTZ2);
+	TP2 <= to_std_logic(CPUISRV);
 	
 -- Test Point Three appears on P4-3 after the programming connector is removed.
 --	TP3 <= to_std_logic(INTZ4);
@@ -1443,8 +1440,9 @@ begin
 -- this output is almost always HI, and the programming extension is still 
 -- attached, quiescent current increases by 250 uA.
 --	TP4 <= to_std_logic(FHI);
-	TP4 <= CPUSIG(3);
+--	TP4 <= CPUSIG(3);
 --	TP4 <= df_reg(3);
 --	TP4 <= to_std_logic(CPUIRQ);
+	TP4 <= CK;
 
 end behavior;
