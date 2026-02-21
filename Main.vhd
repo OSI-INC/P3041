@@ -33,7 +33,13 @@
 -- adjust, re-compile half a dozen times. All functions working and robust with every
 -- recompile. 
 
--- V3.5, [18-FEB-26] Start V3.5. Want to implement immediate boost on interrupt.
+-- V3.5, [18-FEB-26] Immediate boost on interrupt. Fix bug in asynchronous reset of 
+-- interrupt bits: reset is asynchronous, but un-assertion of reset must be 
+-- synchronous. 
+
+-- V3.6, [21-FEB-26] Add detection of rising and falling edges of RCK to Boost 
+-- Controller so that we can move immediately out of boost when we are far from
+-- an RCK edge. Costs and additional 30 LUTs, bringing total to 1231.
 
 
 library ieee;  
@@ -123,7 +129,7 @@ architecture behavior of main is
 -- Ring Oscillator, Transmit Clock
 	signal TCK, FCK, CK : std_logic;
 	attribute syn_keep of TCK, FCK, CK : signal is true;
-	attribute nomerge of TCK, FCK, CK : signal is "";  
+	attribute nomerge of TCK, FCK, CK : signal is ""; 
 
 -- Message Transmission.
 	signal TXI, -- Transmit Initiate
@@ -161,6 +167,8 @@ architecture behavior of main is
 	signal KEEPFCK : boolean; -- Keep FCK Running
 	attribute syn_keep of BOOST : signal is true;
 	attribute nomerge of BOOST : signal is "";
+	signal SRCK, SSRCK : std_logic;
+	signal RCKLO, RCKHI : boolean;
 	
 -- Diagnostic Flag Register
 	signal df_reg : std_logic_vector(3 downto 0) := (others => '0');
@@ -535,9 +543,35 @@ begin
 	-- that RCK will remain LO while we switch over. We synchronize RCK 
 	-- with respect to FCK for these comparisons.
 	Boost_Controller : process (RESET, FCK) is
-	variable state, next_state : integer range 0 to 7;
-	variable SRCK : boolean;
+	variable state, next_state : integer range 0 to 3;
+	variable counter : integer range 0 to 127;
 	begin
+		if (RESET = '1') then
+			SRCK <= '0';
+			SSRCK <= '0';
+			counter := 0;
+			RCKLO <= false;
+			RCKHI <= false;
+			KEEPFCK <= false;
+		elsif rising_edge(FCK) then
+			SRCK <= RCK;
+			SSRCK <= SRCK;
+			if (state = 0) or (counter = 127) then 
+				RCKLO <= false;
+				RCKHI <= false;
+			elsif (SRCK = '1') and (SSRCK = '0') then
+				RCKHI <= true;
+			elsif (SRCK = '0') and (SSRCK = '1') then
+				RCKLO <= true;
+			end if;
+			if (not RCKHI) and (not RCKLO) then
+				counter := 0;
+			else
+				counter := counter + 1;
+			end if;
+			KEEPFCK <= (state /= 0);
+		end if;
+		
 		if RESET = '1' then
 			state := 0;
 			TCK <= '0';
@@ -563,37 +597,20 @@ begin
 						next_state := 3;
 					end if;
 				when 2 => 
-					if SRCK then
-						next_state := 6;
+					if RCKHI then
+						TCK <= '1';
+						next_state := 0;
+					elsif RCKLO then
+						TCK <= '0';
+						next_state := 0;
 					else
+						TCK <= '0';
 						next_state := 2;
 					end if;
-					TCK <= '0';
-				when 6 => 
-					if not SRCK then
-						next_state := 4;
-					else
-						next_state := 6;
-					end if;
-					TCK <= '0';
-				when 4 => 
-					next_state := 0;
-					TCK <= '0';
-				when others => 
-					next_state := 0;
-					TCK <= '0';
 			end case;
 			state := next_state;
 		end if;
-		
-		if RESET = '1' then
-			KEEPFCK <= false;
-			SRCK := false;
-		elsif rising_edge(FCK) then
-			KEEPFCK <= (state /= 0);
-			SRCK := (RCK = '1');
-		end if;
-	
+			
 		CK <= to_std_logic(
 			((RCK = '1') and (state = 0)) 
 			or ((TCK = '1') and (state = 3)));
@@ -1420,20 +1437,23 @@ begin
 	end process;
 
 -- Test Point One appears on P4-1.
-	TP1 <= CPUSIG(0);
+--	TP1 <= CPUSIG(0);
 --	TP1 <= df_reg(0);
 --	TP1 <= to_std_logic(INTZ1);
+	TP1 <= to_std_logic(CPUISRV);
 	
 -- Test Point Two appears on P4-2.
 --	TP2 <= CPUSIG(1);
 --	TP2 <= df_reg(0);	
 --	TP2 <= to_std_logic(INTZ2);
-	TP2 <= to_std_logic(CPUISRV);
+--	TP2 <= to_std_logic(CPUISRV);
+	TP2 <= to_std_logic(RCKHI);
 	
 -- Test Point Three appears on P4-3 after the programming connector is removed.
 --	TP3 <= to_std_logic(INTZ4);
 --	TP3 <= df_reg(2);
-	TP3 <= CPUSIG(2);
+--	TP3 <= CPUSIG(2);
+	TP3 <= to_std_logic(RCKLO);
 		
 -- Test point Four appears on P4-4 after the programming connector is removed. 
 -- Note that P4-4 is tied LO with 8 kOhm on the programming extension, so if 
@@ -1443,6 +1463,6 @@ begin
 --	TP4 <= CPUSIG(3);
 --	TP4 <= df_reg(3);
 --	TP4 <= to_std_logic(CPUIRQ);
-	TP4 <= CK;
+	TP4 <= RCK;
 
 end behavior;
