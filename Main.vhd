@@ -37,9 +37,8 @@
 -- interrupt bits: reset is asynchronous, but un-assertion of reset must be 
 -- synchronous. 
 
--- V3.6, [21-FEB-26] Add detection of rising and falling edges of RCK to Boost 
--- Controller so that we can move immediately out of boost when we are far from
--- an RCK edge. Costs and additional 15 LUTs, bringing total to 1216.
+-- V3.6, [21-FEB-26] Add detection of falling edge of RCK to Boost Controller so that 
+-- we can move immediately out of boost when we are within 10 us of a falling edge.-- Costs and additional 12 LUTs, bringing total to 1213.
 
 
 library ieee;  
@@ -168,7 +167,7 @@ architecture behavior of main is
 	attribute syn_keep of BOOST : signal is true;
 	attribute nomerge of BOOST : signal is "";
 	signal SRCK, SSRCK : std_logic;
-	signal RCKLO, RCKHI : boolean;
+	signal RCKLO : boolean;
 	
 -- Diagnostic Flag Register
 	signal df_reg : std_logic_vector(3 downto 0) := (others => '0');
@@ -537,20 +536,20 @@ begin
 	-- Either the CPU just asserted BOOST with a regiseter write, or it 
 	-- just asserted Interrupt Service (ISRV). Both occur on the falling 
 	-- edge of CK, so RCK  will be LO for at least 15 us. We come out of 
-	-- boost when both BOOST and ISRV are un-asserted. We use two signals 
-	-- RCKLO and RCKHI to coordinate the transition from TCK to RCK. 
-	-- These signals we generate during boost by watching for rising and
-	-- falling edges on RCK. When we see a falling edge, we assert RCKLO
-	-- for about one hundred FCK cycles, which will be 10 us if FCK is
-	-- running at its nominal 10 MHz. We expect RCK to be stable for 
-	-- 15 us after its edges, but we want to allow for significant 
-	-- deviation in the frequency of FCK. By this means, the longest we
-	-- have to wait to un-boost is 5 us and the average is around 1 us.
-	-- During transitions between boost and slow modes, the transmit 
-	-- clock TCK, will skip some cycles. We must refrain from moving into
-	-- or out of boost while some other process is relying on TCK to be
-	-- sustained. For example, we must not un-boost during a telemetry
-	-- sample transmission.
+	-- boost when both BOOST and ISRV are un-asserted. We use signal 
+	-- RCKLO to coordinate the transition from TCK to RCK. This signal 
+	-- we generate during boost by watching for a falling edges on RCK. 
+	-- When we see a falling edge, we assert RCKLO for about one hundred 
+	-- FCK cycles, which will be 10 us if FCK is running at its nominal 
+	-- 10 MHz. We expect RCK to be stable for 15 us after its edge, but 
+	-- we want to allow for significant deviation in the frequency of FCK. 
+	-- By this means, the longest we have to keep FCK running after we
+	-- unassert ENTCK and unassert BOOST is 15 us, and the average is 
+	-- around 4 us. During transitions between boost and slow modes, 
+	-- the transmit clock TCK, will skip some cycles. We must refrain 
+	-- from moving into or out of boost while some other process is 
+	-- relying on TCK to be sustained. For example, we must not boost 
+	-- or un-boost during a telemetry sample transmission.
 	Boost_Controller : process (RESET, FCK) is
 	variable state, next_state : integer range 0 to 3;
 	constant end_count : integer := 100;
@@ -563,7 +562,6 @@ begin
 			SSRCK <= '0';
 			counter := 0;
 			RCKLO <= false;
-			RCKHI <= false;
 			KEEPFCK <= false;
 		elsif rising_edge(FCK) then
 			KEEPFCK <= (state /= 0);
@@ -571,13 +569,10 @@ begin
 			SSRCK <= SRCK;
 			if (not KEEPFCK) or (counter = end_count) then 
 				RCKLO <= false;
-				RCKHI <= false;
-			elsif (SRCK = '1') and (SSRCK = '0') then
-				RCKHI <= true;
 			elsif (SRCK = '0') and (SSRCK = '1') then
 				RCKLO <= true;
 			end if;
-			if (not RCKHI) and (not RCKLO) then
+			if (not RCKLO) then
 				counter := 0;
 			else
 				counter := counter + 1;
@@ -610,16 +605,12 @@ begin
 						next_state := 3;
 					end if;
 				when 2 => 
-					if RCKHI then
-						TCK <= '1';
-						next_state := 0;
-					elsif RCKLO then
-						TCK <= '0';
+					if RCKLO then
 						next_state := 0;
 					else
-						TCK <= '0';
 						next_state := 2;
 					end if;
+					TCK <= '0';
 			end case;
 			state := next_state;
 		end if;
@@ -1461,7 +1452,8 @@ begin
 --	TP2 <= df_reg(0);	
 --	TP2 <= to_std_logic(INTZ2);
 --	TP2 <= to_std_logic(CPUISRV);
-	TP2 <= to_std_logic(RCKHI);
+--	TP2 <= to_std_logic(RCKHI);
+	TP2 <= CK;
 	
 -- Test Point Three appears on P4-3 after the programming connector is removed.
 --	TP3 <= to_std_logic(INTZ4);
