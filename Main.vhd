@@ -39,7 +39,7 @@
 
 -- V3.6, [21-FEB-26] Add detection of rising and falling edges of RCK to Boost 
 -- Controller so that we can move immediately out of boost when we are far from
--- an RCK edge. Costs and additional 30 LUTs, bringing total to 1231.
+-- an RCK edge. Costs and additional 15 LUTs, bringing total to 1216.
 
 
 library ieee;  
@@ -530,22 +530,34 @@ begin
 		end if;
 	end process;
 	
-	-- The Boost Controller switches the CPU between RCK and Boost Clock 
-	-- (BCK), which is a copy of the Transmit Clock (TCK). When CK = BCK, 
-	-- we are in the "boost" mode. When CK = RCK we are in "slow" mode. 
-	-- Switching to boost is quick because we know the state of RCK when
-	-- we want to switch into boost. Either the CPU just asserted BOOST
-	-- with a regiseter write, or it just asserted Interrupt Service (ISRV).
-	-- Both occur on the falling edge of CK, so RCK  will be LO for at
-	-- least 15 us. To come out of boost, either the processor unasserts
-	-- BOOST or ISRV, both of which it will do on the falling edge of TCK.
-	-- Either way, we wait for RCK to go HI, and then go LO, so that we know
-	-- that RCK will remain LO while we switch over. We synchronize RCK 
-	-- with respect to FCK for these comparisons.
+	-- The Boost Controller switches the CPU between RCK and the 5-MHz
+	-- Transmit Clock (TCK). When CK = TCK, we are in the "boost" mode. 
+	-- When CK = RCK we are in "slow" mode. Switching to boost is easy
+	-- because we know the state of RCK when we want to switch into boost. 
+	-- Either the CPU just asserted BOOST with a regiseter write, or it 
+	-- just asserted Interrupt Service (ISRV). Both occur on the falling 
+	-- edge of CK, so RCK  will be LO for at least 15 us. We come out of 
+	-- boost when both BOOST and ISRV are un-asserted. We use two signals 
+	-- RCKLO and RCKHI to coordinate the transition from TCK to RCK. 
+	-- These signals we generate during boost by watching for rising and
+	-- falling edges on RCK. When we see a falling edge, we assert RCKLO
+	-- for about one hundred FCK cycles, which will be 10 us if FCK is
+	-- running at its nominal 10 MHz. We expect RCK to be stable for 
+	-- 15 us after its edges, but we want to allow for significant 
+	-- deviation in the frequency of FCK. By this means, the longest we
+	-- have to wait to un-boost is 5 us and the average is around 1 us.
+	-- During transitions between boost and slow modes, the transmit 
+	-- clock TCK, will skip some cycles. We must refrain from moving into
+	-- or out of boost while some other process is relying on TCK to be
+	-- sustained. For example, we must not un-boost during a telemetry
+	-- sample transmission.
 	Boost_Controller : process (RESET, FCK) is
 	variable state, next_state : integer range 0 to 3;
+	constant end_count : integer := 100;
 	variable counter : integer range 0 to 127;
 	begin
+	
+		-- Generate KEEPFCK, RCKLO, and RCKHI.
 		if (RESET = '1') then
 			SRCK <= '0';
 			SSRCK <= '0';
@@ -554,9 +566,10 @@ begin
 			RCKHI <= false;
 			KEEPFCK <= false;
 		elsif rising_edge(FCK) then
+			KEEPFCK <= (state /= 0);
 			SRCK <= RCK;
 			SSRCK <= SRCK;
-			if (state = 0) or (counter = 127) then 
+			if (not KEEPFCK) or (counter = end_count) then 
 				RCKLO <= false;
 				RCKHI <= false;
 			elsif (SRCK = '1') and (SSRCK = '0') then
@@ -569,9 +582,9 @@ begin
 			else
 				counter := counter + 1;
 			end if;
-			KEEPFCK <= (state /= 0);
 		end if;
 		
+		-- Manage transition from slow to boost and back to slow.
 		if RESET = '1' then
 			state := 0;
 			TCK <= '0';
@@ -610,7 +623,8 @@ begin
 			end case;
 			state := next_state;
 		end if;
-			
+		
+		-- The clock selector: boost or slow according to state.
 		CK <= to_std_logic(
 			((RCK = '1') and (state = 0)) 
 			or ((TCK = '1') and (state = 3)));
