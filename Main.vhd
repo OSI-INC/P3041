@@ -37,8 +37,11 @@
 -- interrupt bits: reset is asynchronous, but un-assertion of reset must be 
 -- synchronous. 
 
--- V3.6, [21-FEB-26] Add detection of falling edge of RCK to Boost Controller so that 
--- we can move immediately out of boost when we are within 10 us of a falling edge.-- Costs and additional 12 LUTs, bringing total to 1213.
+-- V3.6, [23-FEB-26] Add detection of falling edge of RCK to Boost Controller with
+-- new signal RCKLO. Now we can move immediately out of boost when we are within 
+-- 10 us of a falling edge. We reduce from 15 us to 4 us the average time we have 
+-- to keep TCK running at the end of an interrupt. This enhancement increases the
+-- code size by only 3 LUTS to 1204 LUTs.
 
 
 library ieee;  
@@ -537,19 +540,22 @@ begin
 	-- just asserted Interrupt Service (ISRV). Both occur on the falling 
 	-- edge of CK, so RCK  will be LO for at least 15 us. We come out of 
 	-- boost when both BOOST and ISRV are un-asserted. We use signal 
-	-- RCKLO to coordinate the transition from TCK to RCK. This signal 
-	-- we generate during boost by watching for a falling edges on RCK. 
-	-- When we see a falling edge, we assert RCKLO for about one hundred 
-	-- FCK cycles, which will be 10 us if FCK is running at its nominal 
-	-- 10 MHz. We expect RCK to be stable for 15 us after its edge, but 
-	-- we want to allow for significant deviation in the frequency of FCK. 
-	-- By this means, the longest we have to keep FCK running after we
-	-- unassert ENTCK and unassert BOOST is 15 us, and the average is 
-	-- around 4 us. During transitions between boost and slow modes, 
-	-- the transmit clock TCK, will skip some cycles. We must refrain 
-	-- from moving into or out of boost while some other process is 
-	-- relying on TCK to be sustained. For example, we must not boost 
-	-- or un-boost during a telemetry sample transmission.
+	-- RCKLO to coordinate the transition from TCK to RCK. We will perform
+	-- this transition only when both TCK and RCK are LO and guaranteed
+	-- to remain LO for at least two FCK cycles. We do not care about 
+	-- the value of RCKLO when FCK is not running. We care about the value
+	-- only when FCK is running and BOOST has been unasserted. We would
+	-- like to assert RCKLO for 10 us following each falling edge of RCK.
+	-- We know RCK is LO for 15 us after its falling edge, but we are
+	-- keeping time within the Boost Controller using FCK, and we want to
+	-- allow for significant deviation in the frequency of FCK when measuring 
+	-- the 10 us.
+	--
+	-- NOTE: During transitions between boost and slow modes, the transmit 
+	-- clock TCK, will skip some cycles. We must refrain from moving into 
+	-- or out of boost while some other process is relying on TCK to be 
+	-- sustained. For example, we must not boost or un-boost during a 
+	-- telemetry sample transmission.
 	Boost_Controller : process (RESET, FCK) is
 	variable state, next_state : integer range 0 to 3;
 	constant end_count : integer := 100;
@@ -567,12 +573,16 @@ begin
 			KEEPFCK <= (state /= 0);
 			SRCK <= RCK;
 			SSRCK <= SRCK;
-			if (not KEEPFCK) or (counter = end_count) then 
-				RCKLO <= false;
+			
+			if not KEEPFCK then
+				RCKLO <= true;
 			elsif (SRCK = '0') and (SSRCK = '1') then
 				RCKLO <= true;
+			elsif (counter = end_count) then 
+				RCKLO <= false;
 			end if;
-			if (not RCKLO) then
+			
+			if (not RCKLO) or (not KEEPFCK) then
 				counter := 0;
 			else
 				counter := counter + 1;
