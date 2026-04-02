@@ -23,7 +23,8 @@
 -- Meanwhile, in OSRV4 we eliminate some instructions we have never used, and this 
 -- drops the code size to 1220 LUTs.
 
--- [16-FEB-26] Fix the Boost Controller. It now generates its own Boost Clock (BCK)-- on the falling edges of FCK, just like we generate the Transmit Clock (TCK) from FCK. 
+-- [16-FEB-26] Fix the Boost Controller. It now generates its own Boost Clock (BCK)
+-- on the falling edges of FCK, just like we generate the Transmit Clock (TCK) from FCK. 
 -- We make sure that both clocks are LO when we switch between them, and that they will 
 -- remain LO for at least 100 ns after we switch. When we switch back to slow mode, we
 -- look for a falling edge on RCK, synchronized with the rising edge of FCK, so that
@@ -150,7 +151,7 @@ architecture behavior of main is
 	signal frequency_low : integer range 0 to 31 := default_frequency_low;
 		
 -- Sensor Controller
-	signal CS : boolean; -- Chip Select for DAC
+	signal CS : boolean; -- Chip Select for ADC
 	signal SAI, -- Sensor Access Initiate 
 		SAA -- Sensor Access Active
 		: boolean := false;
@@ -1042,7 +1043,7 @@ begin
 	end process;
 
 -- The Stimulus Controller takes the stimulus current value and modulates
--- the On Lamp (ONL) output from 6% to 100% for values 0 to 15.
+-- the On Lamp (ONL) output from 0% to 100% for values 0 to 15.
 	Stimulus_Controller: process (RESET, RCK) is 
 	variable c : integer range 0 to 15;
 	begin
@@ -1050,7 +1051,7 @@ begin
 			ONL <= '0';
 		elsif rising_edge(RCK) then
 			case stimulus_current is
-				when 0 => ONL <= to_std_logic((c=0));
+				when 0 => ONL <= '0';
 				when 1 => ONL <= to_std_logic((c=0) or (c=8));
 				when 2 => ONL <= to_std_logic((c=0) or (c=5) or (c=10));
 				when 3 => ONL <= to_std_logic((c=0) or (c=4) or (c=8) or (c=12));

@@ -11,13 +11,9 @@ const frequency_low    5 ; Radio frequency calibration.
 
 ; CPU Address Map Boundary Constants
 const mvar_bot  0x0000 ; Bottom of Main Variable Memory
-const mvar_top  0x00FF ; Top of Main Program Variable Memory
 const stack_bot 0x0100 ; Bottom of Program Stack
-const stack_top 0x01FF ; Top of Program Stack
 const uvar_bot  0x0200 ; Bottom of User Variable Memory
-const uvar_top  0x02FF ; Top of User Variable Memory
 const ctrl_bot  0x0400 ; Bottom Control Register
-const ctrl_top  0x0400 ; Top Control Register
 const prog_bot  0x0800 ; Bottom of User Program Memory
 const prog_top  0x0FFF ; Top of User Program Memory
 
@@ -36,7 +32,7 @@ const mmu_xch  0x040A ; Transmit Channel Number (Write)
 const mmu_xcr  0x040B ; Transmit Control Register (Write)
 const mmu_rfc  0x040C ; Radio Frequency Calibration (Write)
 const mmu_ccr  0x040D ; Clock Control Register (Write)
-const mmu_tcf  0x040E ; Transmit Clock Frequency (Write)
+const mmu_tcf  0x040E ; Transmit Clock Frequency (Read)
 const mmu_tcd  0x040F ; Transmit Clock Divider (Write)
 const mmu_dfr  0x0411 ; Diagnostic Flag Register (Read/Write)
 const mmu_sr   0x0412 ; Status Register (Read)
