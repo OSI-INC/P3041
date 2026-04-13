@@ -5,8 +5,8 @@
 
 ; Configuration Constants.
 const version         33 ; The firmwarwe version.
-const identifier_hi 0x90 ; 0-255, no restrictions
-const identifier_lo 0x13 ; 0-255, low nibble cannot be 0x0 or 0xF 
+const identifier_hi 0x70 ; 0-255, no restrictions
+const identifier_lo 0x86 ; 0-255, low nibble cannot be 0x0 or 0xF 
 const frequency_low    5 ; Radio frequency calibration.
 
 ; CPU Address Map Boundary Constants
